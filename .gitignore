@@ -1,5 +1,5 @@
 *.pdf
-*.md
+untitled.*
 .DS_Store
 gpor*
 utils/likOrder.m
