@@ -20,7 +20,7 @@ if (length(args)==4){
     m = as.integer(args[4])
 }
 
-gpirt_path = "~/Documents/GitHub/gpirtr"
+gpirt_path = "../gpirt"
 setwd(gpirt_path)
 remove.packages("gpirt")
 library(Rcpp)
@@ -30,7 +30,7 @@ library(gpirt)
 library(catSurv)
 library(ggplot2)
 
-setwd("~/Documents/GitHub/GPIRT")
+setwd("../OrdGPIRT")
 
 data = data.matrix(SDO)[1:500,]
 thresholds <- c(-Inf)
@@ -168,7 +168,7 @@ getprobs_gpirt = function(xs, irfs, thresholds){
   return(probs)
 }
 
-idx = 250:650
+idx = (as.integer(min(pred_theta)*100+500)):(as.integer(max(pred_theta)*100+500))
 for (i in 1:m) {
   probs = getprobs_catSurv(xs[idx], sdo_cat@discrimination[[paste("q",i, sep="")]], sdo_cat@difficulty[[paste("q",i, sep="")]])
   # probs = getprobs_gpirt(xs[idx], alpha[i]+beta[i]*xs[idx],thresholds)
@@ -176,14 +176,14 @@ for (i in 1:m) {
     geom_line(size=2) +ggtitle(paste("True IRT q",i, sep="")) +
       theme(plot.title = element_text(hjust = 0.5))
   print(p)
-  # ggsave(paste("~/Documents/GitHub/GPIRT/figures/trueirtq",i,".pdf", sep=""), plot=p, width = 7, height = 4, units = "in")
+  ggsave(paste("/figures/trueirtq",i,".pdf", sep=""), plot=p, width = 7, height = 4, units = "in")
   probs2 = getprobs_gpirt(-xs[idx], log(samples$IRFs[idx,i]/(1-samples$IRFs[idx,i])),
                           thresholds)
   q = ggplot(probs2, aes(x=xs, y=p, group=order, color=factor(order))) +
     geom_line(size=2) +ggtitle(paste("GPIRT q",i, sep="")) +
       theme(plot.title = element_text(hjust = 0.5))
   print(q)
-  # ggsave(paste("~/Documents/GitHub/GPIRT/figures/gpirtq",i,".pdf", sep=""), plot=q, width = 7, height = 4, units = "in")
+  ggsave(paste("figures/gpirtq",i,".pdf", sep=""), plot=q, width = 7, height = 4, units = "in")
   # ggsave("mtcars.pdf", width = 20, height = 20, units = "cm")
   # plot(xs[idx], log(samples$IRFs[idx,i]/(1-samples$IRFs[idx,i])))
   # lines(xs[idx], alpha[i]+beta[i]*xs[idx])
