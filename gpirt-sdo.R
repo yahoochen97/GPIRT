@@ -22,7 +22,10 @@ if (length(args)==4){
 
 gpirt_path = "../gpirt"
 setwd(gpirt_path)
-remove.packages("gpirt")
+if (require("gpirt")){
+  remove.packages("gpirt")
+}
+
 library(Rcpp)
 Rcpp::compileAttributes()
 install.packages(gpirt_path, type="source", repos = NULL)
