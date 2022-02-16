@@ -25,7 +25,7 @@ setwd(gpirt_path)
 
 library(Rcpp)
 Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL)
+install.packages(gpirt_path, type="source", repos = NULL, lib="~/R/x86_64-redhat-linux-gnu-library/4.0")
 library(gpirt)
 library(catSurv)
 library(ggplot2)
