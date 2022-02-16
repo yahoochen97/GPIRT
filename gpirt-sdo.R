@@ -22,9 +22,6 @@ if (length(args)==4){
 
 gpirt_path = "../gpirt"
 setwd(gpirt_path)
-if (require("gpirt")){
-  remove.packages("gpirt")
-}
 
 library(Rcpp)
 Rcpp::compileAttributes()
