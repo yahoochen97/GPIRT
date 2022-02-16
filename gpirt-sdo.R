@@ -3,9 +3,10 @@ args = commandArgs(trailingOnly=TRUE)
 
 if (length(args)==0) {
     SEED = 1234
-    C = 2
-    n = 50
-    m = 20
+    C = 5
+    n = 1000
+    m = 10
+    PLOT = 0
 }
 if (length(args)==1){
     SEED = as.integer(args[1])
@@ -22,7 +23,7 @@ if (length(args)==4){
 
 gpirt_path = "../gpirt"
 setwd(gpirt_path)
-
+remove.packages("gpirt")
 library(Rcpp)
 Rcpp::compileAttributes()
 install.packages(gpirt_path, type="source", repos = NULL, lib="~/R/x86_64-redhat-linux-gnu-library/4.0")
@@ -32,10 +33,10 @@ library(ggplot2)
 
 setwd("../OrdGPIRT")
 
-data = data.matrix(SDO)[1:500,]
+# data = data.matrix(SDO)[1:500,]
 thresholds <- c(-Inf)
-unique_ys = unique(as.vector(data))
-C = length(unique(unique_ys[!is.na(unique_ys)]))
+# unique_ys = unique(as.vector(data))
+# C = length(unique(unique_ys[!is.na(unique_ys)]))
 for(i in 1:(C-1)){
     thresholds = c(thresholds, qnorm(i/C, 0, 1, 1, 0))
 }
@@ -61,11 +62,11 @@ gen_responses <- function(theta, alpha, beta, thresholds) {
   }
   return(responses)
 }
-# set.seed(SEED)
-# theta <- seq(-2, 2, length.out = n) # Respondent ability parameters
-# alpha <- seq(-1, 1, length.out = m) # Item difficulty parameters
-# beta  <- seq(-3, 3, length.out = m) # Item discrimination parameters
-# data <- gen_responses(theta, alpha, beta, thresholds)
+set.seed(SEED)
+theta <- seq(-2, 2, length.out = n) # Respondent ability parameters
+alpha <- seq(-2, 2, length.out = m) # Item difficulty parameters
+beta  <- seq(0.5, 3, length.out = m) # Item discrimination parameters
+data <- gen_responses(theta, alpha, beta, thresholds)
 
 # split into train and test data
 N = nrow(data)*ncol(data)
@@ -83,14 +84,16 @@ for (i in 1:nrow(data)) {
     }
 }
 
-samples <- gpirtMCMC(data_train, 100,100,
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
+samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
                      beta_prior_sds = matrix(0.5, nrow = 2, ncol = ncol(data_train)),
                      vote_codes = NULL, thresholds=thresholds)
 # save(samples, file = "vignettes/sdo.RData")
 # load(file = "vignettes/sdo.RData")
 
 xs = seq(-5,5,0.01)
-pred_theta = colMeans(samples$theta)
+pred_theta = colMeans(samples$theta[-1,])
 
 ordinal_lls = function(f, thresholds){
     result = c()
@@ -109,11 +112,20 @@ train_acc = c()
 for (i in 1:nrow(data)) {
     for (j in 1:ncol(data)) {
         if(!is.na(data[[i,j]])){
-            f_pred = samples$IRFs[as.integer((pred_theta[i]+5)*100), j]
-            f_pred = log(f_pred/(1-f_pred))
+          lls = matrix(0,nrow=SAMPLE_ITERS, ncol = C)
+          y_pred = rep(0, SAMPLE_ITERS)
+          for (iter in 1:SAMPLE_ITERS) {
+            f_pred = samples$IRFs[as.integer((pred_theta[i]+5)*100), j, iter]
             ll = ordinal_lls(f_pred, thresholds)
-            y_pred = which.max(ll)
-            if(ll[data[[i,j]]]<(-8.8)){
+            lls[iter,] = ll
+            y_pred[iter] =  which.max(ll)
+          }
+          ll = colMeans(lls)
+          y_pred = round(mean(y_pred))
+          # ll = ordinal_lls(mean(samples$IRFs[as.integer((pred_theta[i]+5)*100), j,]),
+          #                   thresholds)
+          # y_pred =  which.max(ll)
+            if(ll[data[[i,j]]]<(-4.7)){
                 print(i)
                 print(j)
             }
@@ -157,38 +169,44 @@ getprobs_gpirt = function(xs, irfs, thresholds){
   probs = data.frame(matrix(ncol = 3, nrow = 0))
   colnames(probs) = c("order", "xs","p")
   for (i in 1:length(xs)) {
-    ps = c(rep(0, C))
+    ps = matrix(0, nrow=ncol(irfs), ncol=C)
     for (c in 1:C){
-      z1 = thresholds[c] - irfs[i]
-      z2 = thresholds[c+1] - irfs[i]
-      ps[c] = pnorm(z2)-pnorm(z1)
+      for (iter in 1:ncol(irfs)){
+        z1 = thresholds[c] - irfs[i,iter]
+        z2 = thresholds[c+1] - irfs[i,iter]
+        ps[iter, c] = pnorm(z2)-pnorm(z1)
+      }
+    }
+    ps = colMeans(ps)
+    for (c in 1:C){
       probs[nrow(probs) + 1,] = c(c, xs[i],  ps[c])
     }
   }
   return(probs)
 }
 
+if (PLOT){
 idx = (as.integer(min(pred_theta)*100+500)):(as.integer(max(pred_theta)*100+500))
-for (i in 1:m) {
-  probs = getprobs_catSurv(xs[idx], sdo_cat@discrimination[[paste("q",i, sep="")]], sdo_cat@difficulty[[paste("q",i, sep="")]])
-  # probs = getprobs_gpirt(xs[idx], alpha[i]+beta[i]*xs[idx],thresholds)
+for (j in 1:m) {
+  # probs = getprobs_catSurv(xs[idx], sdo_cat@discrimination[[paste("q",j, sep="")]],
+  #                           sdo_cat@difficulty[[paste("q",j, sep="")]])
+  probs = getprobs_gpirt(xs[idx], as.matrix(alpha[j]+beta[j]*xs[idx], ncol=1),thresholds)
   p = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
-    geom_line(size=2) +ggtitle(paste("True IRT q",i, sep="")) +
+    geom_line(size=2) +ggtitle(paste("True IRT q",j, sep="")) +
       theme(plot.title = element_text(hjust = 0.5))
   print(p)
   ggsave(paste("/figures/trueirtq",i,".pdf", sep=""), plot=p, width = 7, height = 4, units = "in")
-  probs2 = getprobs_gpirt(-xs[idx], log(samples$IRFs[idx,i]/(1-samples$IRFs[idx,i])),
+  probs2 = getprobs_gpirt(xs[idx], samples$IRFs[idx,j,],
                           thresholds)
   q = ggplot(probs2, aes(x=xs, y=p, group=order, color=factor(order))) +
-    geom_line(size=2) +ggtitle(paste("GPIRT q",i, sep="")) +
+    geom_line(size=2) +ggtitle(paste("GPIRT q",j, sep="")) +
       theme(plot.title = element_text(hjust = 0.5))
   print(q)
   ggsave(paste("figures/gpirtq",i,".pdf", sep=""), plot=q, width = 7, height = 4, units = "in")
-  # ggsave("mtcars.pdf", width = 20, height = 20, units = "cm")
-  # plot(xs[idx], log(samples$IRFs[idx,i]/(1-samples$IRFs[idx,i])))
-  # lines(xs[idx], alpha[i]+beta[i]*xs[idx])
+  # plot(pred_theta, data[,9], pch=4, ylim=c(-2,5))
+  # points(pred_theta,rowMeans(samples$f[,9,]))
 }
-
+}
 # hist(colMeans(samples$theta))
 # cor(theta,colMeans(samples$theta))
 # for(i in 1:16){plot(xs[idx], log(samples$IRFs[idx,i]/(1-samples$IRFs[idx,i])))}
