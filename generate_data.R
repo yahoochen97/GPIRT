@@ -109,8 +109,10 @@ for (i in 1:nrow(data)) {
 }
 
 if(TYPE=="2PL"){
-  save(data,data_train, train_idx,thresholds,theta,alpha,beta, file=paste("./data/", HYP, ".RData" , sep=""))
+  save(data,data_train, train_idx,thresholds,theta,alpha,beta, 
+       file=paste("./data/", HYP, ".RData" , sep=""))
 }
 if(TYPE=="GP"){
-  save(data,data_train, train_idx,thresholds,theta,anchor_xs,anchor_ys,SIGMA, file=paste("./data/", HYP, ".RData" , sep=""))
+  save(data,data_train, train_idx,thresholds,theta,anchor_xs,anchor_ys,SIGMA,
+       file=paste("./data/", HYP, ".RData" , sep=""))
 }

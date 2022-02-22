@@ -5,7 +5,7 @@ if (length(args)==0) {
   C = 5
   n = 1000
   m = 10
-  TYPE = "GP"
+  TYPE = "2PL"
 }
 if (length(args)==5){
   SEED = as.integer(args[1])
@@ -19,7 +19,7 @@ library(ggplot2)
 library(KRLS)
 library(dplyr)
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
-load(file=paste("./data/", HYP, ".RData" , sep=""))
+# load(file=paste("./data/", HYP, ".RData" , sep=""))
 
 getprobs_gpirt = function(xs, irfs, thresholds){
   C = ncol(thresholds) - 1
@@ -42,22 +42,40 @@ getprobs_gpirt = function(xs, irfs, thresholds){
   return(probs)
 }
 
+getprobs_2PL = function(xs, betas){
+  C = length(betas)
+  probs = data.frame(matrix(ncol = 3, nrow = 0))
+  slope = betas[[C]]
+  colnames(probs) = c("order", "xs","p")
+  for (i in 1:length(xs)) {
+    ps = rep(0, C+1)
+    ps[C+1] = 1
+    for (c in 1:(C-1)){
+        lp = betas[[c]] - xs[i]*slope
+        ps[c+1] = 1 / (1+ exp(-lp))
+    }
+    for (c in 1:C) {
+      probs[nrow(probs) + 1,] = c(c, xs[i],  ps[c+1]-ps[c]) 
+    }
+  }
+  return(probs)
+}
+
+
 xs = seq(-5,5,0.01)
 idx = 1:1001
 if(TYPE=="2PL"){
   for(j in 1:m){
-    probs = getprobs_gpirt(xs[idx], matrix(alpha[j]+beta[j]*xs[idx], ncol=1),
-                           matrix(thresholds[j,],nrow=1))
+    probs = getprobs_2PL(xs[idx], betas[[paste('Item ', j, sep='')]])
     p = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
-      geom_line(size=2) +ggtitle(paste("True 2PL IRT q",j, sep="")) +
+      geom_line(size=2) +ggtitle(paste("2PL IRT q",j, sep="")) +
       theme(plot.title = element_text(hjust = 0.5))
     print(p)
     
     tmp = probs %>% 
       group_by(xs) %>%
       summarize(icc=sum(order*p))
-    q = plot(xs, tmp$icc)
-    print(q)
+    plot(xs, tmp$icc)
   }
 }
 if(TYPE=="GP"){
