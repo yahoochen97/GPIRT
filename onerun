@@ -15,6 +15,6 @@ m=$4
 
 cmd1="Rscript --vanilla generate_data.R $SEED $C $n $m 'GP'"
 cmd2="Rscript --vanilla gpirt-sdo.R $SEED $C $n $m 'GP'"
-cmd1 && cmd2
+$cmd1 && $cmd2
 
 # conda deactivate
