@@ -17,6 +17,7 @@ if (length(args)==5){
 
 library(ggplot2)
 library(KRLS)
+library(dplyr)
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 
@@ -51,10 +52,16 @@ if(TYPE=="2PL"){
       geom_line(size=2) +ggtitle(paste("True 2PL IRT q",j, sep="")) +
       theme(plot.title = element_text(hjust = 0.5))
     print(p)
+    
+    tmp = probs %>% 
+      group_by(xs) %>%
+      summarize(icc=sum(order*p))
+    q = plot(xs, tmp$icc)
+    print(q)
   }
 }
 if(TYPE=="GP"){
-  for(j in 1:1){
+  for(j in 1:m){
     K = gausskernel(anchor_xs[j,], sigma=SIGMA)
     inv_K = ginv(K)
     K1 = matrix(0, nrow=length(xs), ncol=ncol(anchor_xs))
@@ -62,12 +69,18 @@ if(TYPE=="GP"){
       K1[i,] = dnorm(xs[i]-anchor_xs[j,], sd=SIGMA)/dnorm(0, sd=SIGMA)
     }
     irfs = K1 %*% inv_K %*% anchor_ys[j,]
-    probs2 = getprobs_gpirt(xs[idx], irfs, matrix(thresholds[j,],nrow=1))
-    q = ggplot(probs2, aes(x=xs, y=p, group=order, color=factor(order))) +
+    probs = getprobs_gpirt(xs[idx], irfs, matrix(thresholds[j,],nrow=1))
+    q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
       geom_line(size=2) +ggtitle(paste("True GP IRT q",j, sep="")) +
       theme(plot.title = element_text(hjust = 0.5))
-    print(q)
-    # ggsave(paste("./figures/trueirtq",j,".pdf", sep=""), plot=q, width = 7, height = 4, units = "in")
+    
+    tmp = probs %>% 
+          group_by(xs) %>%
+          summarize(icc=sum(order*p))
+    pdf(file=paste("./figures/trueiccq",j,".pdf", sep=""))
+    plot(xs, tmp$icc)
+    dev.off()
+    # ggsave(paste("./figures/trueirfq",j,".pdf", sep=""), plot=q, width = 7, height = 4, units = "in")
   }
 }
 
