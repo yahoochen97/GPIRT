@@ -14,7 +14,7 @@ then
         for C in ${Cs[@]}; do
             for n in ${ns[@]}; do
                 for m in ${ms[@]}; do
-                    bsub -G SEAS-Lab-Garnett -J "C${C}n${n}m${m}_${SEED}" "./onerun $SEED $C $n $m"
+                    bsub -G SEAS-Lab-Garnett -o "test.log" -J "C${C}n${n}m${m}_${SEED}" "./onerun $SEED $C $n $m"
                 done
             done
         done

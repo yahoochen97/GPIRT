@@ -54,7 +54,7 @@ if(TYPE=="2PL"){
   }
 }
 if(TYPE=="GP"){
-  for(j in 1:m){
+  for(j in 1:1){
     K = gausskernel(anchor_xs[j,], sigma=SIGMA)
     inv_K = ginv(K)
     K1 = matrix(0, nrow=length(xs), ncol=ncol(anchor_xs))
