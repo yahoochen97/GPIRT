@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
 args = commandArgs(trailingOnly=TRUE)
+options(show.error.locations = TRUE)
 
 if (length(args)==0) {
     SEED = 1234
