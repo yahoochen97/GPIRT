@@ -5,7 +5,7 @@
 mkdir -p /export/cluster-tmp/chenyehu
 export TMPDIR=/export/cluster-tmp/chenyehu
 
-module add seas-anaconda3
+# module add seas-anaconda3
 # conda activate chenyehu
 
 SEED=$1
@@ -13,7 +13,8 @@ C=$2
 n=$3
 m=$4
 
-Rscript --vanilla generate_data.R $SEED $C $n $m "GP"
-Rscript --vanilla gpirt-sdo.R $SEED $C $n $m "GP"
+cmd1="Rscript --vanilla generate_data.R $SEED $C $n $m 'GP'"
+cmd2="Rscript --vanilla gpirt-sdo.R $SEED $C $n $m 'GP'"
+cmd1 && cmd2
 
 # conda deactivate
