@@ -74,10 +74,6 @@ for (i in 1:nrow(data)) {
           }
           ll = colMeans(lls)
           y_pred = round(mean(y_pred))
-            # if(ll[data[[i,j]]]<(-16.6)){
-            #     print(i)
-            #     print(j)
-            # }
             if(train_idx[i,j]==0){
                 pred_acc = c(pred_acc, y_pred==(data[[i,j]]))
                 pred_lls = c(pred_lls, ll[data[[i,j]]])

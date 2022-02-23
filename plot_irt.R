@@ -2,7 +2,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 1234
+  SEED = 1
   C = 5
   n = 1000
   m = 10
@@ -76,7 +76,7 @@ if(TYPE=="2PL"){
     tmp = probs %>% 
       group_by(xs) %>%
       summarize(icc=sum(order*p))
-    plot(xs, tmp$icc)
+    # plot(xs, tmp$icc)
   }
 }
 if(TYPE=="GP"){

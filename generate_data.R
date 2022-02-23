@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 1234
+  SEED = 1
   C = 5
   n = 1000
   m = 10
@@ -57,6 +57,7 @@ if(TYPE=="2PL"){
 }
 if(TYPE=="GP"){
   library(KRLS)
+  library(MASS)
   gen_responses <- function(theta, anchor_xs, anchor_ys, thresholds) {
     # ordinal regression
     C <- ncol(thresholds) - 1
