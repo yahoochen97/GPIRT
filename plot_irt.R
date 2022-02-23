@@ -6,7 +6,7 @@ if (length(args)==0) {
   C = 5
   n = 1000
   m = 10
-  TYPE = "2PL"
+  TYPE = "GP"
 }
 if (length(args)==5){
   SEED = as.integer(args[1])
@@ -20,7 +20,7 @@ library(ggplot2)
 library(KRLS)
 library(dplyr)
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
-# load(file=paste("./data/", HYP, ".RData" , sep=""))
+load(file=paste("./data/", HYP, ".RData" , sep=""))
 
 getprobs_gpirt = function(xs, irfs, thresholds){
   C = ncol(thresholds) - 1
@@ -92,6 +92,7 @@ if(TYPE=="GP"){
     q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
       geom_line(size=2) +ggtitle(paste("True GP IRT q",j, sep="")) +
       theme(plot.title = element_text(hjust = 0.5))
+    ggsave(paste("./figures/trueirfq",j,".pdf", sep=""), plot=q, width = 7, height = 4, units = "in")
     
     tmp = probs %>% 
           group_by(xs) %>%
@@ -99,7 +100,6 @@ if(TYPE=="GP"){
     pdf(file=paste("./figures/trueiccq",j,".pdf", sep=""))
     plot(xs, tmp$icc)
     dev.off()
-    # ggsave(paste("./figures/trueirfq",j,".pdf", sep=""), plot=q, width = 7, height = 4, units = "in")
   }
 }
 

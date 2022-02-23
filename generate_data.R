@@ -17,6 +17,8 @@ if (length(args)==5){
   TYPE = args[5]
 }
 
+R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
+.libPaths(R_path)
 SIGMA = 2
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 
