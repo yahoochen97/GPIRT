@@ -47,7 +47,7 @@ fit <- stan(file = "bgrm_logit.stan",
 
 samples <- as.data.frame(fit)
 SAMPLE_ITERS = length(samples[["theta[1]"]])
-pred_theta = rep(0, N)
+pred_theta = rep(0, n)
 pred_lls = c()
 pred_acc = c()
 train_lls = c()
