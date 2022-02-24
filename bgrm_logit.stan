@@ -40,7 +40,6 @@ model {
   for(j in 1:M){
     difficulty[j] ~ normal(0, 0.5);
   }
-  
   for(i in 1:N){
     for(j in 1:M){
       if(y[i,j]>0){

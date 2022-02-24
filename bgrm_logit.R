@@ -5,8 +5,8 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
   SEED = 1
   C = 5
-  n = 100
-  m = 5
+  n = 1000
+  m = 10
   TYPE = "GP"
 }
 if (length(args)==5){
@@ -35,11 +35,11 @@ stan_data <- list(N=n,
 # train stan model
 fit <- stan(file = "bgrm_logit.stan",
             data = stan_data, 
-            warmup = 500, 
-            iter = 1000, 
+            warmup = 1000, 
+            iter = 3000, 
             chains = 1, 
             cores = 1, 
-            thin = 1,
+            thin = 4,
             control=list(adapt_delta=.98, max_treedepth = 15),
             seed = SEED,
             refresh=0
