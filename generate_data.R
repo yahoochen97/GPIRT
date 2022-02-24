@@ -5,8 +5,8 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
   SEED = 1
   C = 5
-  n = 1000
-  m = 10
+  n = 100
+  m = 5
   TYPE = "GP"
 }
 if (length(args)==5){

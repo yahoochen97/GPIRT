@@ -5,8 +5,8 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
   SEED = 1
   C = 5
-  n = 1000
-  m = 10
+  n = 100
+  m = 5
   TYPE = "GP"
 }
 if (length(args)==5){
@@ -20,42 +20,49 @@ if (length(args)==5){
 # install gpirt package
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
-library(ltm)
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 set.seed(SEED)
 
-# data = data.matrix(SDO)[1:500,]
-# unique_ys = unique(as.vector(data))
-# C = length(unique(unique_ys[!is.na(unique_ys)]))
+library(rstan)
 
-results = grm(data = data_train, na.action = NULL)
-betas = results$coefficients
-pred_theta = factor.scores(results, resp.patterns = data_train)
-pred_theta = pred_theta$score.dat[,m+3]
+data_train[is.na(data_train)] = 0
+stan_data <- list(N=n,
+                  M=m,
+                  C=C,
+                  y=data_train)
 
+# train stan model
+fit <- stan(file = "bgrm_logit.stan",
+            data = stan_data, 
+            warmup = 500, 
+            iter = 1000, 
+            chains = 1, 
+            cores = 1, 
+            thin = 1,
+            control=list(adapt_delta=.98, max_treedepth = 15),
+            seed = SEED,
+            refresh=0
+)
 
+samples <- as.data.frame(fit)
+SAMPLE_ITERS = length(samples[["theta[1]"]])
+pred_theta = rep(0, N)
 pred_lls = c()
 pred_acc = c()
 train_lls = c()
 train_acc = c()
 for (i in 1:nrow(data)) {
+  pred_theta[i] = mean(samples[[paste("theta[",as.character(i), "]", sep="")]])
   for (j in 1:ncol(data)) {
     if(!is.na(data[[i,j]])){
-      ps = rep(0, C+1)
-      ps[C+1] = 1
-      beta_coef = betas[[paste('Item ', j, sep='')]]
-      for (c in 1:(C-1)){
-        lp = beta_coef[[c]] - pred_theta[i]*beta_coef[[C]]
-        ps[c+1] = 1 / (1+ exp(-lp))
+      lls = matrix(0,nrow=SAMPLE_ITERS, ncol = C)
+      ps = matrix(0, nrow=C, ncol=SAMPLE_ITERS)
+      for(c in 1:C){
+        ps[c,] = samples[[paste("p[",as.character(i), ",", as.character(j), ",", as.character(c) ,"]", sep="")]]
       }
-      
-      ll = rep(0, C)
-      for (c in 1:C) {
-        ll[c] = log(ps[c+1] - ps[c])
-      }
-      
-      y_pred = which.max(ll)
+      ll = log(rowMeans(ps))
+      y_pred =  which.max(ll)
       if(train_idx[i,j]==0){
         pred_acc = c(pred_acc, y_pred==(data[[i,j]]))
         pred_lls = c(pred_lls, ll[data[[i,j]]])
@@ -73,6 +80,5 @@ print(mean(train_acc))
 print(mean(pred_lls))
 print(mean(pred_acc))
 
-
 save(pred_theta,train_lls, train_acc, pred_lls, pred_acc,
-     file=paste("./results/grm_", HYP, ".RData" , sep=""))
+     file=paste("./results/bgrm_", HYP, ".RData" , sep=""))

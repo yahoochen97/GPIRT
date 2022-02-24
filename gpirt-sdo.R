@@ -90,3 +90,7 @@ print(mean(train_lls))
 print(mean(train_acc))
 print(mean(pred_lls))
 print(mean(pred_acc))
+
+
+save(pred_theta,train_lls, train_acc, pred_lls, pred_acc,
+     file=paste("./results/gpirt_", HYP, ".RData" , sep=""))

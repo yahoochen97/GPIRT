@@ -2,6 +2,7 @@
 
 mkdir -p data
 mkdir -p figures
+mkdir -p results
 
 MAXSEED=1
 declare -a Cs=(5)
