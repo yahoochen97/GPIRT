@@ -88,7 +88,7 @@ print(mean(pred_lls))
 print(mean(pred_acc))
 
 # TODO: cor of icc
-idx = (as.integer(min(pred_theta)*100+300)):(as.integer(max(pred_theta)*100+300))
+idx = (as.integer(min(theta)*100+300)):(as.integer(max(theta)*100+300))
 bgrm_iccs = matrix(0, nrow=length(idx), ncol=m)
 true_iccs = matrix(0, nrow=nrow(bgrm_iccs), ncol=m)
 cor_icc = rep(0, m)

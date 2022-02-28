@@ -21,11 +21,11 @@ if (length(args)==5){
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 gpirt_path = "../gpirt"
-gpirt_path = "~/Documents/Github/gpirt"
+# gpirt_path = "~/Documents/Github/gpirt"
 setwd(gpirt_path)
 library(Rcpp)
 Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL)#, lib=R_path)
+install.packages(gpirt_path, type="source", repos = NULL, lib=R_path)
 setwd("../OrdGPIRT")
 library(gpirt)
 
@@ -98,7 +98,7 @@ for (i in 1:nrow(data)) {
 }
 
 # TODO: cor of icc
-idx = (as.integer(min(pred_theta)*100+500)):(as.integer(max(pred_theta)*100+500))
+idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
 gpirt_iccs = rowMeans(samples$IRFs[idx,,], dim=2)
 true_iccs = matrix(0, nrow=nrow(gpirt_iccs), ncol=m)
 cor_icc = rep(0, m)

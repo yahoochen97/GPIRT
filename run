@@ -20,22 +20,3 @@ then
             done
         done
     done
-elif [ $1 = "measure" ]
-then
-    for C in ${Cs[@]}; do
-        for n in ${ns[@]}; do
-            for m in ${ms[@]}; do
-                bsub -G SEAS-Lab-Garnett -o "ICM${SEED}r${rho}.log" -J "ICM${SEED}r${rho}" "./onerun $SEED $uls $rho ${effect}"
-            done
-        done
-    done
-elif [ $1 = "summary" ]
-then
-    for C in ${Cs[@]}; do
-        for n in ${ns[@]}; do
-            for m in ${ms[@]}; do
-                bsub -G SEAS-Lab-Garnett -o "ICM${SEED}r${rho}.log" -J "ICM${SEED}r${rho}" "./onerun $SEED $uls $rho ${effect}"
-            done
-        done
-    done
-fi

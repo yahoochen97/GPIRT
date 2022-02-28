@@ -4,8 +4,8 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
   SEED = 1
   C = 5
-  n = 50
-  m = 20
+  n = 100
+  m = 10
   TYPE = "GP"
 }
 if (length(args)==5){
@@ -25,20 +25,6 @@ load(file=paste("./data/", HYP, ".RData" , sep=""))
 
 xs = seq(-5,5,0.01)
 idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
-if(TYPE=="2PL"){
-  for(j in 1:m){
-    probs = getprobs_2PL(xs[idx], betas[[paste('Item ', j, sep='')]])
-    p = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
-      geom_line(size=2) +ggtitle(paste("2PL IRT q",j, sep="")) +
-      theme(plot.title = element_text(hjust = 0.5))
-    print(p)
-    
-    tmp = probs %>% 
-      group_by(xs) %>%
-      summarize(icc=sum(order*p))
-    # plot(xs, tmp$icc)
-  }
-}
 if(TYPE=="GP"){
   for(j in 1:m){
     source("true_irf.R")
@@ -54,6 +40,19 @@ if(TYPE=="GP"){
     pdf(file=paste("./figures/trueiccq",j,".pdf", sep=""))
     plot(xs[idx], tmp$icc)
     dev.off()
+  }
+  
+  for(j in 1:m){
+    probs = getprobs_2PL(xs[idx], betas[[paste('Item ', j, sep='')]])
+    # p = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
+    #   geom_line(size=2) +ggtitle(paste("2PL IRT q",j, sep="")) +
+    #   theme(plot.title = element_text(hjust = 0.5))
+    # print(p)
+    
+    tmp = probs %>% 
+      group_by(xs) %>%
+      summarize(icc=sum(order*p))
+    plot(xs[idx], tmp$icc)
   }
 }
 
