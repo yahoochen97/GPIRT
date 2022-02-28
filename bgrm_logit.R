@@ -5,8 +5,8 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
   SEED = 1
   C = 5
-  n = 1000
-  m = 10
+  n = 50
+  m = 20
   TYPE = "GP"
 }
 if (length(args)==5){
@@ -24,19 +24,23 @@ HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 set.seed(SEED)
 
+library(dplyr)
+source("getprob_gpirt.R")
 library(rstan)
-
+xs = seq(-3,3,0.01)
 data_train[is.na(data_train)] = 0
 stan_data <- list(N=n,
                   M=m,
                   C=C,
+                  Nstar=length(xs),
+                  xstar=xs,
                   y=data_train)
 
 # train stan model
 fit <- stan(file = "bgrm_logit.stan",
             data = stan_data, 
-            warmup = 1000, 
-            iter = 3000, 
+            warmup = 100, 
+            iter = 100, 
             chains = 1, 
             cores = 1, 
             thin = 4,
@@ -44,6 +48,8 @@ fit <- stan(file = "bgrm_logit.stan",
             seed = SEED,
             refresh=0
 )
+
+# saveRDS(fit, paste("./results/bgrm_", HYP, ".rds" , sep=""))
 
 samples <- as.data.frame(fit)
 SAMPLE_ITERS = length(samples[["theta[1]"]])
@@ -54,12 +60,13 @@ train_lls = c()
 train_acc = c()
 for (i in 1:nrow(data)) {
   pred_theta[i] = mean(samples[[paste("theta[",as.character(i), "]", sep="")]])
+  i_star = as.integer(pred_theta[i]*100+300)
   for (j in 1:ncol(data)) {
     if(!is.na(data[[i,j]])){
       lls = matrix(0,nrow=SAMPLE_ITERS, ncol = C)
       ps = matrix(0, nrow=C, ncol=SAMPLE_ITERS)
       for(c in 1:C){
-        ps[c,] = samples[[paste("p[",as.character(i), ",", as.character(j), ",", as.character(c) ,"]", sep="")]]
+        ps[c,] = samples[[paste("p[",as.character(i_star), ",", as.character(j), ",", as.character(c) ,"]", sep="")]]
       }
       ll = log(rowMeans(ps))
       y_pred =  which.max(ll)
@@ -80,5 +87,28 @@ print(mean(train_acc))
 print(mean(pred_lls))
 print(mean(pred_acc))
 
-save(pred_theta,train_lls, train_acc, pred_lls, pred_acc,
+# TODO: cor of icc
+idx = (as.integer(min(pred_theta)*100+300)):(as.integer(max(pred_theta)*100+300))
+bgrm_iccs = matrix(0, nrow=length(idx), ncol=m)
+true_iccs = matrix(0, nrow=nrow(bgrm_iccs), ncol=m)
+cor_icc = rep(0, m)
+rmse_icc = rep(0, m)
+for (j in 1:m) {
+  source("true_irf.R")
+  probs = getprobs_gpirt(sign(cor(theta,pred_theta))*xs[idx], irfs, matrix(thresholds[j,],nrow=1))
+  tmp = probs %>% 
+    group_by(xs) %>%
+    summarize(icc=sum(order*p))
+  true_iccs[,j] = tmp$icc
+  tmp = c()
+  for (i in 1:length(xs[idx])) {
+    tmp = c(tmp, mean(samples[[paste("icc[", as.integer(xs[idx][i]*100+300),",",j,"]", sep="")]]))
+  }
+  bgrm_iccs[,j] = tmp
+  cor_icc[j] = cor(bgrm_iccs[,j], true_iccs[,j])
+  rmse_icc[j] = sqrt(mean((bgrm_iccs[,j]-true_iccs[,j])^2))
+}
+
+
+save(pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/bgrm_", HYP, ".RData" , sep=""))

@@ -5,8 +5,8 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
     SEED = 1
     C = 5
-    n = 100
-    m = 5
+    n = 50
+    m = 10
     TYPE = "GP"
 }
 if (length(args)==5){
@@ -21,13 +21,15 @@ if (length(args)==5){
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 gpirt_path = "../gpirt"
-# gpirt_path = "~/Documents/Github/gpirt"
+gpirt_path = "~/Documents/Github/gpirt"
 setwd(gpirt_path)
 library(Rcpp)
 Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL, lib=R_path)
+install.packages(gpirt_path, type="source", repos = NULL)#, lib=R_path)
 setwd("../OrdGPIRT")
 library(gpirt)
+
+source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 set.seed(SEED)
@@ -36,13 +38,23 @@ set.seed(SEED)
 # unique_ys = unique(as.vector(data))
 # C = length(unique(unique_ys[!is.na(unique_ys)]))
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
-samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
-                     beta_prior_sds = matrix(0.5, nrow = 2, ncol = ncol(data_train)),
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
+THIN = 4
+beta_prior_sds =  matrix(0.0, nrow = 2, ncol = ncol(data_train))
+beta_prior_sds[2,] = 0.1
+samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS, THIN,
+                     beta_prior_sds = beta_prior_sds,
                      vote_codes = NULL, thresholds=NULL)
 # save(samples, file = "vignettes/sdo.RData")
 # load(file = "vignettes/sdo.RData")
+
+# samples$theta = samples$theta[seq(1,SAMPLE_ITERS, THIN),]
+# samples$f = samples$f[,,seq(1,SAMPLE_ITERS, THIN)]
+# samples$threshold = samples$threshold[,,seq(1,SAMPLE_ITERS, THIN)]
+# samples$IRFs = samples$IRFs[,,seq(1,SAMPLE_ITERS, THIN)]
+
+SAMPLE_ITERS = SAMPLE_ITERS/THIN
 
 xs = seq(-5,5,0.01)
 pred_theta = colMeans(samples$theta)
@@ -85,12 +97,33 @@ for (i in 1:nrow(data)) {
     }
 }
 
+# TODO: cor of icc
+idx = (as.integer(min(pred_theta)*100+500)):(as.integer(max(pred_theta)*100+500))
+gpirt_iccs = rowMeans(samples$IRFs[idx,,], dim=2)
+true_iccs = matrix(0, nrow=nrow(gpirt_iccs), ncol=m)
+cor_icc = rep(0, m)
+rmse_icc = rep(0, m)
+for (j in 1:m) {
+    source("true_irf.R")
+    probs = getprobs_gpirt(sign(cor(theta,pred_theta))*xs[idx], irfs, matrix(thresholds[j,],nrow=1))
+    tmp = probs %>% 
+        group_by(xs) %>%
+        summarize(icc=sum(order*p))
+    true_iccs[,j] = tmp$icc
+    probs = getprobs_gpirt(xs[idx], samples$IRFs[idx,j,], t(samples$threshold[,j,]))
+    tmp = probs %>% 
+        group_by(xs) %>%
+        summarize(icc=sum(order*p))
+    gpirt_iccs[,j] = tmp$icc
+    cor_icc[j] = cor(gpirt_iccs[,j], true_iccs[,j])
+    rmse_icc[j] = sqrt(mean((gpirt_iccs[,j]-true_iccs[,j])^2))
+}
+
 print(cor(theta,pred_theta))
-print(mean(train_lls))
-print(mean(train_acc))
-print(mean(pred_lls))
-print(mean(pred_acc))
+print(mean(train_lls[!is.infinite(train_lls)]))
+print(mean(train_acc[!is.infinite(train_lls)]))
+print(mean(pred_lls[!is.infinite(pred_lls)]))
+print(mean(pred_acc[!is.infinite(pred_lls)]))
 
-
-save(pred_theta,train_lls, train_acc, pred_lls, pred_acc,
+save(pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/gpirt_", HYP, ".RData" , sep=""))

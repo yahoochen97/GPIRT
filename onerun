@@ -17,5 +17,6 @@ Rscript --vanilla generate_data.R $SEED $C $n $m 'GP'
 Rscript --vanilla gpirt-sdo.R $SEED $C $n $m 'GP'
 Rscript --vanilla 2PL.R $SEED $C $n $m 'GP'
 Rscript --vanilla bgrm_logit.R $SEED $C $n $m 'GP'
+Rscript --vanilla evaluate.R $SEED $C $n $m 'GP'
 
 # conda deactivate

@@ -4,8 +4,8 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
   SEED = 1
   C = 5
-  n = 1000
-  m = 10
+  n = 50
+  m = 20
   TYPE = "GP"
 }
 if (length(args)==5){
@@ -19,52 +19,12 @@ if (length(args)==5){
 library(ggplot2)
 library(KRLS)
 library(dplyr)
+source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 
-getprobs_gpirt = function(xs, irfs, thresholds){
-  C = ncol(thresholds) - 1
-  probs = data.frame(matrix(ncol = 3, nrow = 0))
-  colnames(probs) = c("order", "xs","p")
-  for (i in 1:length(xs)) {
-    ps = matrix(0, nrow=ncol(irfs), ncol=C)
-    for (c in 1:C){
-      for (iter in 1:ncol(irfs)){
-        z1 = thresholds[iter, c] - irfs[i,iter]
-        z2 = thresholds[iter, c+1] - irfs[i,iter]
-        ps[iter, c] = pnorm(z2)-pnorm(z1)
-      }
-    }
-    ps = colMeans(ps)
-    for (c in 1:C){
-      probs[nrow(probs) + 1,] = c(c, xs[i],  ps[c])
-    }
-  }
-  return(probs)
-}
-
-getprobs_2PL = function(xs, betas){
-  C = length(betas)
-  probs = data.frame(matrix(ncol = 3, nrow = 0))
-  slope = betas[[C]]
-  colnames(probs) = c("order", "xs","p")
-  for (i in 1:length(xs)) {
-    ps = rep(0, C+1)
-    ps[C+1] = 1
-    for (c in 1:(C-1)){
-        lp = betas[[c]] - xs[i]*slope
-        ps[c+1] = 1 / (1+ exp(-lp))
-    }
-    for (c in 1:C) {
-      probs[nrow(probs) + 1,] = c(c, xs[i],  ps[c+1]-ps[c]) 
-    }
-  }
-  return(probs)
-}
-
-
 xs = seq(-5,5,0.01)
-idx = 1:1001
+idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
 if(TYPE=="2PL"){
   for(j in 1:m){
     probs = getprobs_2PL(xs[idx], betas[[paste('Item ', j, sep='')]])
@@ -81,13 +41,7 @@ if(TYPE=="2PL"){
 }
 if(TYPE=="GP"){
   for(j in 1:m){
-    K = gausskernel(anchor_xs[j,], sigma=SIGMA)
-    inv_K = ginv(K)
-    K1 = matrix(0, nrow=length(xs), ncol=ncol(anchor_xs))
-    for ( i in 1:length(xs) ) {
-      K1[i,] = dnorm(xs[i]-anchor_xs[j,], sd=SIGMA)/dnorm(0, sd=SIGMA)
-    }
-    irfs = K1 %*% inv_K %*% anchor_ys[j,]
+    source("true_irf.R")
     probs = getprobs_gpirt(xs[idx], irfs, matrix(thresholds[j,],nrow=1))
     q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
       geom_line(size=2) +ggtitle(paste("True GP IRT q",j, sep="")) +
@@ -98,7 +52,7 @@ if(TYPE=="GP"){
           group_by(xs) %>%
           summarize(icc=sum(order*p))
     pdf(file=paste("./figures/trueiccq",j,".pdf", sep=""))
-    plot(xs, tmp$icc)
+    plot(xs[idx], tmp$icc)
     dev.off()
   }
 }

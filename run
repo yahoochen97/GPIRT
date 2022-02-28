@@ -6,7 +6,7 @@ mkdir -p results
 
 MAXSEED=1
 declare -a Cs=(5)
-declare -a ns=(1000)
+declare -a ns=(100)
 declare -a ms=(10)
 
 if [ $1 = "run" ]

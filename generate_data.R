@@ -5,7 +5,7 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
   SEED = 1
   C = 5
-  n = 1000
+  n = 100
   m = 10
   TYPE = "GP"
 }
@@ -19,7 +19,8 @@ if (length(args)==5){
 
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
-SIGMA = 2
+SIGMA = 1
+source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 
 set.seed(SEED)
@@ -52,7 +53,7 @@ if(TYPE=="2PL"){
     return(responses)
   }
   
-  theta <- runif(n, -2, 2) # Respondent ability parameters
+  theta <- runif(n, -3, 3) # Respondent ability parameters
   alpha <- runif(m, -2, 2) # Item difficulty parameters
   beta  <- runif(m, -2, 2) # Item discrimination parameters
   data <- gen_responses(theta, alpha, beta, thresholds)
@@ -60,7 +61,7 @@ if(TYPE=="2PL"){
 if(TYPE=="GP"){
   library(KRLS)
   library(MASS)
-  gen_responses <- function(theta, anchor_xs, anchor_ys, thresholds) {
+  gen_responses <- function(theta, anchor_xs, anchor_ys, thresholds, slopes) {
     # ordinal regression
     C <- ncol(thresholds) - 1
     n <- length(theta)
@@ -69,10 +70,12 @@ if(TYPE=="GP"){
     responses <- matrix(0, n, m)
     for ( j in 1:m ) {
       K = gausskernel(anchor_xs[j,], sigma=SIGMA)
+      K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
       inv_K = ginv(K)
       for ( i in 1:n ) {
         K1 = dnorm(theta[i]-anchor_xs[j,], sd=SIGMA)/dnorm(0, sd=SIGMA)
-        f = K1 %*% inv_K %*% anchor_ys[j,]
+        mu = slopes[j]*theta[i]
+        f = K1 %*% inv_K %*% anchor_ys[j,] + mu
         ps = rep(0, C)
         for (c in 1:C) {
           z1 = thresholds[j,c] - f
@@ -88,12 +91,17 @@ if(TYPE=="GP"){
   NUM_ANCHOR = 20
   anchor_xs <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
   anchor_ys <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
+  slopes <- rnorm(m, 0, 0.0)
   for (j in 1:m) {
-    anchor_xs[j,] = seq(-5,5, length.out = NUM_ANCHOR) # 5 anchor points
+    anchor_xs[j,] = seq(-2,2, length.out = NUM_ANCHOR) # anchor points
     K = gausskernel(anchor_xs[j,], sigma=SIGMA)
-    anchor_ys[j,]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) # + mean(thresholds[j,2:C])
+    K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
+    mu = slopes[j]*anchor_xs[j,]
+    anchor_ys[j,]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) + mu
   }
-  data <- gen_responses(theta, anchor_xs, anchor_ys, thresholds)
+  data <- gen_responses(theta, anchor_xs, anchor_ys, thresholds, slopes)
+  
+  
 }
 
 # split into train and test data
@@ -117,6 +125,6 @@ if(TYPE=="2PL"){
        file=paste("./data/", HYP, ".RData" , sep=""))
 }
 if(TYPE=="GP"){
-  save(data,data_train, train_idx,thresholds,theta,anchor_xs,anchor_ys,SIGMA,
+  save(data,data_train, train_idx,thresholds,theta,NUM_ANCHOR, anchor_xs,anchor_ys,SIGMA,slopes,
        file=paste("./data/", HYP, ".RData" , sep=""))
 }
