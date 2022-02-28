@@ -1,5 +1,6 @@
 library(KRLS)
 library(MASS)
+library(dplyr)
 K = gausskernel(anchor_xs[j,], sigma=SIGMA)
 K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
 inv_K = ginv(K)

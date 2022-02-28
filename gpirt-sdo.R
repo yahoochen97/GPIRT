@@ -28,6 +28,7 @@ Rcpp::compileAttributes()
 install.packages(gpirt_path, type="source", repos = NULL, lib=R_path)
 setwd("../OrdGPIRT")
 library(gpirt)
+library(dplyr)
 
 source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
