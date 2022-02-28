@@ -28,6 +28,7 @@ library(dplyr)
 source("getprob_gpirt.R")
 library(rstan)
 rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
 xs = seq(-3,3,0.01)
 data_train[is.na(data_train)] = 0
 stan_data <- list(N=n,
@@ -40,8 +41,8 @@ stan_data <- list(N=n,
 # train stan model
 fit <- stan(file = "bgrm_logit.stan",
             data = stan_data, 
-            warmup = 100, 
-            iter = 200, 
+            warmup = 1000, 
+            iter = 2000, 
             chains = 1, 
             cores = 1, 
             thin = 4,

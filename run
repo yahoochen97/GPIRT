@@ -4,10 +4,10 @@ mkdir -p data
 mkdir -p figures
 mkdir -p results
 
-MAXSEED=1
+MAXSEED=100
 declare -a Cs=(5)
-declare -a ns=(100)
-declare -a ms=(10)
+declare -a ns=(1000)
+declare -a ms=(50)
 
 if [ $1 = "run" ]
 then

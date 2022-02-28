@@ -39,8 +39,8 @@ set.seed(SEED)
 # unique_ys = unique(as.vector(data))
 # C = length(unique(unique_ys[!is.na(unique_ys)]))
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 1000
+BURNOUT_ITERS = 1000
 THIN = 4
 beta_prior_sds =  matrix(0.0, nrow = 2, ncol = ncol(data_train))
 beta_prior_sds[2,] = 0.1
