@@ -27,6 +27,7 @@ set.seed(SEED)
 library(dplyr)
 source("getprob_gpirt.R")
 library(rstan)
+rstan_options(auto_write = TRUE)
 xs = seq(-3,3,0.01)
 data_train[is.na(data_train)] = 0
 stan_data <- list(N=n,
@@ -40,7 +41,7 @@ stan_data <- list(N=n,
 fit <- stan(file = "bgrm_logit.stan",
             data = stan_data, 
             warmup = 100, 
-            iter = 100, 
+            iter = 200, 
             chains = 1, 
             cores = 1, 
             thin = 4,
