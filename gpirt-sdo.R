@@ -43,7 +43,7 @@ SAMPLE_ITERS = 1000
 BURNOUT_ITERS = 1000
 THIN = 4
 beta_prior_sds =  matrix(0.0, nrow = 2, ncol = ncol(data_train))
-beta_prior_sds[2,] = 0.1
+beta_prior_sds[2,] = 0.0
 samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS, THIN,
                      beta_prior_sds = beta_prior_sds,
                      vote_codes = NULL, thresholds=NULL)

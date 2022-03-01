@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 1
+  SEED = 21
   C = 5
   n = 1000
   m = 50
@@ -28,8 +28,8 @@ thresholds = matrix(0, nrow=m, ncol=C+1)
 thresholds[,1] = -Inf
 thresholds[,C+1] = Inf
 for (j in 1:m) {
-  thresholds[j,2:C] = rep(-2,2,C-1)
-  thresholds[j,2:C] = thresholds[j,2:C] + rnorm(C-1,0,0.1)
+  thresholds[j,2:C] = seq(-2,2,length.out=C-1)
+  thresholds[j,2:C] = thresholds[j,2:C] + rnorm(C-1,0,0.2)
   thresholds[j,2:C] = thresholds[j,2:C] - mean(thresholds[j,2:C])
   thresholds[j,2:C] = (thresholds[j,2:C])/sd(thresholds[j,2:C])
   thresholds[j,2:C] = sort(thresholds[j,2:C])
