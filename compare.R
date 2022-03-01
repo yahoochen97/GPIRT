@@ -41,4 +41,4 @@ for(i in 1:length(MODELS)){
     rmse_icc[SEED, i] = result[7,i]
     }
 }
-write.csv(results, file=paste("./results/", HYP, ".csv" , sep=""))
+# write.csv(results, file=paste("./results/compare", HYP, ".csv" , sep=""))
