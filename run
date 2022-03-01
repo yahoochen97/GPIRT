@@ -15,8 +15,17 @@ then
         for C in ${Cs[@]}; do
             for n in ${ns[@]}; do
                 for m in ${ms[@]}; do
-                    bsub -G SEAS-Lab-Garnett -o "test.log" -J "C${C}n${n}m${m}_${SEED}" "./onerun $SEED $C $n $m"
+                    bsub -G SEAS-Lab-Garnett -J "C${C}n${n}m${m}_${SEED}" "./onerun $SEED $C $n $m"
                 done
+            done
+        done
+    done
+elif [ $1 = "compare" ]
+then
+    for C in ${Cs[@]}; do
+        for n in ${ns[@]}; do
+            for m in ${ms[@]}; do
+                Rscript --vanilla compare.R $MAXSEED $C $n $m 'GP'
             done
         done
     done

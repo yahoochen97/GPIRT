@@ -42,18 +42,18 @@ if(TYPE=="GP"){
     dev.off()
   }
   
-  for(j in 1:m){
-    probs = getprobs_2PL(xs[idx], betas[[paste('Item ', j, sep='')]])
-    # p = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
-    #   geom_line(size=2) +ggtitle(paste("2PL IRT q",j, sep="")) +
-    #   theme(plot.title = element_text(hjust = 0.5))
-    # print(p)
-    
-    tmp = probs %>% 
-      group_by(xs) %>%
-      summarize(icc=sum(order*p))
-    plot(xs[idx], tmp$icc)
-  }
+  # for(j in 1:m){
+  #   probs = getprobs_2PL(xs[idx], betas[[paste('Item ', j, sep='')]])
+  #   # p = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
+  #   #   geom_line(size=2) +ggtitle(paste("2PL IRT q",j, sep="")) +
+  #   #   theme(plot.title = element_text(hjust = 0.5))
+  #   # print(p)
+  #   
+  #   tmp = probs %>% 
+  #     group_by(xs) %>%
+  #     summarize(icc=sum(order*p))
+  #   plot(xs[idx], tmp$icc)
+  # }
 }
 
 # plot(pred_theta, data[,9], pch=4, ylim=c(-2,5))
