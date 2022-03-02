@@ -25,7 +25,7 @@ gpirt_path = "../gpirt"
 # gpirt_path = "~/Documents/Github/gpirt"
 setwd(gpirt_path)
 library(Rcpp)
-# Rcpp::compileAttributes()
+Rcpp::compileAttributes()
 # install.packages(gpirt_path, type="source", repos = NULL, lib=R_path)
 setwd("../OrdGPIRT")
 library(gpirt)
