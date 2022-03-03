@@ -2,7 +2,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 1
+  SEED = 31
   C = 5
   n = 1000
   m = 50
@@ -26,8 +26,13 @@ load(file=paste("./data/", HYP, ".RData" , sep=""))
 xs = seq(-5,5,0.01)
 idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
 if(TYPE=="GP"){
-  for(j in 1:m){
+  for(j in 1:5){
     source("true_irf.R")
+    pdf(file=paste("./figures/truefq",j,".pdf", sep=""))
+    plot(xs[idx], irfs)
+    points(anchor_xs[j,],anchor_ys[j,])
+    dev.off()
+    
     probs = getprobs_gpirt(xs[idx], irfs, matrix(thresholds[j,],nrow=1))
     q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
       geom_line(size=2) +ggtitle(paste("True GP IRT q",j, sep="")) +
@@ -42,18 +47,18 @@ if(TYPE=="GP"){
     dev.off()
   }
   
-  # for(j in 1:m){
-  #   probs = getprobs_2PL(xs[idx], betas[[paste('Item ', j, sep='')]])
-  #   # p = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
-  #   #   geom_line(size=2) +ggtitle(paste("2PL IRT q",j, sep="")) +
-  #   #   theme(plot.title = element_text(hjust = 0.5))
-  #   # print(p)
-  #   
-  #   tmp = probs %>% 
-  #     group_by(xs) %>%
-  #     summarize(icc=sum(order*p))
-  #   plot(xs[idx], tmp$icc)
-  # }
+  for(j in 1:5){
+    probs = getprobs_2PL(xs[idx], betas[[paste('Item ', j, sep='')]])
+    # p = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
+    #   geom_line(size=2) +ggtitle(paste("2PL IRT q",j, sep="")) +
+    #   theme(plot.title = element_text(hjust = 0.5))
+    # print(p)
+
+    tmp = probs %>%
+      group_by(xs) %>%
+      summarize(icc=sum(order*p))
+    plot(xs[idx], tmp$icc)
+  }
 }
 
 # plot(pred_theta, data[,9], pch=4, ylim=c(-2,5))

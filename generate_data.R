@@ -20,7 +20,7 @@ if (length(args)==5){
 
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
-SIGMA = 2
+SIGMA = 1
 source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 
@@ -92,10 +92,10 @@ if(TYPE=="GP"){
     }
     return(responses)
   }
-  theta <- runif(n, -2, 2) # Respondent ability parameters
+  theta <- seq(-2,2, length.out = n) # Respondent ability parameters
   xs = seq(-5,5,0.01)
   idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
-  NUM_ANCHOR = 10
+  NUM_ANCHOR = 50
   anchor_xs <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
   anchor_ys <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
   slopes <- rnorm(m, 0, 1)
