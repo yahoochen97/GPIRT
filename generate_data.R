@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 31
+  SEED = 21
   C = 5
   n = 1000
   m = 50
@@ -95,10 +95,10 @@ if(TYPE=="GP"){
   theta <- seq(-2,2, length.out = n) # Respondent ability parameters
   xs = seq(-5,5,0.01)
   idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
-  NUM_ANCHOR = 50
+  NUM_ANCHOR = 10
   anchor_xs <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
   anchor_ys <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
-  slopes <- rnorm(m, 0, 1)
+  slopes <- runif(m, -1, 1)
   for (j in 1:m) {
     anchor_xs[j,] = seq(-2,2, length.out = NUM_ANCHOR) # anchor points
     K = gausskernel(anchor_xs[j,], sigma=SIGMA)
