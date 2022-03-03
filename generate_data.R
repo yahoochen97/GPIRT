@@ -104,8 +104,8 @@ if(TYPE=="GP"){
     K = gausskernel(anchor_xs[j,], sigma=SIGMA)
     K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
     mu = slopes[j]*anchor_xs[j,]
-    anchor_ys[j,]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) + mu
-    anchor_ys[j,] = anchor_ys[j,] - mean(anchor_ys[j,])
+    anchor_ys[j,]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) 
+    anchor_ys[j,] = anchor_ys[j,] - mean(anchor_ys[j,]) + mu
   }
   data <- gen_responses(theta, anchor_xs, anchor_ys, thresholds, slopes)
   
