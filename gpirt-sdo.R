@@ -24,8 +24,8 @@ options("install.lock"=FALSE)
 gpirt_path = "../gpirt"
 # gpirt_path = "~/Documents/Github/gpirt"
 setwd(gpirt_path)
-library(Rcpp)
-Rcpp::compileAttributes()
+# library(Rcpp)
+# Rcpp::compileAttributes()
 # install.packages(gpirt_path, type="source", repos = NULL, lib=R_path)
 setwd("../OrdGPIRT")
 library(gpirt)
