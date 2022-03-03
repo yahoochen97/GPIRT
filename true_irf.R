@@ -9,4 +9,4 @@ for ( i in 1:length(xs[idx]) ) {
   K1[i,] = dnorm(xs[idx][i]-anchor_xs[j,], sd=SIGMA)/dnorm(0, sd=SIGMA)
 }
 mu = slopes[j]*xs[idx]
-irfs = K1 %*% inv_K %*% anchor_ys[j,] + mu
+irfs = K1 %*% inv_K %*% (anchor_ys[j,]-anchor_xs[j,]*slopes[j]) + mu

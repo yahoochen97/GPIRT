@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 99
+  SEED = 31
   C = 5
   n = 1000
   m = 50
@@ -20,7 +20,7 @@ if (length(args)==5){
 
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
-SIGMA = 1
+SIGMA = 2
 source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 
@@ -80,7 +80,7 @@ if(TYPE=="GP"){
       for ( i in 1:n ) {
         K1 = dnorm(theta[i]-anchor_xs[j,], sd=SIGMA)/dnorm(0, sd=SIGMA)
         mu = slopes[j]*theta[i]
-        f = K1 %*% inv_K %*% anchor_ys[j,] + mu
+        f = K1 %*% inv_K %*% (anchor_ys[j,]-anchor_xs[j,]*slopes[j]) + mu
         ps = rep(0, C)
         for (c in 1:C) {
           z1 = thresholds[j,c] - f
@@ -92,13 +92,13 @@ if(TYPE=="GP"){
     }
     return(responses)
   }
-  theta <- runif(n, -3, 3) # Respondent ability parameters
+  theta <- runif(n, -2, 2) # Respondent ability parameters
   xs = seq(-5,5,0.01)
   idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
-  NUM_ANCHOR = 25
+  NUM_ANCHOR = 10
   anchor_xs <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
   anchor_ys <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
-  slopes <- rnorm(m, 0, 0.0)
+  slopes <- rnorm(m, 0, 1)
   for (j in 1:m) {
     anchor_xs[j,] = seq(-2,2, length.out = NUM_ANCHOR) # anchor points
     K = gausskernel(anchor_xs[j,], sigma=SIGMA)
