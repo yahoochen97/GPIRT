@@ -3,10 +3,10 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 1
+  SEED = 11
   C = 5
-  n = 50
-  m = 20
+  n = 100
+  m = 50
   TYPE = "GP"
 }
 if (length(args)==5){
@@ -48,7 +48,7 @@ fit <- stan(file = "bgrm_logit.stan",
             thin = 4,
             control=list(adapt_delta=.98, max_treedepth = 15),
             seed = SEED,
-            refresh=0
+            refresh= 1
 )
 
 # saveRDS(fit, paste("./results/bgrm_", HYP, ".rds" , sep=""))
