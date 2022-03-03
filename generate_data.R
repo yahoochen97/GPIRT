@@ -3,10 +3,11 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 11
+  SEED = 99
   C = 5
-  n = 100
+  n = 1000
   m = 50
+  T = 1
   TYPE = "GP"
 }
 if (length(args)==5){
@@ -19,7 +20,7 @@ if (length(args)==5){
 
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
-SIGMA = 0.5
+SIGMA = 1
 source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 
@@ -91,7 +92,7 @@ if(TYPE=="GP"){
     }
     return(responses)
   }
-  theta <- runif(n, -2, 2) # Respondent ability parameters
+  theta <- runif(n, -3, 3) # Respondent ability parameters
   xs = seq(-5,5,0.01)
   idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
   NUM_ANCHOR = 25
