@@ -22,11 +22,11 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 options("install.lock"=FALSE)
 gpirt_path = "../gpirt"
-# gpirt_path = "~/Documents/Github/gpirt"
+gpirt_path = "~/Documents/Github/gpirt"
 setwd(gpirt_path)
-# library(Rcpp)
-# Rcpp::compileAttributes()
-# install.packages(gpirt_path, type="source", repos = NULL, lib=R_path)
+library(Rcpp)
+Rcpp::compileAttributes()
+install.packages(gpirt_path, type="source", repos = NULL)#, lib=R_path)
 setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
@@ -40,8 +40,8 @@ set.seed(SEED)
 # unique_ys = unique(as.vector(data))
 # C = length(unique(unique_ys[!is.na(unique_ys)]))
 
-SAMPLE_ITERS = 1000
-BURNOUT_ITERS = 1000
+SAMPLE_ITERS = 8
+BURNOUT_ITERS = 8
 THIN = 4
 beta_prior_sds =  matrix(0.0, nrow = 2, ncol = ncol(data_train))
 beta_prior_sds[2,] = 1
@@ -82,7 +82,7 @@ for (i in 1:nrow(data)) {
           y_pred = rep(0, SAMPLE_ITERS)
           for (iter in 1:SAMPLE_ITERS) {
             f_pred = samples$IRFs[as.integer((pred_theta[i]+5)*100), j, iter]
-            ll = ordinal_lls(f_pred, samples$threshold[,j,iter])
+            ll = ordinal_lls(f_pred, samples$threshold[iter,])
             lls[iter,] = ll
             y_pred[iter] =  which.max(ll)
           }
@@ -107,12 +107,12 @@ cor_icc = rep(0, m)
 rmse_icc = rep(0, m)
 for (j in 1:m) {
     source("true_irf.R")
-    probs = getprobs_gpirt(sign(cor(theta,pred_theta))*xs[idx], irfs, matrix(thresholds[j,],nrow=1))
+    probs = getprobs_gpirt(sign(cor(theta,pred_theta))*xs[idx], irfs, matrix(thresholds,nrow=1))
     tmp = probs %>% 
         group_by(xs) %>%
         summarize(icc=sum(order*p))
     true_iccs[,j] = tmp$icc
-    probs = getprobs_gpirt(xs[idx], samples$IRFs[idx,j,], t(samples$threshold[,j,]))
+    probs = getprobs_gpirt(xs[idx], samples$IRFs[idx,j,], samples$threshold)
     tmp = probs %>% 
         group_by(xs) %>%
         summarize(icc=sum(order*p))

@@ -33,7 +33,7 @@ if(TYPE=="GP"){
     points(anchor_xs[j,],anchor_ys[j,])
     dev.off()
     
-    probs = getprobs_gpirt(xs[idx], irfs, matrix(thresholds[j,],nrow=1))
+    probs = getprobs_gpirt(xs[idx], irfs, matrix(thresholds,nrow=1))
     q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
       geom_line(size=2) +ggtitle(paste("True GP IRT q",j, sep="")) +
       theme(plot.title = element_text(hjust = 0.5))

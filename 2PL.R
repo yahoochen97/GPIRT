@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 21
+  SEED = 31
   C = 5
   n = 1000
   m = 50
@@ -26,10 +26,6 @@ library(dplyr)
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 set.seed(SEED)
-
-# data = data.matrix(SDO)[1:500,]
-# unique_ys = unique(as.vector(data))
-# C = length(unique(unique_ys[!is.na(unique_ys)]))
 
 results = grm(data = data_train, na.action = NULL)
 betas = results$coefficients
@@ -78,7 +74,7 @@ for (i in 1:nrow(data)) {
 
 for (j in 1:m) {
   source("true_irf.R")
-  probs = getprobs_gpirt(sign(cor(theta,pred_theta))*xs[idx], irfs, matrix(thresholds[j,],nrow=1))
+  probs = getprobs_gpirt(sign(cor(theta,pred_theta))*xs[idx], irfs, matrix(thresholds,nrow=1))
   tmp = probs %>% 
     group_by(xs) %>%
     summarize(icc=sum(order*p))

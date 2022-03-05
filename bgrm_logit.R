@@ -3,9 +3,9 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 11
+  SEED = 31
   C = 5
-  n = 100
+  n = 1000
   m = 50
   TYPE = "GP"
 }
@@ -41,14 +41,14 @@ stan_data <- list(N=n,
 # train stan model
 fit <- stan(file = "bgrm_logit.stan",
             data = stan_data, 
-            warmup = 1000, 
-            iter = 2000, 
+            warmup = 10, 
+            iter = 20, 
             chains = 1, 
             cores = 1, 
             thin = 4,
             control=list(adapt_delta=.98, max_treedepth = 15),
             seed = SEED,
-            refresh= 1
+            refresh= 0
 )
 
 # saveRDS(fit, paste("./results/bgrm_", HYP, ".rds" , sep=""))
@@ -97,7 +97,7 @@ cor_icc = rep(0, m)
 rmse_icc = rep(0, m)
 for (j in 1:m) {
   source("true_irf.R")
-  probs = getprobs_gpirt(sign(cor(theta,pred_theta))*xs[idx], irfs, matrix(thresholds[j,],nrow=1))
+  probs = getprobs_gpirt(sign(cor(theta,pred_theta))*xs[idx], irfs, matrix(thresholds,nrow=1))
   tmp = probs %>% 
     group_by(xs) %>%
     summarize(icc=sum(order*p))
@@ -110,7 +110,6 @@ for (j in 1:m) {
   cor_icc[j] = cor(bgrm_iccs[,j], true_iccs[,j])
   rmse_icc[j] = sqrt(mean((bgrm_iccs[,j]-true_iccs[,j])^2))
 }
-
 
 save(pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/bgrm_", HYP, ".RData" , sep=""))

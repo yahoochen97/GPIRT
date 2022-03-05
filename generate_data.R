@@ -25,21 +25,19 @@ source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 
 set.seed(SEED)
-thresholds = matrix(0, nrow=m, ncol=C+1)
-thresholds[,1] = -Inf
-thresholds[,C+1] = Inf
-for (j in 1:m) {
-  thresholds[j,2:C] = seq(-2,2,length.out=C-1)
-  thresholds[j,2:C] = thresholds[j,2:C] + rnorm(C-1,0,0.2)
-  thresholds[j,2:C] = thresholds[j,2:C] - mean(thresholds[j,2:C])
-  thresholds[j,2:C] = (thresholds[j,2:C])/sd(thresholds[j,2:C])
-  thresholds[j,2:C] = sort(thresholds[j,2:C])
-}
+thresholds = rep(0, C+1)
+thresholds[1] = -Inf
+thresholds[C+1] = Inf
+thresholds[2:C] = seq(-2,2,length.out=C-1)
+thresholds[2:C] = thresholds[2:C] + rnorm(C-1,0,0.5)
+thresholds[2:C] = thresholds[2:C] - mean(thresholds[2:C])
+# thresholds[2:C] = (thresholds[2:C])/sd(thresholds[2:C])
+thresholds[2:C] = sort(thresholds[2:C])
 
 if(TYPE=="2PL"){
   gen_responses <- function(theta, alpha, beta, thresholds) {
     # ordinal regression
-    C <- ncol(thresholds) - 1
+    C <- length(thresholds) - 1
     n <- length(theta)
     m <- length(alpha)
     responses <- matrix(0, n, m)
@@ -48,8 +46,8 @@ if(TYPE=="2PL"){
         f = alpha[j] + beta[j] * theta[i]
         ps = rep(0, C)
         for (c in 1:C) {
-          z1 = thresholds[j,c] - f
-          z2 = thresholds[j,c+1] -f
+          z1 = thresholds[c] - f
+          z2 = thresholds[c+1] -f
           ps[c] = pnorm(z2) - pnorm(z1)
         }
         responses[i, j] <- sample(1:C, 1, prob = ps)
@@ -68,9 +66,9 @@ if(TYPE=="GP"){
   library(MASS)
   gen_responses <- function(theta, anchor_xs, anchor_ys, thresholds, slopes) {
     # ordinal regression
-    C <- ncol(thresholds) - 1
+    C <- length(thresholds) - 1
     n <- length(theta)
-    m <- nrow(thresholds)
+    m <- nrow(anchor_xs)
     NUM_ANCHOR = ncol(anchor_xs)
     responses <- matrix(0, n, m)
     for ( j in 1:m ) {
@@ -83,8 +81,8 @@ if(TYPE=="GP"){
         f = K1 %*% inv_K %*% (anchor_ys[j,]-anchor_xs[j,]*slopes[j]) + mu
         ps = rep(0, C)
         for (c in 1:C) {
-          z1 = thresholds[j,c] - f
-          z2 = thresholds[j,c+1] -f
+          z1 = thresholds[c] - f
+          z2 = thresholds[c+1] -f
           ps[c] = pnorm(z2) - pnorm(z1)
         }
         responses[i, j] <- sample(1:C, 1, prob = ps)
@@ -108,8 +106,6 @@ if(TYPE=="GP"){
     anchor_ys[j,] = anchor_ys[j,] - mean(anchor_ys[j,]) + mu
   }
   data <- gen_responses(theta, anchor_xs, anchor_ys, thresholds, slopes)
-  
-  
 }
 
 # split into train and test data
