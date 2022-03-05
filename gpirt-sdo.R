@@ -20,13 +20,13 @@ if (length(args)==5){
 # install gpirt package
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
-options("install.lock"=FALSE)
+# options("install.lock"=FALSE)
 gpirt_path = "../gpirt"
 # gpirt_path = "~/Documents/Github/gpirt"
 setwd(gpirt_path)
-library(Rcpp)
-Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL, lib=R_path)
+# library(Rcpp)
+# Rcpp::compileAttributes()
+# install.packages(gpirt_path, type="source", repos = NULL, lib=R_path)
 setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
@@ -40,8 +40,8 @@ set.seed(SEED)
 # unique_ys = unique(as.vector(data))
 # C = length(unique(unique_ys[!is.na(unique_ys)]))
 
-SAMPLE_ITERS = 8
-BURNOUT_ITERS = 8
+SAMPLE_ITERS = 1000
+BURNOUT_ITERS = 1000
 THIN = 4
 beta_prior_sds =  matrix(0.0, nrow = 2, ncol = ncol(data_train))
 beta_prior_sds[2,] = 1
