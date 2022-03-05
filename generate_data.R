@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 31
+  SEED = 1
   C = 5
   n = 1000
   m = 50
@@ -31,7 +31,7 @@ thresholds[C+1] = Inf
 thresholds[2:C] = seq(-2,2,length.out=C-1)
 thresholds[2:C] = thresholds[2:C] + rnorm(C-1,0,0.5)
 thresholds[2:C] = thresholds[2:C] - mean(thresholds[2:C])
-# thresholds[2:C] = (thresholds[2:C])/sd(thresholds[2:C])
+thresholds[2:C] = (thresholds[2:C])/sd(thresholds[2:C])
 thresholds[2:C] = sort(thresholds[2:C])
 
 if(TYPE=="2PL"){
@@ -104,6 +104,7 @@ if(TYPE=="GP"){
     mu = slopes[j]*anchor_xs[j,]
     anchor_ys[j,]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) 
     anchor_ys[j,] = anchor_ys[j,] - mean(anchor_ys[j,]) + mu
+    anchor_ys[j,] = anchor_ys[j,] / sd(anchor_ys[j,])
   }
   data <- gen_responses(theta, anchor_xs, anchor_ys, thresholds, slopes)
 }
