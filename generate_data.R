@@ -126,6 +126,6 @@ if(TYPE=="2PL"){
        file=paste("./data/", HYP, ".RData" , sep=""))
 }
 if(TYPE=="GP"){
-  save(data,data_train, train_idx,thresholds,theta,NUM_ANCHOR, anchor_xs,anchor_ys,SIGMA,slopes,
+  save(data,data_train, train_idx,thresholds,theta,NUM_ANCHOR, anchor_xs,anchor_ys,SIGMA,
        file=paste("./data/", HYP, ".RData" , sep=""))
 }
