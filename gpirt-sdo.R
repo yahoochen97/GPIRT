@@ -21,13 +21,13 @@ if (length(args)==5){
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 # options("install.lock"=FALSE)
-gpirt_path = "../gpirt"
-gpirt_path = "~/Documents/Github/gpirt"
-setwd(gpirt_path)
-library(Rcpp)
-Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL)#, lib=R_path)
-setwd("../OrdGPIRT")
+# gpirt_path = "../gpirt"
+# gpirt_path = "~/Documents/Github/gpirt"
+# setwd(gpirt_path)
+# library(Rcpp)
+# Rcpp::compileAttributes()
+# install.packages(gpirt_path, type="source", repos = NULL)#, lib=R_path)
+# setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
 
@@ -35,10 +35,6 @@ source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 set.seed(SEED)
-
-# data = data.matrix(SDO)[1:500,]
-# unique_ys = unique(as.vector(data))
-# C = length(unique(unique_ys[!is.na(unique_ys)]))
 
 SAMPLE_ITERS = 500
 BURNOUT_ITERS = 500
