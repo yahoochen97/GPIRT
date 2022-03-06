@@ -3,9 +3,9 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-    SEED = 31
+    SEED = 1
     C = 5
-    n = 1000
+    n = 100
     m = 50
     TYPE = "GP"
 }
@@ -22,11 +22,11 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 # options("install.lock"=FALSE)
 gpirt_path = "../gpirt"
-# gpirt_path = "~/Documents/Github/gpirt"
+gpirt_path = "~/Documents/Github/gpirt"
 setwd(gpirt_path)
-# library(Rcpp)
-# Rcpp::compileAttributes()
-# install.packages(gpirt_path, type="source", repos = NULL, lib=R_path)
+library(Rcpp)
+Rcpp::compileAttributes()
+install.packages(gpirt_path, type="source", repos = NULL)#, lib=R_path)
 setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
@@ -40,11 +40,10 @@ set.seed(SEED)
 # unique_ys = unique(as.vector(data))
 # C = length(unique(unique_ys[!is.na(unique_ys)]))
 
-SAMPLE_ITERS = 1000
-BURNOUT_ITERS = 1000
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 THIN = 4
-beta_prior_sds =  matrix(0.0, nrow = 2, ncol = ncol(data_train))
-beta_prior_sds[2,] = 1
+beta_prior_sds =  matrix(0.1, nrow = 2, ncol = ncol(data_train))
 samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS, THIN,
                      beta_prior_sds = beta_prior_sds,
                      vote_codes = NULL, thresholds=NULL)
@@ -126,6 +125,8 @@ print(mean(train_lls[!is.infinite(train_lls)]))
 print(mean(train_acc[!is.infinite(train_lls)]))
 print(mean(pred_lls[!is.infinite(pred_lls)]))
 print(mean(pred_acc[!is.infinite(pred_lls)]))
+print(mean(cor_icc))
+print(mean(rmse_icc))
 
 save(pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/gpirt_", HYP, ".RData" , sep=""))

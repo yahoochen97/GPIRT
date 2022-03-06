@@ -3,10 +3,10 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 2
+  SEED = 1
   C = 5
-  n = 1000
-  m = 50
+  n = 50
+  m = 20
   TYPE = "GP"
 }
 if (length(args)==5){
@@ -105,6 +105,8 @@ print(mean(train_lls))
 print(mean(train_acc))
 print(mean(pred_lls))
 print(mean(pred_acc))
+print(mean(cor_icc))
+print(mean(rmse_icc))
 
 save(pred_theta,train_lls, train_acc, pred_lls, pred_acc, cor_icc, rmse_icc,
      file=paste("./results/grm_", HYP, ".RData" , sep=""))

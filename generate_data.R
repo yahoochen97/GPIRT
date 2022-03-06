@@ -3,11 +3,10 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 2
+  SEED = 1
   C = 5
-  n = 1000
+  n = 100
   m = 50
-  T = 1
   TYPE = "GP"
 }
 if (length(args)==5){
@@ -64,7 +63,7 @@ if(TYPE=="2PL"){
 if(TYPE=="GP"){
   library(KRLS)
   library(MASS)
-  gen_responses <- function(theta, anchor_xs, anchor_ys, thresholds, slopes) {
+  gen_responses <- function(theta, anchor_xs, anchor_ys, thresholds) {
     # ordinal regression
     C <- length(thresholds) - 1
     n <- length(theta)
@@ -77,8 +76,7 @@ if(TYPE=="GP"){
       inv_K = ginv(K)
       for ( i in 1:n ) {
         K1 = dnorm(theta[i]-anchor_xs[j,], sd=SIGMA)/dnorm(0, sd=SIGMA)
-        mu = slopes[j]*theta[i]
-        f = K1 %*% inv_K %*% (anchor_ys[j,]-anchor_xs[j,]*slopes[j]) + mu
+        f = K1 %*% inv_K %*% (anchor_ys[j,])
         ps = rep(0, C)
         for (c in 1:C) {
           z1 = thresholds[c] - f
@@ -96,17 +94,15 @@ if(TYPE=="GP"){
   NUM_ANCHOR = 10
   anchor_xs <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
   anchor_ys <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
-  slopes <- runif(m, -1, 1)
   for (j in 1:m) {
     anchor_xs[j,] = seq(-2,2, length.out = NUM_ANCHOR) # anchor points
     K = gausskernel(anchor_xs[j,], sigma=SIGMA)
     K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
-    mu = slopes[j]*anchor_xs[j,]
     anchor_ys[j,]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) 
-    anchor_ys[j,] = anchor_ys[j,] - mean(anchor_ys[j,]) + mu
+    anchor_ys[j,] = anchor_ys[j,] - mean(anchor_ys[j,])
     anchor_ys[j,] = anchor_ys[j,] / sd(anchor_ys[j,])
   }
-  data <- gen_responses(theta, anchor_xs, anchor_ys, thresholds, slopes)
+  data <- gen_responses(theta, anchor_xs, anchor_ys, thresholds)
 }
 
 # split into train and test data

@@ -3,9 +3,9 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 31
+  SEED = 1
   C = 5
-  n = 1000
+  n = 100
   m = 50
   TYPE = "GP"
 }
@@ -41,10 +41,10 @@ stan_data <- list(N=n,
 # train stan model
 fit <- stan(file = "bgrm_logit.stan",
             data = stan_data, 
-            warmup = 1000, 
-            iter = 2000, 
-            chains = 1, 
-            cores = 1, 
+            warmup = 5, 
+            iter = 10, 
+            chains = 3, 
+            cores = 3, 
             thin = 4,
             control=list(adapt_delta=.98, max_treedepth = 15),
             seed = SEED,
@@ -110,6 +110,9 @@ for (j in 1:m) {
   cor_icc[j] = cor(bgrm_iccs[,j], true_iccs[,j])
   rmse_icc[j] = sqrt(mean((bgrm_iccs[,j]-true_iccs[,j])^2))
 }
+
+print(mean(cor_icc))
+print(mean(rmse_icc))
 
 save(pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/bgrm_", HYP, ".RData" , sep=""))
