@@ -25,6 +25,7 @@ load(file=paste("./data/", HYP, ".RData" , sep=""))
 
 xs = seq(-5,5,0.01)
 idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
+idx = 1:1001
 if(TYPE=="GP"){
   for(j in 1:5){
     source("true_irf.R")
