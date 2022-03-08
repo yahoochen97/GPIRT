@@ -2,10 +2,10 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  MAXSEED = 1
+  MAXSEED = 100
   C = 5
-  n = 50
-  m = 10
+  n = 1000
+  m = 50
   TYPE = "GP"
 }
 if (length(args)==5){
@@ -15,9 +15,6 @@ if (length(args)==5){
   m = as.integer(args[4])
   TYPE = args[5]
 }
-
-source("getprob_gpirt.R")
-load(file=paste("./data/", HYP, ".RData" , sep=""))
 
 MODELS = c("gpirt","grm", "bgrm")
 
@@ -31,14 +28,22 @@ rmse_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
   for (SEED in 1:MAXSEED) {
     HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
-    result = read.csv(file=paste("./results/", MODELS[i], "_", HYP, ".csv" , sep=""))
-    cor_theta[SEED, i] = result[1,i]
-    train_ll[SEED, i] = result[2,i]
-    train_acc[SEED, i] = result[3,i]
-    pred_ll[SEED, i] = result[4,i]
-    pred_acc[SEED, i] = result[5,i]
-    cor_icc[SEED, i] = result[6,i]
-    rmse_icc[SEED, i] = result[7,i]
+    result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
+    cor_theta[SEED, i] = result[1,i+1]
+    train_ll[SEED, i] = result[2,i+1]
+    train_acc[SEED, i] = result[3,i+1]
+    pred_ll[SEED, i] = result[4,i+1]
+    pred_acc[SEED, i] = result[5,i+1]
+    cor_icc[SEED, i] = result[6,i+1]
+    rmse_icc[SEED, i] = result[7,i+1]
     }
 }
+print(colMeans(abs(cor_theta)))
+print(colMeans((train_ll)))
+print(colMeans(abs(train_acc)))
+print(colMeans((pred_ll)))
+print(colMeans(abs(pred_acc)))
+print(colMeans(abs(cor_icc)))
+print(colMeans(rmse_icc))
+
 # write.csv(results, file=paste("./results/compare", HYP, ".csv" , sep=""))

@@ -3,9 +3,9 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 1
+  SEED = 99
   C = 5
-  n = 100
+  n = 1000
   m = 50
   TYPE = "GP"
 }
@@ -91,7 +91,7 @@ if(TYPE=="GP"){
   theta <- seq(-2,2, length.out = n) # Respondent ability parameters
   xs = seq(-5,5,0.01)
   idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
-  NUM_ANCHOR = 10
+  NUM_ANCHOR = 20
   anchor_xs <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
   anchor_ys <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
   for (j in 1:m) {
