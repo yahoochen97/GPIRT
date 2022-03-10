@@ -2,7 +2,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  MAXSEED = 100
+  MAXSEED = 25
   C = 5
   n = 1000
   m = 50

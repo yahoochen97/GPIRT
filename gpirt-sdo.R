@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-    SEED = 99
+    SEED = 77
     C = 5
     n = 1000
     m = 50
@@ -36,10 +36,10 @@ HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 set.seed(SEED)
 
-SAMPLE_ITERS = 1000
-BURNOUT_ITERS = 1000
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 THIN = 4
-beta_prior_sds =  matrix(0.0, nrow = 2, ncol = ncol(data_train))
+beta_prior_sds =  matrix(0.1, nrow = 2, ncol = ncol(data_train))
 samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS, THIN,
                      beta_prior_sds = beta_prior_sds,
                      vote_codes = NULL, thresholds=NULL)
