@@ -3,10 +3,10 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 1
+  SEED = 99
   C = 5
-  n = 50
-  m = 20
+  n = 1000
+  m = 50
   TYPE = "GP"
 }
 if (length(args)==5){

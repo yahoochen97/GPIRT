@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-    SEED = 77
+    SEED = 99
     C = 5
     n = 1000
     m = 50
@@ -38,18 +38,19 @@ set.seed(SEED)
 
 SAMPLE_ITERS = 100
 BURNOUT_ITERS = 100
-THIN = 4
-beta_prior_sds =  matrix(0.1, nrow = 2, ncol = ncol(data_train))
+THIN = 1
+beta_prior_sds =  matrix(0.0, nrow = 2, ncol = ncol(data_train))
 samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS, THIN,
                      beta_prior_sds = beta_prior_sds,
                      vote_codes = NULL, thresholds=NULL)
 # save(samples, file = "vignettes/sdo.RData")
 # load(file = "vignettes/sdo.RData")
 
-# samples$theta = samples$theta[seq(1,SAMPLE_ITERS, THIN),]
-# samples$f = samples$f[,,seq(1,SAMPLE_ITERS, THIN)]
-# samples$threshold = samples$threshold[,,seq(1,SAMPLE_ITERS, THIN)]
-# samples$IRFs = samples$IRFs[,,seq(1,SAMPLE_ITERS, THIN)]
+THIN = 1
+samples$theta = samples$theta[seq(1,SAMPLE_ITERS, THIN),]
+samples$f = samples$f[,,seq(1,SAMPLE_ITERS, THIN)]
+samples$threshold = samples$threshold[seq(1,SAMPLE_ITERS, THIN),]
+samples$IRFs = samples$IRFs[,,seq(1,SAMPLE_ITERS, THIN)]
 
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
 
