@@ -124,5 +124,5 @@ print(mean(pred_acc[!is.infinite(pred_lls)]))
 print(mean(cor_icc))
 print(mean(rmse_icc))
 
-save(pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
+save(samples, pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
