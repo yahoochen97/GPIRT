@@ -32,12 +32,12 @@ library(gpirt)
 library(dplyr)
 
 source("getprob_gpirt.R")
-HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_'0, SEED, sep="")
+HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 set.seed(SEED)
 
-SAMPLE_ITERS = 300
-BURNOUT_ITERS = 300
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 THIN = 4
 beta_prior_sds =  matrix(0.1, nrow = 2, ncol = ncol(data_train))
 samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS, THIN,
