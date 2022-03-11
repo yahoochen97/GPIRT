@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 99
+  SEED = 77
   C = 5
   n = 1000
   m = 50
@@ -88,7 +88,7 @@ if(TYPE=="GP"){
     }
     return(responses)
   }
-  theta <- seq(-2,2, length.out = n) # Respondent ability parameters
+  theta <- seq(-1,1, length.out = n) # Respondent ability parameters
   xs = seq(-5,5,0.01)
   idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
   NUM_ANCHOR = 20
