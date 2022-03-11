@@ -37,7 +37,7 @@ load(file=paste("./data/", HYP, ".RData" , sep=""))
 set.seed(SEED)
 
 SAMPLE_ITERS = 100
-BURNOUT_ITERS = 0
+BURNOUT_ITERS = 100
 THIN = 1
 beta_prior_sds =  matrix(0.0, nrow = 2, ncol = ncol(data_train))
 samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS, THIN,
