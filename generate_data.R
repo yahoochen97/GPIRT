@@ -89,6 +89,7 @@ if(TYPE=="GP"){
     return(responses)
   }
   theta <- seq(-1,1, length.out = n) # Respondent ability parameters
+  theta <- rnorm(n, 0, 1)
   xs = seq(-5,5,0.01)
   idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
   NUM_ANCHOR = 20
@@ -100,7 +101,7 @@ if(TYPE=="GP"){
     K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
     anchor_ys[j,]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) 
     anchor_ys[j,] = anchor_ys[j,] - mean(anchor_ys[j,])
-    anchor_ys[j,] = 2*anchor_ys[j,] / sd(anchor_ys[j,])
+    anchor_ys[j,] = anchor_ys[j,] / sd(anchor_ys[j,])
   }
   data <- gen_responses(theta, anchor_xs, anchor_ys, thresholds)
 }
