@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 77
+  SEED = 95
   C = 5
   n = 1000
   m = 50
@@ -100,7 +100,7 @@ if(TYPE=="GP"){
     K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
     anchor_ys[j,]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) 
     anchor_ys[j,] = anchor_ys[j,] - mean(anchor_ys[j,])
-    anchor_ys[j,] = anchor_ys[j,] / sd(anchor_ys[j,])
+    anchor_ys[j,] = 2*anchor_ys[j,] / sd(anchor_ys[j,])
   }
   data <- gen_responses(theta, anchor_xs, anchor_ys, thresholds)
 }
