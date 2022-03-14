@@ -16,7 +16,7 @@ if (length(args)==5){
   TYPE = args[5]
 }
 
-MODELS = c("gpirt","grm", "bgrm")
+MODELS = c("gpirt","grm")#, "bgrm")
 
 cor_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 train_ll = matrix(0, nrow = MAXSEED, ncol = length(MODELS))

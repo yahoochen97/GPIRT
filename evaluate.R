@@ -20,7 +20,7 @@ source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 
-MODELS = c("gpirt","grm")#, "bgrm")
+MODELS = c("gpirt","grm", "bgrm")
 
 results = matrix(0, nrow = 7, ncol = length(MODELS))
 for(i in 1:length(MODELS)){

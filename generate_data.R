@@ -23,7 +23,7 @@ SIGMA = 1
 source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 
-set.seed(SEED)
+set.seed(SEED + 12345)
 thresholds = rep(0, C+1)
 thresholds[1] = -Inf
 thresholds[C+1] = Inf
@@ -89,10 +89,9 @@ if(TYPE=="GP"){
     return(responses)
   }
   theta <- seq(-1,1, length.out = n) # Respondent ability parameters
-  theta <- rnorm(n, 0, 1)
   xs = seq(-5,5,0.01)
   idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
-  NUM_ANCHOR = 20
+  NUM_ANCHOR = 50
   anchor_xs <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
   anchor_ys <- matrix(0, nrow=m,ncol=NUM_ANCHOR)
   for (j in 1:m) {
