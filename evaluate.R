@@ -7,7 +7,7 @@ if (length(args)==0) {
   n = 50
   m = 10
   TYPE = "GP"
-}
+}s
 if (length(args)==5){
   SEED = as.integer(args[1])
   C = as.integer(args[2])
