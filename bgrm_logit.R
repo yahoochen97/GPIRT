@@ -48,7 +48,7 @@ fit <- stan(file = "bgrm_logit.stan",
             thin = 4,
             control=list(adapt_delta=.98, max_treedepth = 15),
             seed = SEED,
-            refresh= 0
+            refresh= 1
 )
 
 # saveRDS(fit, paste("./results/bgrm_", HYP, ".rds" , sep=""))
