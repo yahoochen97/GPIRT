@@ -22,12 +22,12 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 # options("install.lock"=FALSE)
 # gpirt_path = "../gpirt"
-# gpirt_path = "~/Documents/Github/gpirt"
-# setwd(gpirt_path)
-# library(Rcpp)
-# Rcpp::compileAttributes()
-# install.packages(gpirt_path, type="source", repos = NULL)#, lib=R_path)
-# setwd("../OrdGPIRT")
+gpirt_path = "~/Documents/Github/gpirt"
+setwd(gpirt_path)
+library(Rcpp)
+Rcpp::compileAttributes()
+install.packages(gpirt_path, type="source", repos = NULL)#, lib=R_path)
+setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
 
@@ -39,7 +39,7 @@ set.seed(SEED)
 SAMPLE_ITERS = 100
 BURNOUT_ITERS = 100
 THIN = 1
-beta_prior_sds =  matrix(0.1, nrow = 2, ncol = ncol(data_train))
+beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
 samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS, THIN,
                      beta_prior_sds = beta_prior_sds,
                      vote_codes = NULL, thresholds=NULL)

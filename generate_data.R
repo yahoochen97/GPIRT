@@ -23,7 +23,7 @@ SIGMA = 1
 source("getprob_gpirt.R")
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
 
-set.seed(SEED + 12345)
+set.seed(SEED)
 thresholds = rep(0, C+1)
 thresholds[1] = -Inf
 thresholds[C+1] = Inf
