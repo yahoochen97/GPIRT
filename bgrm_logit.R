@@ -27,7 +27,7 @@ set.seed(SEED)
 library(dplyr)
 source("getprob_gpirt.R")
 library(rstan)
-rstan_options(auto_write = TRUE)
+rstan_options(auto_write = FALSE)
 options(mc.cores = parallel::detectCores())
 xs = seq(-3,3,0.01)
 data_train[is.na(data_train)] = 0
