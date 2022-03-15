@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-    SEED = 95
+    SEED = 1
     C = 5
     n = 1000
     m = 50
@@ -42,7 +42,7 @@ THIN = 1
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
 samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS, THIN,
                      beta_prior_sds = beta_prior_sds,
-                     vote_codes = NULL, thresholds=NULL)
+                     vote_codes = NULL, thresholds=NULL, SEED=SEED)
 # save(samples, file = "vignettes/sdo.RData")
 # load(file = "vignettes/sdo.RData")
 
