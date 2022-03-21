@@ -83,7 +83,7 @@ for (i in 1:nrow(data)) {
             lls[iter,] = ll
             y_pred[iter] =  which.max(ll)
           }
-          ll = colMeans(lls)
+          ll = log(colMeans(exp(lls)))
           y_pred = round(mean(y_pred))
             if(train_idx[i,j]==0){
                 pred_acc = c(pred_acc, y_pred==(data[[i,j]]))
