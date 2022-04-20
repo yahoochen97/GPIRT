@@ -37,3 +37,15 @@ getprobs_2PL = function(xs, betas){
   }
   return(probs)
 }
+
+SEKernel = function(xs, sigma=1){
+  n = length(xs)
+  result = matrix(0, nrow=n, ncol=n)
+  for (i in 1:n) {
+    for (j in 1:n) {
+      diff = xs[i] - xs[j]
+      result[i,j] = exp(-0.5*diff*diff/sigma/sigma)
+    }
+  }
+  return(result)
+}

@@ -8,6 +8,7 @@ MAXSEED=100
 declare -a Cs=(5)
 declare -a ns=(1000)
 declare -a ms=(50)
+horizon=10
 
 if [ $1 = "run" ]
 then
@@ -15,7 +16,7 @@ then
         for C in ${Cs[@]}; do
             for n in ${ns[@]}; do
                 for m in ${ms[@]}; do
-                    bsub -G SEAS-Lab-Garnett -J "C${C}n${n}m${m}_${SEED}" -o "${SEED}.log" "./onerun $SEED $C $n $m"
+                    bsub -G SEAS-Lab-Garnett -J "C${C}n${n}m${m}h${horizon}_${SEED}" -o "C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon"
                 done
             done
         done
@@ -25,7 +26,7 @@ then
     for C in ${Cs[@]}; do
         for n in ${ns[@]}; do
             for m in ${ms[@]}; do
-                Rscript --vanilla compare.R $MAXSEED $C $n $m 'GP'
+                Rscript --vanilla compare.R $MAXSEED $C $n $m $horizon 'GP'
             done
         done
     done

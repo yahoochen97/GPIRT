@@ -2,51 +2,65 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 41
+  SEED = 1
   C = 5
-  n = 1000
-  m = 50
+  n = 50
+  m = 20
+  horizon = 1
   TYPE = "GP"
 }
-if (length(args)==5){
+if (length(args)==6){
   SEED = as.integer(args[1])
   C = as.integer(args[2])
   n = as.integer(args[3])
   m = as.integer(args[4])
-  TYPE = args[5]
+  horizon = as.integer(args[5])
+  TYPE = args[6]
 }
-
 library(ggplot2)
 library(KRLS)
 library(dplyr)
 source("getprob_gpirt.R")
-HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
+HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 
 xs = seq(-5,5,0.01)
 idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
-idx = 1:1001
-if(TYPE=="GP"){
-  for(j in 1:5){
-    source("true_irf.R")
-    pdf(file=paste("./figures/truefq",j,".pdf", sep=""))
-    plot(xs[idx], irfs)
-    points(anchor_xs[j,],anchor_ys[j,])
-    dev.off()
-    
-    probs = getprobs_gpirt(xs[idx], irfs, matrix(thresholds,nrow=1))
-    q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
-      geom_line(size=2) +ggtitle(paste("True GP IRT q",j, sep="")) +
-      theme(plot.title = element_text(hjust = 0.5))
-    ggsave(paste("./figures/trueirfq",j,".pdf", sep=""), plot=q, width = 7, height = 4, units = "in")
-    
-    tmp = probs %>% 
-          group_by(xs) %>%
-          summarize(icc=sum(order*p))
-    pdf(file=paste("./figures/trueiccq",j,".pdf", sep=""))
-    plot(xs[idx], tmp$icc)
-    dev.off()
-  }
+
+for(l in 1:5){
+  # plot latent f
+  source("true_irf.R")
+  pdf(file=paste("./figures/truefq",l,".pdf", sep=""))
+  plot(xs[idx], irfs)
+  dev.off()
+  
+  # plot item response function
+  probs = getprobs_gpirt(xs[idx], irfs, matrix(thresholds,nrow=1))
+  q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
+    geom_line(size=2) +ggtitle(paste("True GP IRT q",l, sep="")) +
+    theme(plot.title = element_text(hjust = 0.5))
+  ggsave(paste("./figures/trueirfq",l,".pdf", sep=""), plot=q, width = 7, height = 4, units = "in")
+  
+  # plot item characteristics curve
+  tmp = probs %>% 
+    group_by(xs) %>%
+    summarize(icc=sum(order*p))
+  
+  pdf(file=paste("./figures/trueiccq",l,".pdf", sep=""))
+  plot(xs[idx], tmp$icc, col=2, lty=1)
+  # source('~/Documents/GitHub/OrdGPIRT/gpirt-sdo.R')
+  # lines(xs[idx], gpirt_iccs[,l],col=3)
+  # source('~/Documents/GitHub/OrdGPIRT/2PL.R')
+  # lines(xs[idx], grm_iccs[,l],col=4)
+  # source('~/Documents/GitHub/OrdGPIRT/bgrm_logit.R')
+  # lines(xs[idx], bgrm_iccs[,l],col=1)
+  # legend(x = "topright", 
+  #        legend=c("truth", "gpirt", "grm", "bgrm"),
+  #        lty = c(1, 1, 1, 1),           # Line types
+  #        col = c(2, 3, 4, 1),           # Line colors
+  #        lwd = 2)
+  dev.off()
+}
   
   # for(j in 1:5){
   #   probs = getprobs_2PL(xs[idx], betas[[paste('Item ', j, sep='')]])
@@ -56,7 +70,6 @@ if(TYPE=="GP"){
   #     summarize(icc=sum(order*p))
   #   plot(xs[idx], tmp$icc)
   # }
-}
 
 # plot(pred_theta, data[,9], pch=4, ylim=c(-2,5))
 # points(pred_theta,rowMeans(samples$f[,9,]))
@@ -86,10 +99,4 @@ getprobs_catSurv = function(xs, discrimination, difficulties){
   return(probs)
 }
 
-# if (PLOT){
-#   idx = (as.integer(min(pred_theta)*100+500)):(as.integer(max(pred_theta)*100+500))
-#   for (j in 1:m) {
-#     probs = getprobs_catSurv(xs[idx], sdo_cat@discrimination[[paste("q",j, sep="")]],
-#                               sdo_cat@difficulty[[paste("q",j, sep="")]])
-#   }
-# }
+

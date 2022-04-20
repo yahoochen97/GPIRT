@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 45
+  SEED = 1
   C = 5
   n = 1000
   m = 50
@@ -114,5 +114,5 @@ for (j in 1:m) {
 print(mean(cor_icc))
 print(mean(rmse_icc))
 
-save(pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
+save(bgrm_iccs,pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/bgrm_", HYP, ".RData" , sep=""))
