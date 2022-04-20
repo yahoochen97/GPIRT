@@ -5,8 +5,8 @@ mkdir -p figures
 mkdir -p results
 
 MAXSEED=100
-declare -a Cs=(5)
-declare -a ns=(1000)
+declare -a Cs=(2)
+declare -a ns=(100)
 declare -a ms=(50)
 horizon=10
 
