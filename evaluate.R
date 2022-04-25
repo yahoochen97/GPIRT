@@ -29,7 +29,7 @@ results = matrix(0, nrow = 7, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
   load(file=paste("./results/", MODELS[i], "_", HYP, ".RData" , sep=""))
   cor_theta = c()
-  for (i in 1:h) {
+  for (i in 1:horizon) {
     cor_theta = c(cor_theta, cor(theta[,i], pred_theta[,i]))
   }
   results[1,i] = mean(cor_theta)
