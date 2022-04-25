@@ -28,7 +28,11 @@ MODELS = c("gpirt")
 results = matrix(0, nrow = 7, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
   load(file=paste("./results/", MODELS[i], "_", HYP, ".RData" , sep=""))
-  results[1,i] = cor(theta, pred_theta)
+  cor_theta = c()
+  for (i in 1:h) {
+    cor_theta = c(cor_theta, cor(theta[,i], pred_theta[,i]))
+  }
+  results[1,i] = mean(cor_theta)
   results[2,i] = mean(train_lls)
   results[3,i] = mean(train_acc)
   results[4,i] = mean(pred_lls)
