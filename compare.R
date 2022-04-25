@@ -42,7 +42,7 @@ for(i in 1:length(MODELS)){
     }
 }
 print(colMeans(abs(cor_theta)))
-print(colMeans((train_ll[!is.infinite(train_ll[,1]),])))
+print(colMeans((train_ll)))
 print(colMeans(abs(train_acc)))
 print(colMeans((pred_ll)))
 print(colMeans(abs(pred_acc)))
