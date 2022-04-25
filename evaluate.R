@@ -3,24 +3,27 @@ options(show.error.locations = TRUE)
 
 if (length(args)==0) {
   SEED = 1
-  C = 5
-  n = 1000
-  m = 50
+  C = 2
+  n = 100
+  m = 20
+  horizon = 10
   TYPE = "GP"
 }
-if (length(args)==5){
+if (length(args)==6){
   SEED = as.integer(args[1])
   C = as.integer(args[2])
   n = as.integer(args[3])
   m = as.integer(args[4])
-  TYPE = args[5]
+  horizon = as.integer(args[5])
+  TYPE = args[6]
 }
 
 source("getprob_gpirt.R")
-HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_SEED_', SEED, sep="")
+HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 
 MODELS = c("gpirt","grm", "bgrm")
+MODELS = c("gpirt")
 
 results = matrix(0, nrow = 7, ncol = length(MODELS))
 for(i in 1:length(MODELS)){

@@ -14,10 +14,10 @@ n=$3
 m=$4
 horizon=$5
 
-Rscript --vanilla generate_data.R $SEED $C $n $m $horizon 'GP'
+# Rscript --vanilla generate_data.R $SEED $C $n $m $horizon 'GP'
 # Rscript --vanilla 2PL.R $SEED $C $n $m $horizon 'GP'
-Rscript --vanilla gpirt-sdo.R $SEED $C $n $m $horizon 'GP'
+# Rscript --vanilla gpirt-sdo.R $SEED $C $n $m $horizon 'GP'
 # Rscript --vanilla bgrm_logit.R $SEED $C $n $m 'GP'
-# Rscript --vanilla evaluate.R $SEED $C $n $m 'GP'
+Rscript --vanilla evaluate.R $SEED $C $n $m $horizon 'GP'
 
 # conda deactivate
