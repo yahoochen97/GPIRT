@@ -5,8 +5,8 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
     SEED = 1
     C = 2
-    n = 100
-    m = 20
+    n = 20
+    m = 5
     horizon = 10
     TYPE = "GP"
 }
@@ -24,33 +24,38 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 # options("install.lock"=FALSE)
 # gpirt_path = "../gpirt"
-# gpirt_path = "~/Documents/Github/gpirt"
-# setwd(gpirt_path)
-# library(Rcpp)
-# Rcpp::compileAttributes()
-# install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
-# setwd("../OrdGPIRT")
+gpirt_path = "~/Documents/Github/gpirt"
+setwd(gpirt_path)
+library(Rcpp)
+Rcpp::compileAttributes()
+install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
+setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
 
 source("getprob_gpirt.R")
-HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
+HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
-set.seed(SEED)
+HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
+if(TYPE=="GP"){
+    theta_os = 1
+    theta_ls = 1 + horizon / 2
+}else if(TYPE=="CST"){
+    theta_os = 0
+    theta_ls = 1 + horizon / 2
+}else{
+    theta_os = 1
+    theta_ls = 10*horizon
+}
+
 THIN = 1
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
 samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS, THIN,
-                     beta_prior_sds = beta_prior_sds,
-                     vote_codes = NULL, thresholds=NULL, SEED=SEED)
-
-# THIN = 1
-# samples$theta = samples$theta[seq(1,SAMPLE_ITERS, THIN),]
-# samples$f = samples$f[,,seq(1,SAMPLE_ITERS, THIN)]
-# samples$threshold = samples$threshold[seq(1,SAMPLE_ITERS, THIN),]
-# samples$IRFs = samples$IRFs[,,seq(1,SAMPLE_ITERS, THIN)]
+                     beta_prior_sds = beta_prior_sds, theta_os = theta_os,
+                     theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL)
 
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
 
@@ -71,20 +76,29 @@ pred_lls = c()
 pred_acc = c()
 train_lls = c()
 train_acc = c()
+
+sample_IRFs = vector(mode = "list", length = SAMPLE_ITERS)
+for (iter in 1:SAMPLE_ITERS){
+    # recover fstar
+    sample_IRFs[[iter]] = recover_fstar(BURNOUT_ITERS+iter-1,samples$f[[iter]],data_train, 
+                  as.matrix(samples$theta[iter,,]), samples$threshold[iter,])$fstar
+}
+
 for (i in 1:n) {
     for (j in 1:m) {
         for(h in 1:horizon){
             if(!is.na(data[[i,j,h]])){
-              lls = matrix(0,nrow=SAMPLE_ITERS, ncol = C)
-              y_pred = rep(0, SAMPLE_ITERS)
-              for (iter in 1:SAMPLE_ITERS) {
-                f_pred = samples$IRFs[[iter]][as.integer((pred_theta[i,h]+5)*100), j, h]
-                ll = ordinal_lls(f_pred, samples$threshold[iter,])
-                lls[iter,] = ll
-                y_pred[iter] =  which.max(ll)
-              }
-              ll = log(colMeans(exp(lls)))
-              y_pred = round(mean(y_pred))
+                lls = matrix(0,nrow=SAMPLE_ITERS, ncol = C)
+                y_pred = rep(0, SAMPLE_ITERS)
+                pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
+                for (iter in 1:SAMPLE_ITERS) {
+                    f_pred = sample_IRFs[[iter]][pred_idx, j, h]
+                    ll = ordinal_lls(f_pred, samples$threshold[iter,])
+                    lls[iter,] = ll
+                    y_pred[iter] =  which.max(ll)
+                }
+                ll = log(colMeans(exp(lls)))
+                y_pred = round(mean(y_pred))
                 if(train_idx[i,j, h]==0){
                     pred_acc = c(pred_acc, y_pred==(data[[i,j, h]]))
                     pred_lls = c(pred_lls, ll[data[[i,j, h]]])
@@ -97,7 +111,7 @@ for (i in 1:n) {
     }
 }
 
-# TODO: cor of icc
+# cor of icc
 idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
 idx = 301:701
 # IRFs = Reduce("+",samples$IRFs)/length(samples$IRFs)
@@ -121,7 +135,10 @@ for (h in 1:horizon) {
         true_iccs[,j] = tmp$icc
         IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
         for(iter in 1:SAMPLE_ITERS){
-            IRFs[iter,] = samples$IRFs[[iter]][idx,j,h]
+            # IRFs[iter,] = samples$IRFs[[iter]][idx,j,h]
+            # IRFs[iter,] = recover_fstar(BURNOUT_ITERS+iter-1,samples$f[[iter]],data_train, 
+            #                        as.matrix(samples$theta[iter,,]), samples$threshold[iter,])$fstar[idx,j,h]
+            IRFs[iter, ] = sample_IRFs[[iter]][idx, j, h]
         }
         probs = getprobs_gpirt(xs[idx], t(IRFs), 
                                samples$threshold)
@@ -149,9 +166,3 @@ print(mean(array(rmse_icc, n*horizon)))
 
 save(gpirt_iccs, pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
-
-# plot(1:10,samples$theta[1,1,],lty=1,ylim=c(-6,6))
-# for(i in 2:100){
-#     lines(1:10,samples$theta[i,1,])
-# }
-

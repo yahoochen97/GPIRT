@@ -9,6 +9,7 @@ declare -a Cs=(2)
 declare -a ns=(100)
 declare -a ms=(50)
 horizon=10
+TYPE="CST"
 
 if [ $1 = "run" ]
 then
@@ -16,7 +17,7 @@ then
         for C in ${Cs[@]}; do
             for n in ${ns[@]}; do
                 for m in ${ms[@]}; do
-                    bsub -G SEAS-Lab-Garnett -J "C${C}n${n}m${m}h${horizon}_${SEED}" -o "C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon"
+                    bsub -G SEAS-Lab-Garnett -J "${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}" -o "${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE}"
                 done
             done
         done
