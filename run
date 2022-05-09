@@ -9,7 +9,7 @@ declare -a Cs=(2)
 declare -a ns=(100)
 declare -a ms=(50)
 horizon=10
-TYPE="RDM"
+TYPE="CST"
 
 if [ $1 = "run" ]
 then
