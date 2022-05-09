@@ -22,14 +22,14 @@ if (length(args)==6){
 # install gpirt package
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
-options("install.lock"=FALSE)
-gpirt_path = "../gpirt"
+# options("install.lock"=FALSE)
+# gpirt_path = "../gpirt"
 # gpirt_path = "~/Documents/Github/gpirt"
-setwd(gpirt_path)
-library(Rcpp)
-Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL,lib=R_path, INSTALL_opts = '--no-lock')
-setwd("../OrdGPIRT")
+# setwd(gpirt_path)
+# library(Rcpp)
+# Rcpp::compileAttributes()
+# install.packages(gpirt_path, type="source", repos = NULL,lib=R_path, INSTALL_opts = '--no-lock')
+# setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
 
