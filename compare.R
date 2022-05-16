@@ -32,13 +32,20 @@ for(i in 1:length(MODELS)){
   for (SEED in 1:MAXSEED) {
     HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
     result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
-    cor_theta[SEED, i] = result[1,i+1]
-    train_ll[SEED, i] = result[2,i+1]
-    train_acc[SEED, i] = result[3,i+1]
-    pred_ll[SEED, i] = result[4,i+1]
-    pred_acc[SEED, i] = result[5,i+1]
-    cor_icc[SEED, i] = result[6,i+1]
-    rmse_icc[SEED, i] = result[7,i+1]
+    # cor_theta[SEED, i] = result[1,i+1]
+    # train_ll[SEED, i] = result[2,i+1]
+    # train_acc[SEED, i] = result[3,i+1]
+    # pred_ll[SEED, i] = result[4,i+1]
+    # pred_acc[SEED, i] = result[5,i+1]
+    # cor_icc[SEED, i] = result[6,i+1]
+    # rmse_icc[SEED, i] = result[7,i+1]
+    cor_theta[SEED, i] = result[1,2]
+    train_ll[SEED, i] = result[2,2]
+    train_acc[SEED, i] = result[3,2]
+    pred_ll[SEED, i] = result[4,2]
+    pred_acc[SEED, i] = result[5,2]
+    cor_icc[SEED, i] = result[6,2]
+    rmse_icc[SEED, i] = result[7,2]
     }
 }
 print(colMeans(abs(cor_theta)))
