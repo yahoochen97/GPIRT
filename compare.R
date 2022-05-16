@@ -19,7 +19,7 @@ if (length(args)==6){
 }
 
 MODELS = c("gpirt","grm", "bgrm")
-MODELS = c("gpirt")
+MODELS = c("gpirt_GP", "gpirt_CST", "gpirt_RDM")
 
 cor_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 train_ll = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
@@ -30,7 +30,7 @@ cor_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 rmse_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
   for (SEED in 1:MAXSEED) {
-    HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
+    HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
     result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
     cor_theta[SEED, i] = result[1,i+1]
     train_ll[SEED, i] = result[2,i+1]
@@ -49,4 +49,5 @@ print(colMeans(abs(pred_acc)))
 print(colMeans(abs(cor_icc)))
 print(colMeans(rmse_icc))
 
-# write.csv(results, file=paste("./results/compare", HYP, ".csv" , sep=""))
+HYP = paste("_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
+write.csv(results, file=paste("./results/compare_", HYP, ".csv" , sep=""))
