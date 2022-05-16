@@ -19,8 +19,9 @@ if (length(args)==6){
 }
 
 source("getprob_gpirt.R")
-HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
+HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
+HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 
 MODELS = c("gpirt","grm", "bgrm")
 MODELS = c("gpirt")
