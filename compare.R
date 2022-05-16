@@ -19,7 +19,7 @@ if (length(args)==6){
 }
 
 MODELS = c("gpirt","grm", "bgrm")
-MODELS = c("gpirt_GP", "gpirt_CST", "gpirt_RDM")
+MODELS = c("GP", "CST", "RDM")
 
 cor_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 train_ll = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
@@ -50,4 +50,4 @@ print(colMeans(abs(cor_icc)))
 print(colMeans(rmse_icc))
 
 HYP = paste("_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
-write.csv(results, file=paste("./results/compare_", HYP, ".csv" , sep=""))
+write.csv(results, file=paste("./results/compare", HYP, ".csv" , sep=""))
