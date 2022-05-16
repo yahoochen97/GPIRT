@@ -57,4 +57,4 @@ print(colMeans(abs(cor_icc)))
 print(colMeans(rmse_icc))
 
 HYP = paste("_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
-write.csv(results, file=paste("./results/compare", HYP, ".csv" , sep=""))
+# write.csv(results, file=paste("./results/compare", HYP, ".csv" , sep=""))

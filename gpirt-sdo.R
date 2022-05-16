@@ -8,7 +8,7 @@ if (length(args)==0) {
     n = 20
     m = 5
     horizon = 10
-    TYPE = "GP"
+    TYPE = "CST"
 }
 if (length(args)==6){
     SEED = as.integer(args[1])
@@ -45,10 +45,10 @@ if(TYPE=="GP"){
     theta_ls = 1 + horizon / 2
 }else if(TYPE=="CST"){
     theta_os = 0
-    theta_ls = 1 + horizon / 2
+    theta_ls = -1
 }else{
-    theta_os = 1
-    theta_ls = 10*horizon
+    theta_os = 0
+    theta_ls = 1 + horizon / 2
 }
 
 THIN = 1
