@@ -17,7 +17,7 @@ then
         for C in ${Cs[@]}; do
             for n in ${ns[@]}; do
                 for m in ${ms[@]}; do
-                    bsub -G SEAS-Lab-Garnett -J "${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}" -o "${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE}"
+                    bsub -G SEAS-Lab-Garnett -J "${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}" -o "./log/${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE}"
                 done
             done
         done
