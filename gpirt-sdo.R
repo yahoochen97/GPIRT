@@ -8,7 +8,7 @@ if (length(args)==0) {
     n = 20
     m = 5
     horizon = 10
-    TYPE = "CST"
+    TYPE = "GP"
 }
 if (length(args)==6){
     SEED = as.integer(args[1])
