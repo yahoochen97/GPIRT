@@ -13,7 +13,7 @@ declare -a TYPES=("GP" "CST" "RDM")
 
 if [ $1 = "run" ]
 then
-    for TYPE in $(seq 1 1 $TYPES); do
+    for TYPE in ${TYPES[@]}; do
         for SEED in $(seq 1 1 $MAXSEED); do
             for C in ${Cs[@]}; do
                 for n in ${ns[@]}; do
