@@ -38,8 +38,8 @@ HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep=
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 if(TYPE=="GP"){
     theta_os = 1
     theta_ls = 1 + horizon / 2
@@ -118,12 +118,12 @@ idx = 301:701
 # gpirt_iccs = colMeans(IRFs, dim=1)
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon), 
                    c(length(xs[idx]),m, horizon))
+true_iccs = array(array(0, length(xs[idx])*m*horizon), 
+                   c(length(xs[idx]),m, horizon))
 cor_icc = matrix(0, nrow=m, ncol=horizon)
 rmse_icc = matrix(0, nrow=m, ncol=horizon)
 
 for (h in 1:horizon) {
-    
-    true_iccs = matrix(0, nrow=nrow(gpirt_iccs), ncol=m)
     for (j in 1:m) {
         source("true_irf.R")
         # sign(cor(theta[,h],pred_theta[,h]))
@@ -132,7 +132,7 @@ for (h in 1:horizon) {
         tmp = probs %>% 
             group_by(xs) %>%
             summarize(icc=sum(order*p))
-        true_iccs[,j] = tmp$icc
+        true_iccs[,j,h] = tmp$icc
         IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
         for(iter in 1:SAMPLE_ITERS){
             # IRFs[iter,] = samples$IRFs[[iter]][idx,j,h]
@@ -146,8 +146,8 @@ for (h in 1:horizon) {
             group_by(xs) %>%
             summarize(icc=sum(order*p))
         gpirt_iccs[,j,h] = tmp$icc
-        cor_icc[j,h] = cor(gpirt_iccs[,j,h], true_iccs[,j])
-        rmse_icc[j,h] = sqrt(mean((gpirt_iccs[,j,h]-true_iccs[,j])^2))
+        cor_icc[j,h] = cor(gpirt_iccs[,j,h], true_iccs[,j,h])
+        rmse_icc[j,h] = sqrt(mean((gpirt_iccs[,j,h]-true_iccs[,j,h])^2))
     }
 }
 
@@ -164,5 +164,5 @@ print(mean(pred_acc[!is.infinite(pred_lls)]))
 print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
 
-save(gpirt_iccs, pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
+save(gpirt_iccs, true_iccs, pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/gpirt_", HYP, ".RData" , sep=""))

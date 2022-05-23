@@ -9,8 +9,8 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
   SEED = 1
   C = 2
-  n = 20
-  m = 5
+  n = 100
+  m = 50
   horizon = 10
   TYPE = "GP"
 }
