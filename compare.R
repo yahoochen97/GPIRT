@@ -48,13 +48,29 @@ for(i in 1:length(MODELS)){
     rmse_icc[SEED, i] = result[7,2]
     }
 }
+
+COR_THETA_ERR = apply(abs(cor_theta), 2, sd)/sqrt(MAXSEED)
+TRAIN_LL_ERR =  apply(train_ll, 2, sd)/sqrt(MAXSEED)
+TRAIN_ACC_ERR =  apply(train_acc, 2, sd)/sqrt(MAXSEED)
+PRED_LL_ERR =  apply(pred_ll, 2, sd)/sqrt(MAXSEED)
+PRED_ACC_ERR = apply(pred_acc, 2, sd)/sqrt(MAXSEED)
+COR_ICC_ERR =  apply(cor_icc, 2, sd)/sqrt(MAXSEED)
+RMSE_ICC_ERR =  apply(rmse_icc, 2, sd)/sqrt(MAXSEED)
+
 print(colMeans(abs(cor_theta)))
+print(COR_THETA_ERR)
 print(colMeans((train_ll)))
+print(TRAIN_LL_ERR)
 print(colMeans(abs(train_acc)))
+print(TRAIN_ACC_ERR)
 print(colMeans((pred_ll)))
+print(PRED_LL_ERR)
 print(colMeans(abs(pred_acc)))
+print(PRED_ACC_ERR)
 print(colMeans(abs(cor_icc)))
+print(COR_ICC_ERR)
 print(colMeans(rmse_icc))
+print(RMSE_ICC_ERR)
 
 HYP = paste("_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 # write.csv(results, file=paste("./results/compare", HYP, ".csv" , sep=""))
