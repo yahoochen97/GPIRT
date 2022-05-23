@@ -9,15 +9,17 @@ declare -a Cs=(2)
 declare -a ns=(100)
 declare -a ms=(50)
 horizon=10
-TYPE="GP"
+declare -a TYPES=("GP" "CST" "RDM")
 
 if [ $1 = "run" ]
 then
-    for SEED in $(seq 1 1 $MAXSEED); do
-        for C in ${Cs[@]}; do
-            for n in ${ns[@]}; do
-                for m in ${ms[@]}; do
-                    bsub -G SEAS-Lab-Garnett -J "${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}" -o "./log/${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE}"
+    for TYPE in $(seq 1 1 $TYPES); do
+        for SEED in $(seq 1 1 $MAXSEED); do
+            for C in ${Cs[@]}; do
+                for n in ${ns[@]}; do
+                    for m in ${ms[@]}; do
+                        bsub -G SEAS-Lab-Garnett -J "${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}" -o "./log/${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE}"
+                    done
                 done
             done
         done
