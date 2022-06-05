@@ -103,10 +103,9 @@ if(TYPE=="GP"){
   theta = matrix(0, nrow = n, ncol = horizon)
   if(horizon>1){
     for (i in 1:n) {
-      K = SEKernel(1:horizon, sigma=as.integer(1+horizon/2))
+      K = SEKernel(1:horizon, sigma=as.integer(1+horizon/3))
       K = K + diag(1e-6, horizon, horizon)
-      theta[i,] <- rnorm(1) + t(chol(K))%*%rnorm(horizon)  # Respondent ability parameters
-      # theta[i,] <- t(chol(K))%*%rnorm(horizon)
+      theta[i,] <- t(chol(K))%*%rnorm(horizon)  # Respondent ability parameters
     }
   }else{
     theta[,1] = rnorm(n)
