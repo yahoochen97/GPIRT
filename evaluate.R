@@ -33,12 +33,12 @@ for(i in 1:length(MODELS)){
   for (h in 1:horizon) {
     cor_theta = c(cor_theta, cor(theta[,h], pred_theta[,h]))
   }
-  results[1,i] = mean(cor_theta)
+  results[1,i] = mean(abs(cor_theta))
   results[2,i] = mean(train_lls)
   results[3,i] = mean(train_acc)
   results[4,i] = mean(pred_lls)
   results[5,i] = mean(pred_acc)
-  results[6,i] = mean(cor_icc)
+  results[6,i] = mean(abs(cor_icc))
   results[7,i] = mean(rmse_icc)
 }
 
