@@ -42,7 +42,7 @@ SAMPLE_ITERS = 500
 BURNOUT_ITERS = 500
 if(TYPE=="GP"){
     theta_os = 1
-    theta_ls = 1 + horizon / 3
+    theta_ls = horizon
 }else if(TYPE=="CST"){
     theta_os = 0
     theta_ls = -1

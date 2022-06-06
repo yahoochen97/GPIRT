@@ -17,7 +17,7 @@ TYPE=$6
 
 # Rscript --vanilla generate_data.R $SEED $C $n $m $horizon 'GP'
 # Rscript --vanilla 2PL.R $SEED $C $n $m $horizon 'GP'
-# Rscript --vanilla gpirt-sdo.R $SEED $C $n $m $horizon $TYPE
+Rscript --vanilla gpirt-sdo.R $SEED $C $n $m $horizon $TYPE
 # Rscript --vanilla bgrm_logit.R $SEED $C $n $m 'GP'
 Rscript --vanilla evaluate.R $SEED $C $n $m $horizon $TYPE
 
