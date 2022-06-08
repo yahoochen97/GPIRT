@@ -5,11 +5,12 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
     SEED = 1
     C = 2
-    n = 20
-    m = 5
+    n = 100
+    m = 50
     horizon = 10
     TYPE = "GP"
 }
+
 if (length(args)==6){
     SEED = as.integer(args[1])
     C = as.integer(args[2])
@@ -20,8 +21,8 @@ if (length(args)==6){
 }
 
 # install gpirt package
-R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
-.libPaths(R_path)
+# R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
+# .libPaths(R_path)
 # options("install.lock"=FALSE)
 # gpirt_path = "../gpirt"
 # gpirt_path = "~/Documents/Github/gpirt"
@@ -30,7 +31,7 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 # Rcpp::compileAttributes()
 # install.packages(gpirt_path, type="source", repos = NULL,lib=R_path, INSTALL_opts = '--no-lock')
 # setwd("../OrdGPIRT")
-library(gpirt)
+# library(gpirt)
 library(dplyr)
 
 source("getprob_gpirt.R")
@@ -38,17 +39,17 @@ HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep=
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 if(TYPE=="GP"){
     theta_os = 1
-    theta_ls = horizon
+    theta_ls = as.integer(1+horizon/2)
 }else if(TYPE=="CST"){
     theta_os = 0
     theta_ls = -1
 }else{
     theta_os = 0
-    theta_ls = 1 + horizon / 3
+    theta_ls = as.integer(1+horizon/2)
 }
 
 THIN = 1
