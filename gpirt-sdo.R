@@ -21,8 +21,8 @@ if (length(args)==6){
 }
 
 # install gpirt package
-# R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
-# .libPaths(R_path)
+R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
+.libPaths(R_path)
 # options("install.lock"=FALSE)
 # gpirt_path = "../gpirt"
 # gpirt_path = "~/Documents/Github/gpirt"
