@@ -31,7 +31,7 @@ if (length(args)==6){
 # Rcpp::compileAttributes()
 # install.packages(gpirt_path, type="source", repos = NULL,lib=R_path, INSTALL_opts = '--no-lock')
 # setwd("../OrdGPIRT")
-# library(gpirt)
+library(gpirt)
 library(dplyr)
 
 source("getprob_gpirt.R")
