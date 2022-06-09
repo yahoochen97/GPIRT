@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-    SEED = 1
+    SEED = 15
     C = 2
     n = 100
     m = 50
@@ -29,7 +29,7 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 # setwd(gpirt_path)
 # library(Rcpp)
 # Rcpp::compileAttributes()
-# install.packages(gpirt_path, type="source", repos = NULL,lib=R_path, INSTALL_opts = '--no-lock')
+# install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
 # setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
@@ -39,8 +39,8 @@ HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep=
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 if(TYPE=="GP"){
     theta_os = 1
     theta_ls = as.integer(1+horizon/2)
