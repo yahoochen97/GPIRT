@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-    SEED = 15
+    SEED = 91
     C = 2
     n = 100
     m = 50
@@ -29,7 +29,7 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 # setwd(gpirt_path)
 # library(Rcpp)
 # Rcpp::compileAttributes()
-# install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
+# install.packages(gpirt_path, type="source", repos = NULL,lib=R_path, INSTALL_opts = '--no-lock')
 # setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
@@ -165,5 +165,5 @@ print(mean(pred_acc[!is.infinite(pred_lls)]))
 print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
 
-save(gpirt_iccs, true_iccs, pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
+save(samples,gpirt_iccs, true_iccs, pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
