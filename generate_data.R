@@ -2,9 +2,9 @@
 args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
-gpirt_path = "~/Documents/Github/gpirt"
-setwd(gpirt_path)
-setwd("../OrdGPIRT")
+# gpirt_path = "~/Documents/Github/gpirt"
+# setwd(gpirt_path)
+# setwd("../OrdGPIRT")
 
 if (length(args)==0) {
   SEED = 1

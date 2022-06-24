@@ -3,6 +3,7 @@
 mkdir -p data
 mkdir -p figures
 mkdir -p results
+mkdir -p log
 
 MAXSEED=100
 declare -a Cs=(2 5)
