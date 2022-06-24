@@ -39,17 +39,17 @@ HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep=
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 5
-BURNOUT_ITERS = 5
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 if(TYPE=="GP"){
     theta_os = 1
-    theta_ls = as.integer(1+horizon/2)
+    theta_ls = as.integer(horizon/2)
 }else if(TYPE=="CST"){
     theta_os = 0
     theta_ls = -1
 }else{
     theta_os = 0
-    theta_ls = as.integer(1+horizon/2)
+    theta_ls = as.integer(horizon/2)
 }
 
 fix_theta_flag = matrix(0, nrow=n, ncol=horizon)
