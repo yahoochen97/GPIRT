@@ -8,7 +8,7 @@ options(show.error.locations = TRUE)
 
 if (length(args)==0) {
   SEED = 1
-  C = 2
+  C = 5
   n = 1000
   m = 100
   horizon = 10
