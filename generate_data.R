@@ -2,15 +2,15 @@
 args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
-# gpirt_path = "~/Documents/Github/gpirt"
-# setwd(gpirt_path)
-# setwd("../OrdGPIRT")
+gpirt_path = "~/Documents/Github/gpirt"
+setwd(gpirt_path)
+setwd("../OrdGPIRT")
 
 if (length(args)==0) {
-  SEED = 91
+  SEED = 1
   C = 2
-  n = 100
-  m = 50
+  n = 1000
+  m = 100
   horizon = 10
   TYPE = "GP"
 }

@@ -3,10 +3,10 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-    SEED = 91
+    SEED = 1
     C = 2
-    n = 100
-    m = 50
+    n = 1000
+    m = 100
     horizon = 10
     TYPE = "GP"
 }
@@ -24,13 +24,13 @@ if (length(args)==6){
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 # options("install.lock"=FALSE)
-# gpirt_path = "../gpirt"
-# gpirt_path = "~/Documents/Github/gpirt"
-# setwd(gpirt_path)
-# library(Rcpp)
-# Rcpp::compileAttributes()
-# install.packages(gpirt_path, type="source", repos = NULL,lib=R_path, INSTALL_opts = '--no-lock')
-# setwd("../OrdGPIRT")
+gpirt_path = "../gpirt"
+gpirt_path = "~/Documents/Github/gpirt"
+setwd(gpirt_path)
+library(Rcpp)
+Rcpp::compileAttributes()
+install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
+setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
 
@@ -39,8 +39,8 @@ HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep=
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 5
+BURNOUT_ITERS = 5
 if(TYPE=="GP"){
     theta_os = 1
     theta_ls = as.integer(1+horizon/2)
@@ -52,12 +52,33 @@ if(TYPE=="GP"){
     theta_ls = as.integer(1+horizon/2)
 }
 
-THIN = 1
-beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
-samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS, THIN,
-                     beta_prior_sds = beta_prior_sds, theta_os = theta_os,
-                     theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL)
+fix_theta_flag = matrix(0, nrow=n, ncol=horizon)
+fix_theta_value = matrix(0, nrow=n, ncol=horizon)
 
+THIN = 1
+CHAIN = 1
+beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
+samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
+                     fix_theta_flag=fix_theta_flag, fix_theta_value=fix_theta_value,
+                     THIN=THIN, CHAIN=CHAIN,
+                     beta_prior_sds = beta_prior_sds, theta_os = theta_os,
+                     theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL, 
+                     SEED=SEED)
+
+library(rstan)
+sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
+theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
+for(i in 1:n){
+    for(h in 1:horizon){
+        for(c in 1:CHAIN){
+            pred_theta = colMeans(samples[[c]]$theta)
+            sims[,c] = sign(cor(theta[,h],pred_theta[,h]))*samples[[c]]$theta[,i,h]
+        }
+        theta_rhats[i, h] = Rhat(sims)
+    }
+}
+
+samples = samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
 
 xs = seq(-5,5,0.01)
@@ -157,6 +178,9 @@ for (i in 1:h) {
     cor_theta = c(cor_theta, cor(theta[,i], pred_theta[,i]))
 }
 
+print("Average Rhat:")
+print(mean(theta_rhats))
+print(max(theta_rhats))
 print(mean(abs(cor_theta)))
 print(mean(train_lls[!is.infinite(train_lls)]))
 print(mean(train_acc[!is.infinite(train_lls)]))
@@ -165,5 +189,5 @@ print(mean(pred_acc[!is.infinite(pred_lls)]))
 print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
 
-save(samples,gpirt_iccs, true_iccs, pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
+save(samples, theta_rhats, gpirt_iccs, true_iccs, pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
