@@ -11,7 +11,7 @@ declare -a ns=(1000)
 declare -a ms=(100)
 horizon=10
 declare -a TYPES=("GP" "CST" "RDM")
-# declare -a TYPES=("GP")
+declare -a TYPES=("GP")
 
 if [ $1 = "run" ]
 then
