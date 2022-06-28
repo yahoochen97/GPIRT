@@ -26,7 +26,7 @@ HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, 
 MODELS = c("gpirt","grm", "bgrm")
 MODELS = c("gpirt")
 
-results = matrix(0, nrow = 7, ncol = length(MODELS))
+results = matrix(0, nrow = 9, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
   load(file=paste("./results/", MODELS[i], "_", HYP, ".RData" , sep=""))
   cor_theta = c()
@@ -34,12 +34,14 @@ for(i in 1:length(MODELS)){
     cor_theta = c(cor_theta, cor(theta[,h], pred_theta[,h]))
   }
   results[1,i] = mean(abs(cor_theta))
-  results[2,i] = mean(train_lls)
-  results[3,i] = mean(train_acc)
-  results[4,i] = mean(pred_lls)
-  results[5,i] = mean(pred_acc)
-  results[6,i] = mean(abs(cor_icc))
-  results[7,i] = mean(rmse_icc)
+  results[2,i] = mean(pred_theta_sd)
+  results[3,i] = mean(pred_theta_ll)
+  results[4,i] = mean(train_lls)
+  results[5,i] = mean(train_acc)
+  results[6,i] = mean(pred_lls)
+  results[7,i] = mean(pred_acc)
+  results[8,i] = mean(abs(cor_icc))
+  results[9,i] = mean(rmse_icc)
 }
 
 write.csv(results, file=paste("./results/", HYP, ".csv" , sep=""))

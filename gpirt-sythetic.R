@@ -85,6 +85,21 @@ SAMPLE_ITERS = SAMPLE_ITERS/THIN
 xs = seq(-5,5,0.01)
 pred_theta = colMeans(samples$theta)
 
+pred_theta_sd = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
+for(i in 1:n){
+    for (h in 1:horizon) {
+        pred_theta_sd[i,h] = sd(samples$theta[,i,h])
+    }
+}
+
+pred_theta_ll = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
+
+for(i in 1:n){
+    for (h in 1:horizon) {
+        pred_theta_ll[i,h] = log(dnorm(theta[i,h], mean=pred_theta[i,h], sd=pred_theta_sd[i,h]))
+    }
+}
+
 ordinal_lls = function(f, thresholds){
     result = c()
     for (c in 1:(length(thresholds)-1)) {
@@ -183,6 +198,8 @@ print("Average Rhat:")
 print(mean(theta_rhats))
 print(max(theta_rhats))
 print(mean(abs(cor_theta)))
+print(mean(pred_theta_sd))
+print(mean(pred_theta_ll))
 print(mean(train_lls[!is.infinite(train_lls)]))
 print(mean(train_acc[!is.infinite(train_lls)]))
 print(mean(pred_lls[!is.infinite(pred_lls)]))
@@ -190,5 +207,5 @@ print(mean(pred_acc[!is.infinite(pred_lls)]))
 print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
 
-save(samples, theta_rhats, gpirt_iccs, true_iccs, pred_theta,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
+save(gpirt_iccs, true_iccs, pred_theta,pred_theta_sd,pred_theta_ll,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
      file=paste("./results/gpirt_", HYP, ".RData" , sep=""))

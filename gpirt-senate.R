@@ -4,7 +4,7 @@ library(ggplot2)
 
 gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
-load(file="./data/senate_data.RData")
+load(file="./data/senate_data_85.RData")
 SAMPLE_ITERS = 100
 BURNOUT_ITERS = 100
 TYPE = "GP"
@@ -28,12 +28,12 @@ fix_theta_flag = matrix(0, nrow=n, ncol=horizon)
 fix_theta_value = matrix(0, nrow=n, ncol=horizon)
 
 # fix WARREN, Elizabeth (41301, 113th) to -1
-fix_theta_flag[which(unique_icpsr==41301), 7] = 1
-fix_theta_value[which(unique_icpsr==41301), 7] = -1.0
+# fix_theta_flag[which(unique_icpsr==41301), 7] = 1
+# fix_theta_value[which(unique_icpsr==41301), 7] = -1.0
 
 # fix LEE, Mike (41110, 112th) to 1
-fix_theta_flag[which(unique_icpsr==41110), 6] = 1
-fix_theta_value[which(unique_icpsr==41110), 6] = 1.0
+# fix_theta_flag[which(unique_icpsr==41110), 6] = 1
+# fix_theta_value[which(unique_icpsr==41110), 6] = 1.0
 
 SEED = 1
 THIN = 1
@@ -56,7 +56,15 @@ for(i in 1:n){
   }
 }
 
+pred_theta_sd = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
+for(i in 1:n){
+  for (h in 1:horizon) {
+    pred_theta_sd[i,h] = sd(samples$theta[,i,h])
+  }
+}
+
 cor_theta = c()
+pred_theta_ll = matrix(NA, nrow=nrow(data), ncol=dim(data)[3])
 all_current_unique_icpsrs = list()
 for(h in 1:length(session_ids)){
   session_id = session_ids[h]
@@ -65,6 +73,8 @@ for(h in 1:length(session_ids)){
                       "nokken_poole_dim1", "nokken_poole_dim2")]
   # exlude BARKLEY, Dean
   members = members[members$icpsr!=40106, ]
+  # excluse RUSSELL, Richard Brevard, Jr. of GA
+  members = members[members$icpsr!=8138, ]
   current_unique_icpsrs = unique(members$icpsr)
   all_current_unique_icpsrs[[h]] = current_unique_icpsrs
   # nominate scores 
@@ -79,8 +89,9 @@ for(h in 1:length(session_ids)){
   }
   cor_theta = c(cor_theta, cor(pred_theta[idx, h],nominate_scores[,1]))
   # current_pred_theta = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx, h]
-  pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx,h]
+  # pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx,h]
   plot(pred_theta[idx,h], nominate_scores[,1])
+  pred_theta_ll[idx,h] = log(dnorm(nominate_scores[,1],mean=pred_theta[idx,h],sd=pred_theta_sd[idx,h]))
 }
 
 # dynamic theta
@@ -91,7 +102,7 @@ for(h in 1:horizon){
 
 for(icpsr in all_service_senates){
   idx = which(icpsr==unique_icpsr)
-  session_id = 107
+  session_id = session_ids[horizon]
   members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
   bioname =toString(members$bioname[members$icpsr==icpsr])
   jpeg(file=paste('./results/', toString(icpsr) ,'.jpeg' , sep=''))
@@ -212,6 +223,6 @@ for (h in 1:horizon) {
   }
 }
 
-# rm(sample_IRFs)
+rm(sample_IRFs)
 
-# save.image(file='./results/gpirt_senate.RData')
+save.image(file='./results/gpirt_senate_85.RData')

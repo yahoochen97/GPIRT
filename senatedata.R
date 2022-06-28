@@ -1,9 +1,8 @@
 gpirt_path = "~/Documents/Github/OrdGPIRT"
-gpirt_path = "../gpirt"
 setwd(gpirt_path)
 
 # get member icpsr for all sessions
-session_ids = 107:116
+session_ids = 85:94
 unique_icpsr = c()
 for(session_id in session_ids){
   votes = read.csv(paste("./data/S", session_id, "_votes.csv", sep=""))
@@ -15,8 +14,12 @@ for(session_id in session_ids){
 # who have not completed a minimum number of rollcall votes.
 unique_icpsr = setdiff(unique_icpsr, c(40106))
 
+# excluse RUSSELL, Richard Brevard, Jr. of GA
+# served in 92th congress
+unique_icpsr = setdiff(unique_icpsr, c(8138))
+
 # number of bills per session
-num_bill_per_session = 703
+num_bill_per_session = 1202 # 703
 data = array(array(NA, length(unique_icpsr)*num_bill_per_session*length(session_ids)), 
                           c(length(unique_icpsr),num_bill_per_session,length(session_ids)))
 
@@ -74,4 +77,4 @@ for (i in 1:nrow(data)) {
   }
 }
 
-save(data,data_train,train_idx,unique_icpsr,session_ids, file="./data/senate_data.RData")
+save(data,data_train,train_idx,unique_icpsr,session_ids, file="./data/senate_data_85.RData")
