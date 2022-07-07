@@ -43,9 +43,9 @@ for(h in 1:length(session_ids)){
       
       if(nrow(cast_code)!=0){
         cast_code = cast_code$cast_code
-        if(cast_code==1){
+        if(cast_code>=1 & cast_code<=3){
           data[i, j, h] = 2
-        }else if(cast_code==6){
+        }else if(cast_code<=6 & cast_code>=4){
           data[i, j, h] = 1
         }
       }

@@ -7,10 +7,10 @@ options(show.error.locations = TRUE)
 # setwd("../OrdGPIRT")
 
 if (length(args)==0) {
-  SEED = 10
+  SEED = 91
   C = 2
-  n = 1000
-  m = 100
+  n = 100
+  m = 50
   horizon = 10
   TYPE = "GP"
 }

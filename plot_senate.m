@@ -1,14 +1,14 @@
 % read results
 addpath("./results");
-file_name = 'all_nominate_data.csv';
+file_name = 'all_nominate_data_85.csv';
 opts = detectImportOptions(file_name);
 all_nominate = readtable(file_name);
 all_nominate = sortrows(all_nominate, ["party"]);
 
 % plot three ideology scores
 % 2001-2003, 2007-2009 , 2019-2021
-session_ids = [107, 110, 116];
 session_ids = 107:116;
+session_ids = 85:94;
 
 fig = figure(1);
 tiledlayout(2,5);
@@ -37,7 +37,7 @@ end
 set(fig, 'PaperPosition', [0 0 30 10]); 
 set(fig, 'PaperSize', [30 10]); 
 
-filename = "./results/senate_nominate.pdf";
+filename = "./results/senate_nominate_85.pdf";
 print(fig, filename, '-dpdf','-r300');
 close;
 

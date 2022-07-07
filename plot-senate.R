@@ -3,8 +3,8 @@ library(ggplot2)
 
 gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
-load(file="./data/senate_data.RData")
-load(file='./results/gpirt_senate.RData')
+load(file="./data/senate_data_85.RData")
+load(file='./results/gpirt_senate_85.RData')
 
 # plot three ideology scores
 # 2001-2003, 2009-2011 , 2019-2021
@@ -17,6 +17,8 @@ for(h in 1:length(session_ids)){
   members = members[members$chamber=="Senate",]
   # exlude BARKLEY, Dean
   members = members[members$icpsr!=40106, ]
+  # excluse RUSSELL, Richard Brevard, Jr. of GA
+  members = members[members$icpsr!=8138, ]
   current_unique_icpsrs = unique(members$icpsr)
   # nominate scores 
   nominate_scores = matrix(0, nrow=length(current_unique_icpsrs), ncol=2)
@@ -25,8 +27,8 @@ for(h in 1:length(session_ids)){
   for(j in 1:length(current_unique_icpsrs)){
     icpsr = current_unique_icpsrs[j]
     # idx = which(icpsr == current_unique_icpsrs)
-    nominate_scores[j,1] = members[members$icpsr==icpsr, "nokken_poole_dim1"]
-    nominate_scores[j,2] = members[members$icpsr==icpsr, "nokken_poole_dim2"]
+    nominate_scores[j,1] = members[members$icpsr==icpsr, "nominate_dim1"]
+    nominate_scores[j,2] = members[members$icpsr==icpsr, "nominate_dim2"]
     idx = c(idx, which(icpsr==unique_icpsr))
     bionames = c(bionames, toString(members[members$icpsr==icpsr, "bioname"]))
   }
@@ -48,7 +50,7 @@ for(h in 1:length(session_ids)){
   #   labs(colour = "Party")
 }
 
-write.csv(all_nominate_data, file="./results/all_nominate_data.csv")
+write.csv(all_nominate_data, file="./results/all_nominate_data_85.csv")
 
 # plot six IRFs
 # 2001-2003, 2009-2011 , 2019-2021

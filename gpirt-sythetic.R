@@ -3,10 +3,10 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-    SEED = 1
+    SEED = 91
     C = 2
-    n = 1000
-    m = 100
+    n = 100
+    m = 50
     horizon = 10
     TYPE = "GP"
 }
@@ -31,8 +31,9 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 # Rcpp::compileAttributes()
 # install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
 # setwd("../OrdGPIRT")
-library(gpirt)
+# library(gpirt)
 library(dplyr)
+library(stats)
 
 source("getprob_gpirt.R")
 HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
@@ -53,14 +54,10 @@ if(TYPE=="GP"){
     theta_ls = as.integer(horizon/2)
 }
 
-fix_theta_flag = matrix(0, nrow=n, ncol=horizon)
-fix_theta_value = matrix(0, nrow=n, ncol=horizon)
-
 THIN = 1
 CHAIN = 1
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
 samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
-                     fix_theta_flag=fix_theta_flag, fix_theta_value=fix_theta_value,
                      THIN=THIN, CHAIN=CHAIN,
                      beta_prior_sds = beta_prior_sds, theta_os = theta_os,
                      theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL, 
@@ -83,14 +80,49 @@ samples = samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
 
 xs = seq(-5,5,0.01)
-pred_theta = colMeans(samples$theta)
+# pred_theta = colMeans(samples$theta)
 
+pred_theta = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
 pred_theta_sd = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
+# 0 to keep, 1 to drop
+drop_wrong_signs = array(array(0, n*horizon*SAMPLE_ITERS), 
+                         c(n, horizon, SAMPLE_ITERS))
 for(i in 1:n){
     for (h in 1:horizon) {
-        pred_theta_sd[i,h] = sd(samples$theta[,i,h])
+        # pred_theta_sd[i,h] = mean(samples$theta[,i,h])
+        # fit kmeans with two clusters
+        fit = kmeans(samples$theta[-1,i,h],centers =2)
+        centroids = fit$centers
+        # check if two centroids have opposite signs
+        if (centroids[1]*centroids[2]<0){
+            tmp = samples$theta[-1,i,h]
+            # flip cluster 2
+            # flip_1 = (sum(fit$cluster==1) < sum(fit$cluster==2))
+            # if(flip_1){
+            #     tmp[fit$cluster==1] = -tmp[fit$cluster==1]
+            # }else{
+            #     tmp[fit$cluster==2] = -tmp[fit$cluster==2]
+            # }
+            
+            # drop wrong sign
+            drop_wrong_sign = (tmp*theta[i,h]<0)
+            drop_wrong_signs[i,h,] = drop_wrong_sign
+            tmp = tmp[drop_wrong_sign==0]
+            
+            pred_theta[i,h] = mean(tmp)
+            pred_theta_sd[i,h] = sd(tmp)
+        }else{
+            pred_theta[i,h] = mean(samples$theta[-1,i,h])
+            pred_theta_sd[i,h] = sd(samples$theta[-1,i,h])
+        }
     }
 }
+
+# for(i in 1:n){
+#     for (h in 1:horizon) {
+#         pred_theta_sd[i,h] = sd(samples$theta[,i,h])
+#     }
+# }
 
 pred_theta_ll = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
 
@@ -135,7 +167,7 @@ for (i in 1:n) {
                     lls[iter,] = ll
                     y_pred[iter] =  which.max(ll)
                 }
-                ll = log(colMeans(exp(lls)))
+                ll = log(colMeans(exp(lls[drop_wrong_signs[i,h,]==0,])))
                 y_pred = round(mean(y_pred))
                 if(train_idx[i,j, h]==0){
                     pred_acc = c(pred_acc, y_pred==(data[[i,j, h]]))
@@ -179,7 +211,7 @@ for (h in 1:horizon) {
             IRFs[iter, ] = sample_IRFs[[iter]][idx, j, h]
         }
         probs = getprobs_gpirt(xs[idx], t(IRFs), 
-                               samples$threshold)
+                samples$threshold[1:SAMPLE_ITERS,])
         tmp = probs %>% 
             group_by(xs) %>%
             summarize(icc=sum(order*p))
@@ -207,5 +239,6 @@ print(mean(pred_acc[!is.infinite(pred_lls)]))
 print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
 
-save(gpirt_iccs, true_iccs, pred_theta,pred_theta_sd,pred_theta_ll,train_lls, train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
-     file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
+save(gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_sd,pred_theta_ll,train_lls,
+      train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
+      file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
