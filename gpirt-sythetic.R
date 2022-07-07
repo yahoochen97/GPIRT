@@ -31,7 +31,7 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 # Rcpp::compileAttributes()
 # install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
 # setwd("../OrdGPIRT")
-# library(gpirt)
+library(gpirt)
 library(dplyr)
 library(stats)
 

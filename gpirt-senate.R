@@ -55,18 +55,41 @@ save.image(file='./results/gpirt_senate_85.RData')
 
 # predicted ideology
 pred_theta = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
+pred_theta_sd = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
+# 0 to keep, 1 to drop
+drop_wrong_signs = array(array(0, n*horizon*SAMPLE_ITERS), 
+                         c(n, horizon, SAMPLE_ITERS))
 for(i in 1:n){
   for (h in 1:horizon) {
-    pred_theta[i,h] = mean(samples$theta[,i,h])
+    # pred_theta_sd[i,h] = mean(samples$theta[,i,h])
+    # fit kmeans with two clusters
+    fit = kmeans(samples$theta[-1,i,h],centers =2)
+    centroids = fit$centers
+    # check if two centroids have opposite signs
+    if (centroids[1]*centroids[2]<0){
+      tmp = samples$theta[-1,i,h]
+      # flip cluster 2
+      flip_1 = (sum(fit$cluster==1) < sum(fit$cluster==2))
+      if(flip_1){
+          tmp[fit$cluster==1] = -tmp[fit$cluster==1]
+      }else{
+          tmp[fit$cluster==2] = -tmp[fit$cluster==2]
+      }
+      
+      # drop wrong sign
+      # drop_wrong_sign = (tmp*theta[i,h]<0)
+      # drop_wrong_signs[i,h,] = drop_wrong_sign
+      # tmp = tmp[drop_wrong_sign==0]
+      
+      pred_theta[i,h] = mean(tmp)
+      pred_theta_sd[i,h] = sd(tmp)
+    }else{
+      pred_theta[i,h] = mean(samples$theta[-1,i,h])
+      pred_theta_sd[i,h] = sd(samples$theta[-1,i,h])
+    }
   }
 }
 
-pred_theta_sd = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
-for(i in 1:n){
-  for (h in 1:horizon) {
-    pred_theta_sd[i,h] = sd(samples$theta[,i,h])
-  }
-}
 
 cor_theta = c()
 pred_theta_ll = matrix(NA, nrow=nrow(data), ncol=dim(data)[3])
