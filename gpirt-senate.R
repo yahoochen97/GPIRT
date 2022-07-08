@@ -61,7 +61,7 @@ drop_wrong_signs = array(array(0, n*horizon*SAMPLE_ITERS),
                          c(n, horizon, SAMPLE_ITERS))
 for(i in 1:n){
   for (h in 1:horizon) {
-    # pred_theta_sd[i,h] = mean(samples$theta[,i,h])
+    pred_theta[i,h] = mean(samples$theta[,i,h])
     # fit kmeans with two clusters
     fit = kmeans(samples$theta[-1,i,h],centers =2)
     centroids = fit$centers

@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-    SEED = 91
+    SEED = 21
     C = 2
     n = 100
     m = 50
@@ -56,12 +56,22 @@ if(TYPE=="GP"){
 
 THIN = 1
 CHAIN = 1
+beta_prior_means = matrix(0, nrow = 2, ncol = ncol(data_train))
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
+
+theta_init = matrix(0, nrow = n, ncol = horizon)
+theta_init[,1] = rnorm(n)
+theta_init[,1] = theta_init[,1]*sign(theta_init[,1]*theta[,1])
+for (h in 2:horizon) {
+  theta_init[,h] = theta_init[,1]
+}
+
 samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
-                     THIN=THIN, CHAIN=CHAIN,
-                     beta_prior_sds = beta_prior_sds, theta_os = theta_os,
-                     theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL, 
-                     SEED=SEED)
+                     THIN=THIN, CHAIN=CHAIN, vote_codes = NULL,
+                     beta_prior_means = beta_prior_means,
+                     beta_prior_sds = beta_prior_sds, 
+                     theta_os = theta_os, theta_ls = theta_ls, 
+                     theta_init = theta_init, thresholds=NULL, SEED=SEED)
 
 library(rstan)
 sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
@@ -105,7 +115,7 @@ for(i in 1:n){
             # }
             
             # drop wrong sign
-            drop_wrong_sign = (tmp*theta[i,h]<0)
+            drop_wrong_sign = (sign(cor(theta[,h],colMeans(samples$theta)[,h]))*tmp*theta[i,h]<0)
             drop_wrong_signs[i,h,] = drop_wrong_sign
             tmp = tmp[drop_wrong_sign==0]
             
@@ -167,7 +177,11 @@ for (i in 1:n) {
                     lls[iter,] = ll
                     y_pred[iter] =  which.max(ll)
                 }
-                ll = log(colMeans(exp(lls[drop_wrong_signs[i,h,]==0,])))
+                if(sum(drop_wrong_signs[i,h,]==0)>1){
+                  ll = log(colMeans(exp(lls[drop_wrong_signs[i,h,]==0,])))
+                }else{
+                  ll = log(exp(lls[drop_wrong_signs[i,h,]==0,]))
+                }
                 y_pred = round(mean(y_pred))
                 if(train_idx[i,j, h]==0){
                     pred_acc = c(pred_acc, y_pred==(data[[i,j, h]]))
