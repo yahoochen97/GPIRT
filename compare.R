@@ -22,6 +22,8 @@ MODELS = c("gpirt","grm", "bgrm")
 MODELS = c("GP", "CST", "RDM")
 
 cor_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+sd_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+ll_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 train_ll = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 pred_ll = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 train_acc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
@@ -33,12 +35,14 @@ for(i in 1:length(MODELS)){
     HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
     result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
     cor_theta[SEED, i] = result[1,2]
-    train_ll[SEED, i] = result[2,2]
-    train_acc[SEED, i] = result[3,2]
-    pred_ll[SEED, i] = result[4,2]
-    pred_acc[SEED, i] = result[5,2]
-    cor_icc[SEED, i] = result[6,2]
-    rmse_icc[SEED, i] = result[7,2]
+    sd_theta[SEED, i] = result[2,2]
+    ll_theta[SEED, i] = result[3,2]
+    train_ll[SEED, i] = result[4,2]
+    train_acc[SEED, i] = result[5,2]
+    pred_ll[SEED, i] = result[6,2]
+    pred_acc[SEED, i] = result[7,2]
+    cor_icc[SEED, i] = result[8,2]
+    rmse_icc[SEED, i] = result[9,2]
     }
 }
 
@@ -50,18 +54,29 @@ PRED_ACC_ERR = apply(pred_acc, 2, sd)/sqrt(MAXSEED)
 COR_ICC_ERR =  apply(cor_icc, 2, sd)/sqrt(MAXSEED)
 RMSE_ICC_ERR =  apply(rmse_icc, 2, sd)/sqrt(MAXSEED)
 
+print("cor theta")
 print(colMeans(abs(cor_theta)))
 print(COR_THETA_ERR)
+print("sd theta")
+print(colMeans(sd_theta))
+print("ll theta")
+print(colMeans(ll_theta))
+print("train ll")
 print(colMeans((train_ll)))
 print(TRAIN_LL_ERR)
+print("train acc")
 print(colMeans(abs(train_acc)))
 print(TRAIN_ACC_ERR)
+print("pred ll")
 print(colMeans((pred_ll)))
 print(PRED_LL_ERR)
+print("pred acc")
 print(colMeans(abs(pred_acc)))
 print(PRED_ACC_ERR)
+print("cor icc")
 print(colMeans(abs(cor_icc)))
 print(COR_ICC_ERR)
+print("rmse icc")
 print(colMeans(rmse_icc))
 print(RMSE_ICC_ERR)
 

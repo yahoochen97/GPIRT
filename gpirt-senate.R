@@ -34,16 +34,37 @@ if(TYPE=="GP"){
 # fix_theta_flag[which(unique_icpsr==41301), 7] = 1
 # fix_theta_value[which(unique_icpsr==41301), 7] = -1.0
 
-# fix LEE, Mike (41110, 112th) to 1
-# fix_theta_flag[which(unique_icpsr==41110), 6] = 1
-# fix_theta_value[which(unique_icpsr==41110), 6] = 1.0
+theta_init = matrix(0, nrow = n, ncol = horizon)
+theta_init[,1] = rnorm(n)
+for (h in 2:horizon) {
+  theta_init[,h] = theta_init[,1]
+}
+for(h in 1:length(session_ids)){
+  session_id = session_ids[h]
+  members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
+  members = members[members$icpsr!=40106, ]
+  # excluse RUSSELL, Richard Brevard, Jr. of GA
+  members = members[members$icpsr!=8138, ]
+  current_unique_icpsrs = unique(members$icpsr)
+  # nominate scores 
+  nominate_scores = matrix(0, nrow=length(current_unique_icpsrs), ncol=2)
+  idx = c()
+  for(j in 1:length(current_unique_icpsrs)){
+    icpsr = current_unique_icpsrs[j]
+    # idx = which(icpsr == current_unique_icpsrs)
+    nominate_scores[j,1] = members[members$icpsr==icpsr, "nominate_dim1"]
+    nominate_scores[j,2] = members[members$icpsr==icpsr, "nominate_dim2"]
+    idx = c(idx, which(icpsr==unique_icpsr))
+  }
+  theta_init[idx,h] = theta_init[idx,h]*sign(theta_init[idx,1]*nominate_scores[,1])
+}
 
 SEED = 1
 THIN = 1
 CHAIN = 1
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data))
 samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
-                     THIN, CHAIN,
+                     THIN, CHAIN, theta_init = theta_init,
                      beta_prior_sds = beta_prior_sds, theta_os = theta_os,
                      theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL,
                      SEED=SEED)
@@ -63,33 +84,8 @@ for(i in 1:n){
   for (h in 1:horizon) {
     pred_theta[i,h] = mean(samples$theta[,i,h])
     # fit kmeans with two clusters
-    fit = kmeans(samples$theta[-1,i,h],centers =2)
-    centroids = fit$centers
-    # check if two centroids have opposite signs
-    if (centroids[1]*centroids[2]<0){
-      tmp = samples$theta[-1,i,h]
-      # flip cluster 2
-      flip_1 = (sum(fit$cluster==1) < sum(fit$cluster==2))
-      if(flip_1){
-          tmp[fit$cluster==1] = -tmp[fit$cluster==1]
-      }else{
-          tmp[fit$cluster==2] = -tmp[fit$cluster==2]
-      }
-      
-      # drop wrong sign
-      # drop_wrong_sign = (tmp*theta[i,h]<0)
-      # drop_wrong_signs[i,h,] = drop_wrong_sign
-      # tmp = tmp[drop_wrong_sign==0]
-      
-      pred_theta[i,h] = mean(tmp)
-      pred_theta_sd[i,h] = sd(tmp)
-    }else{
-      pred_theta[i,h] = mean(samples$theta[-1,i,h])
-      pred_theta_sd[i,h] = sd(samples$theta[-1,i,h])
-    }
   }
 }
-
 
 cor_theta = c()
 pred_theta_ll = matrix(NA, nrow=nrow(data), ncol=dim(data)[3])
@@ -116,7 +112,6 @@ for(h in 1:length(session_ids)){
     idx = c(idx, which(icpsr==unique_icpsr))
   }
   cor_theta = c(cor_theta, cor(pred_theta[idx, h],nominate_scores[,1]))
-  # current_pred_theta = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx, h]
   pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx,h]
   plot(pred_theta[idx,h], nominate_scores[,1])
   pred_theta_ll[idx,h] = log(dnorm(nominate_scores[,1],mean=pred_theta[idx,h],sd=pred_theta_sd[idx,h]))
