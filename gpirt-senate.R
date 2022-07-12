@@ -77,13 +77,39 @@ save.image(file='./results/gpirt_senate_85.RData')
 # predicted ideology
 pred_theta = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
 pred_theta_sd = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
-# 0 to keep, 1 to drop
-drop_wrong_signs = array(array(0, n*horizon*SAMPLE_ITERS), 
-                         c(n, horizon, SAMPLE_ITERS))
-for(i in 1:n){
-  for (h in 1:horizon) {
-    pred_theta[i,h] = mean(samples$theta[,i,h])
-    # fit kmeans with two clusters
+for(h in 1:horizon){
+  session_id = session_ids[h]
+  members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
+  members = members[members$chamber=="Senate", c("icpsr", 
+                                                 "nominate_dim1", "nominate_dim2")]
+  # exlude BARKLEY, Dean
+  members = members[members$icpsr!=40106, ]
+  # excluse RUSSELL, Richard Brevard, Jr. of GA
+  members = members[members$icpsr!=8138, ]
+  current_unique_icpsrs = unique(members$icpsr)
+  all_current_unique_icpsrs[[h]] = current_unique_icpsrs
+  # nominate scores 
+  nominate_scores = matrix(0, nrow=length(current_unique_icpsrs), ncol=2)
+  idx = c()
+  for(j in 1:length(current_unique_icpsrs)){
+    icpsr = current_unique_icpsrs[j]
+    # idx = which(icpsr == current_unique_icpsrs)
+    nominate_scores[j,1] = members[members$icpsr==icpsr, "nominate_dim1"]
+    nominate_scores[j,2] = members[members$icpsr==icpsr, "nominate_dim2"]
+    idx = c(idx, which(icpsr==unique_icpsr))
+  }
+  for (j in 1:length(current_unique_icpsrs)) {
+    i = idx[j]
+    tmp = samples$theta[-1,i,h]
+    # drop wrong sign
+    drop_wrong_sign = (sign(cor(nominate_scores[,1],colMeans(samples$theta)[idx,h]))*tmp*nominate_scores[j,1]<0)
+    tmp = tmp[drop_wrong_sign==0]
+    if(is.na(mean(tmp))){
+      tmp = samples$theta[-1,i,h]
+      
+    }
+    pred_theta[i,h] = mean(tmp)
+    pred_theta_sd[i,h] = sd(tmp)
   }
 }
 
@@ -112,7 +138,7 @@ for(h in 1:length(session_ids)){
     idx = c(idx, which(icpsr==unique_icpsr))
   }
   cor_theta = c(cor_theta, cor(pred_theta[idx, h],nominate_scores[,1]))
-  pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx,h]
+  # pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx,h]
   plot(pred_theta[idx,h], nominate_scores[,1])
   pred_theta_ll[idx,h] = log(dnorm(nominate_scores[,1],mean=pred_theta[idx,h],sd=pred_theta_sd[idx,h]))
 }
@@ -137,8 +163,8 @@ for(icpsr in all_service_senates){
 # MANCHIN, Joe, III
 # all_service_senates = c(all_service_senates, 40915)
 
-all_service_senate_data = data.frame(matrix(ncol =5, nrow = 0))
-colnames(all_service_senate_data) <- c("session", "icpsr", "gpirt", "party", "name")
+all_service_senate_data = data.frame(matrix(ncol =6, nrow = 0))
+colnames(all_service_senate_data) <- c("session", "icpsr", "gpirt", "party", "name", "nominate")
 for(icpsr in all_service_senates){
   idx = which(icpsr==unique_icpsr)
   # plot(1:horizon, pred_theta[idx,])
@@ -155,14 +181,16 @@ for(icpsr in all_service_senates){
     }
     bioname =toString(members$bioname[members$icpsr==icpsr])
     all_service_senate_data[nrow(all_service_senate_data)+1,] = c(session_id,
-        icpsr, pred_theta[idx,h], party, bioname)
+        icpsr, pred_theta[idx,h], party, bioname, members$nokken_poole_dim1[members$icpsr==icpsr])
   }
 }
 
 all_service_senate_data$gpirt = as.numeric(all_service_senate_data$gpirt)
+all_service_senate_data$nominate = as.numeric(all_service_senate_data$nominate)
+all_service_senate_data$norm_gpirt = (all_service_senate_data$gpirt-mean(all_service_senate_data$gpirt))/sd(all_service_senate_data$gpirt)
 
 p = ggplot(all_service_senate_data, 
-       aes(x=session,y=gpirt,group=factor(icpsr), color=factor(party)))+
+       aes(x=session,y=norm_gpirt,group=factor(icpsr), color=factor(party)))+
   scale_y_continuous(name="GPIRT") + 
   geom_line() 
 

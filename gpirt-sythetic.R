@@ -41,8 +41,8 @@ print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 250
+BURNOUT_ITERS = 250
 if(TYPE=="GP"){
     theta_os = 1
     theta_ls = as.integer(horizon/2)
@@ -99,13 +99,20 @@ drop_wrong_signs = array(array(0, n*horizon*SAMPLE_ITERS),
                          c(n, horizon, SAMPLE_ITERS))
 for(i in 1:n){
     for (h in 1:horizon) {
-        # pred_theta_sd[i,h] = mean(samples$theta[,i,h])
-        # fit kmeans with two clusters
-        fit = kmeans(samples$theta[-1,i,h],centers =2)
-        centroids = fit$centers
+      tmp = samples$theta[-1,i,h]
+      # drop wrong sign
+      drop_wrong_sign = (sign(cor(theta[,h],colMeans(samples$theta)[,h]))*tmp*theta[i,h]<0)
+      drop_wrong_signs[i,h,] = drop_wrong_sign
+      tmp = tmp[drop_wrong_sign==0]
+      if(is.na(mean(tmp))){
+        tmp = samples$theta[-1,i,h]
+        
+      }
+      pred_theta[i,h] = mean(tmp)
+      pred_theta_sd[i,h] = sd(tmp)
         # check if two centroids have opposite signs
-        if (centroids[1]*centroids[2]<0){
-            tmp = samples$theta[-1,i,h]
+        # if (centroids[1]*centroids[2]<0){
+        #    tmp = samples$theta[-1,i,h]
             # flip cluster 2
             # flip_1 = (sum(fit$cluster==1) < sum(fit$cluster==2))
             # if(flip_1){
@@ -115,16 +122,16 @@ for(i in 1:n){
             # }
             
             # drop wrong sign
-            drop_wrong_sign = (sign(cor(theta[,h],colMeans(samples$theta)[,h]))*tmp*theta[i,h]<0)
-            drop_wrong_signs[i,h,] = drop_wrong_sign
-            tmp = tmp[drop_wrong_sign==0]
-            
-            pred_theta[i,h] = mean(tmp)
-            pred_theta_sd[i,h] = sd(tmp)
-        }else{
-            pred_theta[i,h] = mean(samples$theta[-1,i,h])
-            pred_theta_sd[i,h] = sd(samples$theta[-1,i,h])
-        }
+        #     drop_wrong_sign = (sign(cor(theta[,h],colMeans(samples$theta)[,h]))*tmp*theta[i,h]<0)
+        #     drop_wrong_signs[i,h,] = drop_wrong_sign
+        #     tmp = tmp[drop_wrong_sign==0]
+        #     
+        #     pred_theta[i,h] = mean(tmp)
+        #     pred_theta_sd[i,h] = sd(tmp)
+        # }else{
+        #     pred_theta[i,h] = mean(samples$theta[-1,i,h])
+        #     pred_theta_sd[i,h] = sd(samples$theta[-1,i,h])
+        # }
     }
 }
 
