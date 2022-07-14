@@ -34,14 +34,13 @@ if(TYPE=="GP"){
 # fix_theta_flag[which(unique_icpsr==41301), 7] = 1
 # fix_theta_value[which(unique_icpsr==41301), 7] = -1.0
 
+set.seed(12345)
 theta_init = matrix(0, nrow = n, ncol = horizon)
-theta_init[,1] = rnorm(n)
-for (h in 2:horizon) {
-  theta_init[,h] = theta_init[,1]
-}
 for(h in 1:length(session_ids)){
   session_id = session_ids[h]
   members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
+  members = members[members$chamber=="Senate", c("icpsr", 
+                                                 "nokken_poole_dim1", "nokken_poole_dim2")]
   members = members[members$icpsr!=40106, ]
   # excluse RUSSELL, Richard Brevard, Jr. of GA
   members = members[members$icpsr!=8138, ]
@@ -52,11 +51,13 @@ for(h in 1:length(session_ids)){
   for(j in 1:length(current_unique_icpsrs)){
     icpsr = current_unique_icpsrs[j]
     # idx = which(icpsr == current_unique_icpsrs)
-    nominate_scores[j,1] = members[members$icpsr==icpsr, "nominate_dim1"]
-    nominate_scores[j,2] = members[members$icpsr==icpsr, "nominate_dim2"]
+    nominate_scores[j,1] = members[members$icpsr==icpsr, "nokken_poole_dim1"]
+    nominate_scores[j,2] = members[members$icpsr==icpsr, "nokken_poole_dim2"]
     idx = c(idx, which(icpsr==unique_icpsr))
   }
-  theta_init[idx,h] = theta_init[idx,h]*sign(theta_init[idx,1]*nominate_scores[,1])
+  # theta_init[idx,h] = theta_init[idx,h]*(2*sign(theta_init[idx,h]*nominate_scores[,1]<0)-1)
+  # nominate_scores[,1] + 0.1*rnorm(n=length(idx))
+  theta_init[idx,h] = nominate_scores[,1]
 }
 
 SEED = 1
@@ -81,37 +82,64 @@ for(h in 1:horizon){
   session_id = session_ids[h]
   members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
   members = members[members$chamber=="Senate", c("icpsr", 
-                                                 "nominate_dim1", "nominate_dim2")]
+                                                 "nokken_poole_dim1", "nokken_poole_dim2")]
   # exlude BARKLEY, Dean
   members = members[members$icpsr!=40106, ]
   # excluse RUSSELL, Richard Brevard, Jr. of GA
   members = members[members$icpsr!=8138, ]
   current_unique_icpsrs = unique(members$icpsr)
-  all_current_unique_icpsrs[[h]] = current_unique_icpsrs
   # nominate scores 
   nominate_scores = matrix(0, nrow=length(current_unique_icpsrs), ncol=2)
   idx = c()
   for(j in 1:length(current_unique_icpsrs)){
     icpsr = current_unique_icpsrs[j]
     # idx = which(icpsr == current_unique_icpsrs)
-    nominate_scores[j,1] = members[members$icpsr==icpsr, "nominate_dim1"]
-    nominate_scores[j,2] = members[members$icpsr==icpsr, "nominate_dim2"]
+    nominate_scores[j,1] = members[members$icpsr==icpsr, "nokken_poole_dim1"]
+    nominate_scores[j,2] = members[members$icpsr==icpsr, "nokken_poole_dim2"]
     idx = c(idx, which(icpsr==unique_icpsr))
   }
   for (j in 1:length(current_unique_icpsrs)) {
     i = idx[j]
     tmp = samples$theta[-1,i,h]
-    # drop wrong sign
-    drop_wrong_sign = (sign(cor(nominate_scores[,1],colMeans(samples$theta)[idx,h]))*tmp*nominate_scores[j,1]<0)
-    tmp = tmp[drop_wrong_sign==0]
-    if(is.na(mean(tmp))){
-      tmp = samples$theta[-1,i,h]
-      
+    if(sd(tmp)<1){
+      # drop wrong sign
+      drop_wrong_sign = (sign(cor(nominate_scores[,1],colMeans(samples$theta)[idx,h]))*tmp*nominate_scores[j,1]<0)
+      tmp = tmp[drop_wrong_sign==0]
+      if(is.na(mean(tmp))){
+        tmp = samples$theta[-1,i,h]
+      }
     }
+    
     pred_theta[i,h] = mean(tmp)
     pred_theta_sd[i,h] = sd(tmp)
   }
 }
+
+# Mark Hatfield
+pred_theta[169,6] = mean(samples$theta[-1,169,6])
+pred_theta_sd[169,6] = sd(samples$theta[-1,169,6])
+
+pred_theta[169,7] = mean(samples$theta[-1,169,7])
+pred_theta_sd[169,7] = sd(samples$theta[-1,169,7])
+
+# RUSSELL, Donald Stuart
+pred_theta[163,5] = mean(samples$theta[-1,163,5])
+pred_theta_sd[163,5] = sd(samples$theta[-1,163,5])
+
+# HOLLINGS, Ernest Frederick
+pred_theta[170,6] = mean(samples$theta[-1,170,6])
+pred_theta_sd[170,6] = sd(samples$theta[-1,170,6])
+
+pred_theta[170,7] = mean(samples$theta[-1,170,7])
+pred_theta_sd[170,7] = sd(samples$theta[-1,170,7])
+
+# pred_theta[163,7] = mean(samples$theta[-1,163,7])
+# pred_theta_sd[163,7] = sd(samples$theta[-1,163,7])
+
+# EDWARDS, Elaine Schwartzenburg
+pred_theta[202,8] = mean(samples$theta[-1,202,8])
+pred_theta_sd[202,8] = sd(samples$theta[-1,202,8])
+
 
 cor_theta = c()
 pred_theta_ll = matrix(NA, nrow=nrow(data), ncol=dim(data)[3])
@@ -120,11 +148,13 @@ for(h in 1:length(session_ids)){
   session_id = session_ids[h]
   members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
   members = members[members$chamber=="Senate", c("icpsr", 
-                      "nominate_dim1", "nominate_dim2")]
-  # exlude BARKLEY, Dean
+                      "nokken_poole_dim1", "nokken_poole_dim2")]
+  # exclude BARKLEY, Dean
   members = members[members$icpsr!=40106, ]
-  # excluse RUSSELL, Richard Brevard, Jr. of GA
+  # exclude RUSSELL, Richard Brevard, Jr. of GA
   members = members[members$icpsr!=8138, ]
+  # exclude JOHNSTON, Olin DeWitt Talmadge
+  members = members[members$icpsr!=5009, ]
   current_unique_icpsrs = unique(members$icpsr)
   all_current_unique_icpsrs[[h]] = current_unique_icpsrs
   # nominate scores 
@@ -133,12 +163,12 @@ for(h in 1:length(session_ids)){
   for(j in 1:length(current_unique_icpsrs)){
     icpsr = current_unique_icpsrs[j]
     # idx = which(icpsr == current_unique_icpsrs)
-    nominate_scores[j,1] = members[members$icpsr==icpsr, "nominate_dim1"]
-    nominate_scores[j,2] = members[members$icpsr==icpsr, "nominate_dim2"]
+    nominate_scores[j,1] = members[members$icpsr==icpsr, "nokken_poole_dim1"]
+    nominate_scores[j,2] = members[members$icpsr==icpsr, "nokken_poole_dim2"]
     idx = c(idx, which(icpsr==unique_icpsr))
   }
   cor_theta = c(cor_theta, cor(pred_theta[idx, h],nominate_scores[,1]))
-  # pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx,h]
+  pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx,h]
   plot(pred_theta[idx,h], nominate_scores[,1])
   pred_theta_ll[idx,h] = log(dnorm(nominate_scores[,1],mean=pred_theta[idx,h],sd=pred_theta_sd[idx,h]))
 }
@@ -253,26 +283,26 @@ dev.off()
 # print(mean(pred_acc[!is.infinite(pred_lls)]))
 
 # gp IRFs
-# xs = seq(-5,5,0.01)
-# idx = 301:701
-# gpirt_iccs = array(array(0, length(xs[idx])*m*horizon), 
-#                    c(length(xs[idx]),m, horizon))
-# 
-# source("getprob_gpirt.R")
-# for (h in 1:horizon) {
-#   for (j in 1:m) {
-#     IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
-#     for(iter in 1:SAMPLE_ITERS){
-#       IRFs[iter, ] = sample_IRFs[[iter]][idx, j, h]
-#     }
-#     probs = getprobs_gpirt(xs[idx], t(IRFs), 
-#                            samples$threshold)
-#     tmp = probs %>% 
-#       group_by(xs) %>%
-#       summarize(icc=sum(order*p))
-#     gpirt_iccs[,j,h] = tmp$icc
-#   }
-# }
+xs = seq(-5,5,0.01)
+idx = 401:601
+gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
+                   c(length(xs[idx]),m, horizon))
+
+source("getprob_gpirt.R")
+for (h in 1:horizon) {
+  for (j in 1:m) {
+    IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
+    for(iter in 1:SAMPLE_ITERS){
+      IRFs[iter, ] = sample_IRFs[[iter]][idx, j, h]
+    }
+    probs = getprobs_gpirt(xs[idx], t(IRFs),
+                           samples$threshold)
+    tmp = probs %>%
+      group_by(xs) %>%
+      summarize(icc=sum(order*p))
+    gpirt_iccs[,j,h] = tmp$icc
+  }
+}
 
 # rm(sample_IRFs)
 

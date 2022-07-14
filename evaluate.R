@@ -26,6 +26,18 @@ HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, 
 MODELS = c("gpirt","grm", "bgrm")
 MODELS = c("gpirt")
 
+# icc -1 to 1
+idx = 101:301
+cor_icc = matrix(0, nrow=m, ncol=horizon)
+rmse_icc = matrix(0, nrow=m, ncol=horizon)
+
+for (h in 1:horizon) {
+  for (j in 1:m) {
+    cor_icc[j,h] = cor(gpirt_iccs[idx,j,h], true_iccs[idx,j,h])
+    rmse_icc[j,h] = sqrt(mean((gpirt_iccs[idx,j,h]-true_iccs[idx,j,h])^2))
+  }
+}
+
 results = matrix(0, nrow = 9, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
   load(file=paste("./results/", MODELS[i], "_", HYP, ".RData" , sep=""))
