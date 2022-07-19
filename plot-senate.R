@@ -3,8 +3,8 @@ library(ggplot2)
 
 gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
-load(file="./data/senate_data_85.RData")
-load(file='./results/gpirt_senate_85.RData')
+load(file="./data/senate_data_90.RData")
+load(file='./results/gpirt_senate_90.RData')
 
 # plot three ideology scores
 # 2001-2003, 2009-2011 , 2019-2021
@@ -48,9 +48,9 @@ for(h in 1:length(session_ids)){
   #   geom_point(size=2, aes(shape=factor(party))) + 
   #   xlab("NOMINATE Dimension 1 Ideology") + ylab("GPIRT Ideology") + 
   #   labs(colour = "Party")
-}
+}m
 
-write.csv(all_nominate_data, file="./results/all_nominate_data_85.csv")
+write.csv(all_nominate_data, file="./results/all_nominate_data_90.csv")
 
 # plot six IRFs
 # 2001-2003, 2009-2011 , 2019-2021

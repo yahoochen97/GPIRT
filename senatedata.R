@@ -2,7 +2,7 @@ gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
 
 # get member icpsr for all sessions
-session_ids = 85:94
+session_ids = 90:99
 unique_icpsr = c()
 for(session_id in session_ids){
   votes = read.csv(paste("./data/S", session_id, "_votes.csv", sep=""))
@@ -77,4 +77,4 @@ for (i in 1:nrow(data)) {
   }
 }
 
-save(data,data_train,train_idx,unique_icpsr,session_ids, file="./data/senate_data_85.RData")
+save(data,data_train,train_idx,unique_icpsr,session_ids, file="./data/senate_data_90.RData")

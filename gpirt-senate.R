@@ -5,7 +5,7 @@ library(stats)
 
 gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
-load(file="./data/senate_data_85.RData")
+load(file="./data/senate_data_90.RData")
 SAMPLE_ITERS = 100
 BURNOUT_ITERS = 100
 TYPE = "GP"
@@ -73,7 +73,7 @@ samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
 samples = samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
 
-save.image(file='./results/gpirt_senate_85.RData')
+save.image(file='./results/gpirt_senate_90.RData')
 
 # predicted ideology
 pred_theta = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
@@ -115,31 +115,27 @@ for(h in 1:horizon){
   }
 }
 
-# Mark Hatfield
-pred_theta[169,6] = mean(samples$theta[-1,169,6])
-pred_theta_sd[169,6] = sd(samples$theta[-1,169,6])
-
-pred_theta[169,7] = mean(samples$theta[-1,169,7])
-pred_theta_sd[169,7] = sd(samples$theta[-1,169,7])
-
-# RUSSELL, Donald Stuart
-pred_theta[163,5] = mean(samples$theta[-1,163,5])
-pred_theta_sd[163,5] = sd(samples$theta[-1,163,5])
-
-# HOLLINGS, Ernest Frederick
-pred_theta[170,6] = mean(samples$theta[-1,170,6])
-pred_theta_sd[170,6] = sd(samples$theta[-1,170,6])
-
-pred_theta[170,7] = mean(samples$theta[-1,170,7])
-pred_theta_sd[170,7] = sd(samples$theta[-1,170,7])
-
-# pred_theta[163,7] = mean(samples$theta[-1,163,7])
-# pred_theta_sd[163,7] = sd(samples$theta[-1,163,7])
-
-# EDWARDS, Elaine Schwartzenburg
-pred_theta[202,8] = mean(samples$theta[-1,202,8])
-pred_theta_sd[202,8] = sd(samples$theta[-1,202,8])
-
+# # Mark Hatfield
+# pred_theta[169,6] = mean(samples$theta[-1,169,6])
+# pred_theta_sd[169,6] = sd(samples$theta[-1,169,6])
+# 
+# pred_theta[169,7] = mean(samples$theta[-1,169,7])
+# pred_theta_sd[169,7] = sd(samples$theta[-1,169,7])
+# 
+# # RUSSELL, Donald Stuart
+# pred_theta[163,5] = mean(samples$theta[-1,163,5])
+# pred_theta_sd[163,5] = sd(samples$theta[-1,163,5])
+# 
+# # HOLLINGS, Ernest Frederick
+# pred_theta[170,6] = mean(samples$theta[-1,170,6])
+# pred_theta_sd[170,6] = sd(samples$theta[-1,170,6])
+# 
+# pred_theta[170,7] = mean(samples$theta[-1,170,7])
+# pred_theta_sd[170,7] = sd(samples$theta[-1,170,7])
+# 
+# # EDWARDS, Elaine Schwartzenburg
+# pred_theta[202,8] = mean(samples$theta[-1,202,8])
+# pred_theta_sd[202,8] = sd(samples$theta[-1,202,8])
 
 cor_theta = c()
 pred_theta_ll = matrix(NA, nrow=nrow(data), ncol=dim(data)[3])
@@ -224,7 +220,7 @@ p = ggplot(all_service_senate_data,
   scale_y_continuous(name="GPIRT") + 
   geom_line() 
 
-png("./results/senate_dynamic_scores_85.png")
+png("./results/senate_dynamic_scores_90.png")
 print(p)
 dev.off()
 
@@ -284,7 +280,7 @@ dev.off()
 
 # gp IRFs
 xs = seq(-5,5,0.01)
-idx = 401:601
+idx = 301:701
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
                    c(length(xs[idx]),m, horizon))
 

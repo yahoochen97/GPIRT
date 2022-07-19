@@ -1,6 +1,6 @@
 % read results
 addpath("./results");
-file_name = 'all_nominate_data_85.csv';
+file_name = 'all_nominate_data_90.csv';
 opts = detectImportOptions(file_name);
 all_nominate = readtable(file_name);
 all_nominate = sortrows(all_nominate, ["party"]);
@@ -8,7 +8,7 @@ all_nominate = sortrows(all_nominate, ["party"]);
 % plot three ideology scores
 % 2001-2003, 2007-2009 , 2019-2021
 session_ids = 107:116;
-session_ids = 85:94;
+session_ids = 90:99;
 
 fig = figure(1);
 tiledlayout(2,5);
@@ -29,7 +29,7 @@ for i=1:numel(session_ids)
       set(h(n), 'MarkerFaceColor', colors(n));
     end
     xlim([-1.0,1.0]);
-    ylim([-2,2]);
+    ylim([-1.2,1.2]);
     xlabel('NOMINATE Dimension 1 Ideology','FontSize', 16);
     ylabel('GPIRT Ideology','FontSize', 16);
     xticks([-0.5,0,0.5]);
@@ -41,7 +41,7 @@ end
 set(fig, 'PaperPosition', [0 0 30 10]); 
 set(fig, 'PaperSize', [30 10]); 
 
-filename = "./results/senate_nominate_85.pdf";
+filename = "./results/senate_nominate_90.pdf";
 print(fig, filename, '-dpdf','-r300');
 close;
 

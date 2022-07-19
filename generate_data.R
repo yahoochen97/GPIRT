@@ -13,6 +13,7 @@ if (length(args)==0) {
   m = 50
   horizon = 10
   TYPE = "GP"
+  CONSTANT_IRF = 1
 }
 if (length(args)==6){
   SEED = as.integer(args[1])
@@ -21,13 +22,14 @@ if (length(args)==6){
   m = as.integer(args[4])
   horizon = as.integer(args[5])
   TYPE = args[6]
+  CONSTANT_IRF = as.integer(args[7])
 }
 
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 SIGMA = 1
 source("getprob_gpirt.R")
-HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
+HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_CSTIRF_', CONSTANT_IRF, '_SEED_', SEED, sep="")
 
 set.seed(SEED)
 thresholds = rep(0, C+1)
@@ -115,6 +117,7 @@ if(TYPE=="GP"){
   NUM_ANCHOR = 50
   anchor_xs <- array(rep(0,m*NUM_ANCHOR,horizon), c(m, NUM_ANCHOR, horizon))
   anchor_ys <- array(rep(0,m*NUM_ANCHOR,horizon), c(m, NUM_ANCHOR, horizon))
+  
   for (h in 1:horizon){
     idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
     idx = 301:701
@@ -125,6 +128,13 @@ if(TYPE=="GP"){
       anchor_ys[j,,h]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) 
       anchor_ys[j,,h] = anchor_ys[j,,h] - mean(anchor_ys[j,,h])
       anchor_ys[j,,h] = anchor_ys[j,,h] / sd(anchor_ys[j,,h])
+    }
+  }
+  if(CONSTANT_IRF==1){
+    for (h in 1:horizon){
+      for (j in 1:m){
+        anchor_ys[j,,h] =  anchor_ys[j,,1]
+      }
     }
   }
   data <- gen_responses(theta, anchor_xs, anchor_ys, thresholds)

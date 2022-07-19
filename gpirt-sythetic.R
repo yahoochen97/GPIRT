@@ -3,12 +3,13 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-    SEED = 32
-    C = 2
-    n = 100
-    m = 50
-    horizon = 10
-    TYPE = "RDM"
+  SEED = 32
+  C = 2
+  n = 100
+  m = 50
+  horizon = 10
+  TYPE = "GP"
+  CONSTANT_IRF = 1
 }
 
 if (length(args)==6){
@@ -18,6 +19,7 @@ if (length(args)==6){
     m = as.integer(args[4])
     horizon = as.integer(args[5])
     TYPE = args[6]
+    CONSTANT_IRF = as.integer(args[7])
 }
 
 # install gpirt package
@@ -30,16 +32,16 @@ setwd(gpirt_path)
 library(Rcpp)
 Rcpp::compileAttributes()
 install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
-# setwd("../OrdGPIRT")
+setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
 library(stats)
 
 source("getprob_gpirt.R")
-HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
+HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
-HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
+HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
 SAMPLE_ITERS = 100
 BURNOUT_ITERS = 100
@@ -71,7 +73,8 @@ samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
                      beta_prior_means = beta_prior_means,
                      beta_prior_sds = beta_prior_sds, 
                      theta_os = theta_os, theta_ls = theta_ls, 
-                     theta_init = theta_init, thresholds=NULL, SEED=SEED)
+                     theta_init = theta_init,
+                     thresholds=NULL, SEED=SEED, constant_IRF = CONSTANT_IRF)
 
 library(rstan)
 sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
@@ -110,36 +113,8 @@ for(i in 1:n){
       }
       pred_theta[i,h] = mean(tmp)
       pred_theta_sd[i,h] = sd(tmp)
-        # check if two centroids have opposite signs
-        # if (centroids[1]*centroids[2]<0){
-        #    tmp = samples$theta[-1,i,h]
-            # flip cluster 2
-            # flip_1 = (sum(fit$cluster==1) < sum(fit$cluster==2))
-            # if(flip_1){
-            #     tmp[fit$cluster==1] = -tmp[fit$cluster==1]
-            # }else{
-            #     tmp[fit$cluster==2] = -tmp[fit$cluster==2]
-            # }
-            
-            # drop wrong sign
-        #     drop_wrong_sign = (sign(cor(theta[,h],colMeans(samples$theta)[,h]))*tmp*theta[i,h]<0)
-        #     drop_wrong_signs[i,h,] = drop_wrong_sign
-        #     tmp = tmp[drop_wrong_sign==0]
-        #     
-        #     pred_theta[i,h] = mean(tmp)
-        #     pred_theta_sd[i,h] = sd(tmp)
-        # }else{
-        #     pred_theta[i,h] = mean(samples$theta[-1,i,h])
-        #     pred_theta_sd[i,h] = sd(samples$theta[-1,i,h])
-        # }
     }
 }
-
-# for(i in 1:n){
-#     for (h in 1:horizon) {
-#         pred_theta_sd[i,h] = sd(samples$theta[,i,h])
-#     }
-# }
 
 pred_theta_ll = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
 
@@ -168,7 +143,9 @@ sample_IRFs = vector(mode = "list", length = SAMPLE_ITERS)
 for (iter in 1:SAMPLE_ITERS){
     # recover fstar
     sample_IRFs[[iter]] = recover_fstar(BURNOUT_ITERS+iter-1,samples$f[[iter]],data_train, 
-                  as.matrix(samples$theta[iter,,]), samples$threshold[iter,])$fstar
+                  as.matrix(samples$theta[iter,,]), samples$threshold[iter,],
+                  beta_prior_means, beta_prior_sds,
+                  constant_IRF=CONSTANT_IRF)$fstar
 }
 
 for (i in 1:n) {
@@ -226,9 +203,6 @@ for (h in 1:horizon) {
         true_iccs[,j,h] = tmp$icc
         IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
         for(iter in 1:SAMPLE_ITERS){
-            # IRFs[iter,] = samples$IRFs[[iter]][idx,j,h]
-            # IRFs[iter,] = recover_fstar(BURNOUT_ITERS+iter-1,samples$f[[iter]],data_train, 
-            #                        as.matrix(samples$theta[iter,,]), samples$threshold[iter,])$fstar[idx,j,h]
             IRFs[iter, ] = sample_IRFs[[iter]][idx, j, h]
         }
         probs = getprobs_gpirt(xs[idx], t(IRFs), 
