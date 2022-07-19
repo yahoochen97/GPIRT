@@ -8,14 +8,16 @@ if (length(args)==0) {
   m = 50
   horizon = 10
   TYPE = "GP"
+  CONSTANT_IRF = 1
 }
-if (length(args)==6){
+if (length(args)==7){
   MAXSEED = as.integer(args[1])
   C = as.integer(args[2])
   n = as.integer(args[3])
   m = as.integer(args[4])
   horizon = as.integer(args[5])
   TYPE = args[6]
+  CONSTANT_IRF = as.integer(args[7])
 }
 
 MODELS = c("gpirt","grm", "bgrm")
@@ -32,7 +34,7 @@ cor_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 rmse_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
   for (SEED in 1:MAXSEED) {
-    HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
+    HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
     result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
     cor_theta[SEED, i] = result[1,2]
     sd_theta[SEED, i] = result[2,2]
@@ -81,5 +83,5 @@ print("rmse icc")
 print(colMeans(rmse_icc))
 print(RMSE_ICC_ERR)
 
-HYP = paste("_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
+HYP = paste("_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 # write.csv(results, file=paste("./results/compare", HYP, ".csv" , sep=""))

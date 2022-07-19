@@ -15,7 +15,7 @@ if (length(args)==0) {
   TYPE = "GP"
   CONSTANT_IRF = 1
 }
-if (length(args)==6){
+if (length(args)==7){
   SEED = as.integer(args[1])
   C = as.integer(args[2])
   n = as.integer(args[3])

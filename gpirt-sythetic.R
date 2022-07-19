@@ -12,7 +12,7 @@ if (length(args)==0) {
   CONSTANT_IRF = 1
 }
 
-if (length(args)==6){
+if (length(args)==7){
     SEED = as.integer(args[1])
     C = as.integer(args[2])
     n = as.integer(args[3])
@@ -27,12 +27,12 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 # options("install.lock"=FALSE)
 # gpirt_path = "../gpirt"
-gpirt_path = "~/Documents/Github/gpirt"
-setwd(gpirt_path)
-library(Rcpp)
-Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
-setwd("../OrdGPIRT")
+# gpirt_path = "~/Documents/Github/gpirt"
+# setwd(gpirt_path)
+# library(Rcpp)
+# Rcpp::compileAttributes()
+# install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
+# setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
 library(stats)

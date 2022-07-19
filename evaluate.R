@@ -8,35 +8,37 @@ if (length(args)==0) {
   m = 20
   horizon = 10
   TYPE = "GP"
+  CONSTANT_IRF = 1
 }
-if (length(args)==6){
+if (length(args)==7){
   SEED = as.integer(args[1])
   C = as.integer(args[2])
   n = as.integer(args[3])
   m = as.integer(args[4])
   horizon = as.integer(args[5])
   TYPE = args[6]
+  CONSTANT_IRF = as.integer(args[7])
 }
 
 source("getprob_gpirt.R")
-HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
+HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
-HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon, '_SEED_', SEED, sep="")
+HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
 MODELS = c("gpirt","grm", "bgrm")
 MODELS = c("gpirt")
 
 # icc -1 to 1
-idx = 101:301
-cor_icc = matrix(0, nrow=m, ncol=horizon)
-rmse_icc = matrix(0, nrow=m, ncol=horizon)
-
-for (h in 1:horizon) {
-  for (j in 1:m) {
-    cor_icc[j,h] = cor(gpirt_iccs[idx,j,h], true_iccs[idx,j,h])
-    rmse_icc[j,h] = sqrt(mean((gpirt_iccs[idx,j,h]-true_iccs[idx,j,h])^2))
-  }
-}
+# idx = 101:301
+# cor_icc = matrix(0, nrow=m, ncol=horizon)
+# rmse_icc = matrix(0, nrow=m, ncol=horizon)
+# 
+# for (h in 1:horizon) {
+#   for (j in 1:m) {
+#     cor_icc[j,h] = cor(gpirt_iccs[idx,j,h], true_iccs[idx,j,h])
+#     rmse_icc[j,h] = sqrt(mean((gpirt_iccs[idx,j,h]-true_iccs[idx,j,h])^2))
+#   }
+# }
 
 results = matrix(0, nrow = 9, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
