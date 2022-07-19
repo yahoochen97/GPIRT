@@ -9,10 +9,10 @@ MAXSEED=100
 CONSTANT_IRF=1
 declare -a Cs=(2 5)
 declare -a ns=(100)
-declare -a ms=(10)
+declare -a ms=(5)
 horizon=10
 declare -a TYPES=("GP" "CST" "RDM")
-# declare -a TYPES=("GP")
+declare -a TYPES=("GP")
 
 if [ $1 = "run" ]
 then
