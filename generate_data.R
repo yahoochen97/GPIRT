@@ -7,7 +7,7 @@ options(show.error.locations = TRUE)
 # setwd("../OrdGPIRT")
 
 if (length(args)==0) {
-  SEED = 32
+  SEED = 1
   C = 2
   n = 100
   m = 50

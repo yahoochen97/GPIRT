@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 32
+  SEED = 1
   C = 2
   n = 100
   m = 50
@@ -104,13 +104,12 @@ for(i in 1:n){
     for (h in 1:horizon) {
       tmp = samples$theta[-1,i,h]
       # drop wrong sign
-      drop_wrong_sign = (sign(cor(theta[,h],colMeans(samples$theta)[,h]))*tmp*theta[i,h]<0)
-      drop_wrong_signs[i,h,] = drop_wrong_sign
-      tmp = tmp[drop_wrong_sign==0]
-      if(is.na(mean(tmp))){
-        tmp = samples$theta[-1,i,h]
-        
-      }
+      # drop_wrong_sign = (sign(cor(theta[,h],colMeans(samples$theta)[,h]))*tmp*theta[i,h]<0)
+      # drop_wrong_signs[i,h,] = drop_wrong_sign
+      # tmp = tmp[drop_wrong_sign==0]
+      # if(is.na(mean(tmp))){
+      #   tmp = samples$theta[-1,i,h]
+      # }
       pred_theta[i,h] = mean(tmp)
       pred_theta_sd[i,h] = sd(tmp)
     }
@@ -217,7 +216,7 @@ for (h in 1:horizon) {
 }
 
 cor_theta = c()
-for (i in 1:h) {
+for (i in 1:horizon) {
     cor_theta = c(cor_theta, cor(theta[,i], pred_theta[,i]))
 }
 
