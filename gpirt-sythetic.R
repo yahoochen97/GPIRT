@@ -44,7 +44,7 @@ load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
 SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+BURNOUT_ITERS = 200
 if(TYPE=="GP"){
     theta_os = 1
     theta_ls = as.integer(horizon/2)
