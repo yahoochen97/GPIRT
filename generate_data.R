@@ -6,11 +6,13 @@ options(show.error.locations = TRUE)
 # setwd(gpirt_path)
 # setwd("../OrdGPIRT")
 
+# for(i in 1:10){plot(anchor_xs[i,,1],1/(1+exp(-anchor_ys[i,,1])))}
+
 if (length(args)==0) {
   SEED = 1
   C = 2
   n = 100
-  m = 50
+  m = 10
   horizon = 10
   TYPE = "GP"
   CONSTANT_IRF = 1
@@ -23,6 +25,11 @@ if (length(args)==7){
   horizon = as.integer(args[5])
   TYPE = args[6]
   CONSTANT_IRF = as.integer(args[7])
+}
+
+LINEAR_IRF = 0
+if(m==10 & CONSTANT_IRF==1){
+  LINEAR_IRF = 1
 }
 
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
@@ -128,6 +135,10 @@ if(TYPE=="GP"){
       anchor_ys[j,,h]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) 
       anchor_ys[j,,h] = anchor_ys[j,,h] - mean(anchor_ys[j,,h])
       anchor_ys[j,,h] = anchor_ys[j,,h] / sd(anchor_ys[j,,h])
+      if(LINEAR_IRF==1){
+        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=1,sd=0.1)
+        anchor_ys[j,,h] = anchor_ys[j,,h] + slope*(anchor_xs[j,,h])
+      }
     }
   }
   if(CONSTANT_IRF==1){
