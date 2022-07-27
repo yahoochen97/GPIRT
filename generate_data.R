@@ -136,7 +136,8 @@ if(TYPE=="GP"){
       anchor_ys[j,,h] = anchor_ys[j,,h] - mean(anchor_ys[j,,h])
       anchor_ys[j,,h] = anchor_ys[j,,h] / sd(anchor_ys[j,,h])
       if(LINEAR_IRF==1){
-        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=1,sd=0.1)
+        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=2,sd=0.25)
+        if(h==1 & j==8) {print(slope)}
         anchor_ys[j,,h] = anchor_ys[j,,h] + slope*(anchor_xs[j,,h])
       }
     }

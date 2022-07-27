@@ -8,7 +8,7 @@ if (length(args)==0) {
   n = 100
   m = 10
   horizon = 10
-  TYPE = "GP"
+  TYPE = "RDM"
   CONSTANT_IRF = 1
 }
 
