@@ -27,11 +27,11 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 # options("install.lock"=FALSE)
 # gpirt_path = "../gpirt"
-gpirt_path = "~/Documents/Github/gpirt"
-setwd(gpirt_path)
-library(Rcpp)
-Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
+# gpirt_path = "~/Documents/Github/gpirt"
+# setwd(gpirt_path)
+# library(Rcpp)
+# Rcpp::compileAttributes()
+# install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
 # setwd("../OrdGPIRT")
 library(gpirt)
 library(dplyr)
@@ -43,8 +43,8 @@ print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 if(TYPE=="GP"){
     theta_os = 1
     theta_ls = as.integer(horizon/2)
@@ -60,7 +60,7 @@ THIN = 1
 CHAIN = 1
 beta_prior_means = matrix(0, nrow = 2, ncol = ncol(data_train))
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
-
+beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data))
 theta_init = matrix(0, nrow = n, ncol = horizon)
 theta_init[,1] = rnorm(n)
 theta_init[,1] = theta_init[,1]*sign(theta_init[,1]*theta[,1])
@@ -72,6 +72,7 @@ samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN=THIN, CHAIN=CHAIN, vote_codes = NULL,
                      beta_prior_means = beta_prior_means,
                      beta_prior_sds = beta_prior_sds, 
+                     beta_proposal_sds = beta_proposal_sds,
                      theta_os = theta_os, theta_ls = theta_ls, 
                      theta_init = theta_init,
                      thresholds=NULL, SEED=SEED, constant_IRF = CONSTANT_IRF)
