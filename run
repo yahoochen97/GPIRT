@@ -5,13 +5,13 @@ mkdir -p figures
 mkdir -p results
 mkdir -p log
 
-MAXSEED=100
+MAXSEED=25
 declare -a Cs=(2 5)
 declare -a ns=(100)
 declare -a ms=(10 50)
 horizon=10
 declare -a TYPES=("GP" "CST" "RDM")
-# declare -a TYPES=("GP")
+declare -a TYPES=("GP")
 
 if [ $1 = "run" ]
 then
