@@ -8,7 +8,7 @@ if (length(args)==0) {
   n = 100
   m = 10
   horizon = 10
-  TYPE = "GP"
+  TYPE = "RDM"
   CONSTANT_IRF = 1
 }
 
@@ -60,7 +60,7 @@ THIN = 1
 CHAIN = 1
 beta_prior_means = matrix(0, nrow = 2, ncol = ncol(data_train))
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
-beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data))
+beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data_train))
 theta_init = matrix(0, nrow = n, ncol = horizon)
 theta_init[,1] = rnorm(n)
 theta_init[,1] = theta_init[,1]*sign(theta_init[,1]*theta[,1])
