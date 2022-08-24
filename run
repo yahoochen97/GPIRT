@@ -6,13 +6,12 @@ mkdir -p results
 mkdir -p log
 
 MAXSEED=100
-CONSTANT_IRF=1
 declare -a Cs=(2 5)
 declare -a ns=(100)
-declare -a ms=(10)
+declare -a ms=(10 50)
 horizon=10
 declare -a TYPES=("GP" "CST" "RDM")
-# declare -a TYPES=("GP")
+declare -a TYPES=("GP")
 
 if [ $1 = "run" ]
 then
@@ -21,7 +20,12 @@ then
             for C in ${Cs[@]}; do
                 for n in ${ns[@]}; do
                     for m in ${ms[@]}; do
-                        bsub -G SEAS-Lab-Garnett -J "${TYPE}_C${C}n${n}m${m}h${horizon}irf${CONSTANT_IRF}_${SEED}" -o "./log/${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF}"
+                        if [m -eq 10]; then
+                            CONSTANT_IRF=1
+                        else
+                            CONSTANT_IRF=0
+                        fi
+                        bsub -G SEAS-Lab-Garnett -J "${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}" -o "./log/${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF}"
                     done
                 done
             done
@@ -32,6 +36,11 @@ then
     for C in ${Cs[@]}; do
         for n in ${ns[@]}; do
             for m in ${ms[@]}; do
+                if [m -eq 10]; then
+                    CONSTANT_IRF=1
+                else
+                    CONSTANT_IRF=0
+                fi
                 Rscript --vanilla compare.R $MAXSEED $C $n $m $horizon 'GP' ${CONSTANT_IRF}
             done
         done

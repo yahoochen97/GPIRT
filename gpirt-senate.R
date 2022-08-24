@@ -18,13 +18,13 @@ print(session_ids)
 
 if(TYPE=="GP"){
   theta_os = 1
-  theta_ls = as.integer(horizon/2)
+  theta_ls = 7
 }else if(TYPE=="CST"){
   theta_os = 0
   theta_ls = -1
 }else{
   theta_os = 0
-  theta_ls = as.integer(horizon/2)
+  theta_ls = 7
 }
 
 # fix_theta_flag = matrix(0, nrow=n, ncol=horizon)
@@ -36,6 +36,8 @@ if(TYPE=="GP"){
 
 set.seed(12345)
 theta_init = matrix(0, nrow = n, ncol = horizon)
+NOMINATE_SCORE_DIM1 = matrix(NA, nrow = n, ncol = horizon)
+NOMINATE_SCORE_DIM2 = matrix(NA, nrow = n, ncol = horizon)
 for(h in 1:length(session_ids)){
   session_id = session_ids[h]
   members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
@@ -58,17 +60,24 @@ for(h in 1:length(session_ids)){
   # theta_init[idx,h] = theta_init[idx,h]*(2*sign(theta_init[idx,h]*nominate_scores[,1]<0)-1)
   # nominate_scores[,1] + 0.1*rnorm(n=length(idx))
   theta_init[idx,h] = nominate_scores[,1]
+  NOMINATE_SCORE_DIM1[idx,h] = nominate_scores[,1]
+  NOMINATE_SCORE_DIM2[idx,h] = nominate_scores[,2]
 }
+
+write.csv(NOMINATE_SCORE_DIM1, file="./data/NOMINATE1_theta.csv",row.names = FALSE)
+write.csv(NOMINATE_SCORE_DIM2, file="./data/NOMINATE2_theta.csv",row.names = FALSE)
 
 SEED = 1
 THIN = 1
 CHAIN = 1
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data))
+beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data))
 samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN, CHAIN, theta_init = theta_init,
+                     beta_proposal_sds = beta_proposal_sds,
                      beta_prior_sds = beta_prior_sds, theta_os = theta_os,
                      theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL,
-                     SEED=SEED)
+                     SEED=SEED, constant_IRF = 0)
 
 samples = samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
@@ -289,7 +298,7 @@ for (h in 1:horizon) {
   for (j in 1:m) {
     IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
     for(iter in 1:SAMPLE_ITERS){
-      IRFs[iter, ] = sample_IRFs[[iter]][idx, j, h]
+      IRFs[iter, ] = samples$fstar[[iter]][idx, j, h]
     }
     probs = getprobs_gpirt(xs[idx], t(IRFs),
                            samples$threshold)
@@ -300,6 +309,4 @@ for (h in 1:horizon) {
   }
 }
 
-# rm(sample_IRFs)
-
-# save.image(file='./results/gpirt_senate_107.RData')
+save.image(file='./results/gpirt_senate_90.RData')
