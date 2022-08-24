@@ -20,7 +20,7 @@ then
             for C in ${Cs[@]}; do
                 for n in ${ns[@]}; do
                     for m in ${ms[@]}; do
-                        if [$m -eq 10]; then
+                        if [ $m -eq 10 ]; then
                             CONSTANT_IRF=1
                         else
                             CONSTANT_IRF=0
@@ -36,7 +36,7 @@ then
     for C in ${Cs[@]}; do
         for n in ${ns[@]}; do
             for m in ${ms[@]}; do
-                if [$m -eq 10]; then
+                if [ $m -eq 10 ]; then
                     CONSTANT_IRF=1
                 else
                     CONSTANT_IRF=0
