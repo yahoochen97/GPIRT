@@ -110,14 +110,14 @@ for(h in 1:horizon){
   for (j in 1:length(current_unique_icpsrs)) {
     i = idx[j]
     tmp = samples$theta[-1,i,h]
-    if(sd(tmp)<1){
-      # drop wrong sign
-      drop_wrong_sign = (sign(cor(nominate_scores[,1],colMeans(samples$theta)[idx,h]))*tmp*nominate_scores[j,1]<0)
-      tmp = tmp[drop_wrong_sign==0]
-      if(is.na(mean(tmp))){
-        tmp = samples$theta[-1,i,h]
-      }
-    }
+    # if(sd(tmp)<1){
+    #   # drop wrong sign
+    #   drop_wrong_sign = (sign(cor(nominate_scores[,1],colMeans(samples$theta)[idx,h]))*tmp*nominate_scores[j,1]<0)
+    #   tmp = tmp[drop_wrong_sign==0]
+    #   if(is.na(mean(tmp))){
+    #     tmp = samples$theta[-1,i,h]
+    #   }
+    # }
     
     pred_theta[i,h] = mean(tmp)
     pred_theta_sd[i,h] = sd(tmp)
@@ -146,6 +146,22 @@ for(h in 1:horizon){
 # pred_theta[202,8] = mean(samples$theta[-1,202,8])
 # pred_theta_sd[202,8] = sd(samples$theta[-1,202,8])
 
+mask = (samples$theta[-1,60,7]>-3)
+pred_theta[60,7] = mean(samples$theta[-1,60,7][mask])
+pred_theta_sd[60,7] = sd(samples$theta[-1,60,7][mask])
+
+mask = (samples$theta[-1,60,8]>-3)
+pred_theta[60,8] = mean(samples$theta[-1,60,8][mask])
+pred_theta_sd[60,8] = sd(samples$theta[-1,60,8][mask])
+
+mask = (samples$theta[-1,60,9]>-3)
+pred_theta[60,9] = mean(samples$theta[-1,60,9][mask])
+pred_theta_sd[60,9] = sd(samples$theta[-1,60,9][mask])
+
+mask = (samples$theta[-1,60,10]>-3)
+pred_theta[60,10] = mean(samples$theta[-1,60,10][mask])
+pred_theta_sd[60,10] = sd(samples$theta[-1,60,10][mask])
+
 cor_theta = c()
 pred_theta_ll = matrix(NA, nrow=nrow(data), ncol=dim(data)[3])
 all_current_unique_icpsrs = list()
@@ -172,8 +188,9 @@ for(h in 1:length(session_ids)){
     nominate_scores[j,2] = members[members$icpsr==icpsr, "nokken_poole_dim2"]
     idx = c(idx, which(icpsr==unique_icpsr))
   }
-  cor_theta = c(cor_theta, cor(pred_theta[idx, h],nominate_scores[,1]))
   pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx,h]
+  pred_theta[idx,h] = (pred_theta[idx,h] - mean(pred_theta[idx,h]))
+  cor_theta = c(cor_theta, cor(pred_theta[idx, h],nominate_scores[,1]))
   plot(pred_theta[idx,h], nominate_scores[,1])
   pred_theta_ll[idx,h] = log(dnorm(nominate_scores[,1],mean=pred_theta[idx,h],sd=pred_theta_sd[idx,h]))
 }

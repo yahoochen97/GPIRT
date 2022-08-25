@@ -142,10 +142,11 @@ train_acc = c()
 sample_IRFs = vector(mode = "list", length = SAMPLE_ITERS)
 for (iter in 1:SAMPLE_ITERS){
     # recover fstar
-    sample_IRFs[[iter]] = recover_fstar(BURNOUT_ITERS+iter-1,samples$f[[iter]],data_train, 
-                  as.matrix(samples$theta[iter,,]), samples$threshold[iter,],
-                  beta_prior_means, beta_prior_sds,
-                  constant_IRF=CONSTANT_IRF)$fstar
+    # sample_IRFs[[iter]] = recover_fstar(BURNOUT_ITERS+iter-1,samples$f[[iter]],data_train, 
+    #               as.matrix(samples$theta[iter,,]), samples$threshold[iter,],
+    #             beta_prior_means, beta_prior_sds,
+    #               constant_IRF=CONSTANT_IRF)$fstar
+    sample_IRFs[[iter]] = samples$fstar[[iter]]
 }
 
 for (i in 1:n) {

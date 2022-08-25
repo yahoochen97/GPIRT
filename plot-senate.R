@@ -48,7 +48,7 @@ for(h in 1:length(session_ids)){
   #   geom_point(size=2, aes(shape=factor(party))) + 
   #   xlab("NOMINATE Dimension 1 Ideology") + ylab("GPIRT Ideology") + 
   #   labs(colour = "Party")
-}m
+}
 
 write.csv(all_nominate_data, file="./results/all_nominate_data_90.csv")
 
@@ -130,39 +130,39 @@ write.csv(all_nominate_data, file="./results/all_nominate_data_90.csv")
 # A bill to extend the termination date of the Terrorism Insurance Program established under the Terrorism Risk Insurance Act of 2002
 # h = 8, j = 2, rollnumber = 2
 
-# hs = c(2, 3, 4, 5, 6, 7)
-# js = c(9, 48, 36, 49, 35, 17)
-# 
-# all_iccs = data.frame(matrix(ncol = 4, nrow = 0))
-# colnames(all_iccs) <- c("session", "lik", "nominate", "desc")
-# 
-# xs = seq(-5,5,0.01)
-# idx = 301:701
-# xs = xs[idx]
-#   
-# for(k in 1:length(hs)){
-#   h = hs[k]
-#   j = js[k]
-#   
-#   # read roll call datga
-#   session_id = session_ids[h]
-#   rollcalls = read.csv(paste("./data/S", session_id, "_rollcalls.csv", sep=""))
-#   
-#   rollcalls = rollcalls[rollcalls$session==1,
-#                         c("congress", "rollnumber", "yea_count","nay_count" )]
-#   
-#   rollcalls = rollcalls[(rollcalls$yea_count!=0)&(rollcalls$nay_count!=0),]
-#   rollcalls = rollcalls[1:num_bill_per_session, ]
-#   rollnumbers = unique(rollcalls$rollnumber)
-#   
-#   rollcalls = read.csv(paste("./data/S", session_id, "_rollcalls.csv", sep=""))
-#   
-#   # load gpirt icc
-#   for(idx in 1:length(xs)){
-#     all_iccs[nrow(all_iccs)+1,] = c(session_id, gpirt_iccs[idx,j, h]-1, xs[idx], 
-#                      toString(rollcalls[rollcalls$rollnumber==rollnumbers[j], "vote_desc"]))
-#   }
-#   
-# }
-# 
-# write.csv(all_iccs, file="./results/gpirt_icc_result.csv")
+hs = c(2, 3, 4, 5, 6, 7)
+js = c(9, 48, 36, 49, 35, 17)
+
+all_iccs = data.frame(matrix(ncol = 4, nrow = 0))
+colnames(all_iccs) <- c("session", "lik", "nominate", "desc")
+
+xs = seq(-5,5,0.01)
+idx = 301:701
+xs = xs[idx]
+
+for(k in 1:length(hs)){
+  h = hs[k]
+  j = js[k]
+
+  # read roll call datga
+  session_id = session_ids[h]
+  rollcalls = read.csv(paste("./data/S", session_id, "_rollcalls.csv", sep=""))
+
+  rollcalls = rollcalls[rollcalls$session==1,
+                        c("congress", "rollnumber", "yea_count","nay_count" )]
+
+  rollcalls = rollcalls[(rollcalls$yea_count!=0)&(rollcalls$nay_count!=0),]
+  # rollcalls = rollcalls[1:num_bill_per_session, ]
+  rollnumbers = unique(rollcalls$rollnumber)
+
+  rollcalls = read.csv(paste("./data/S", session_id, "_rollcalls.csv", sep=""))
+
+  # load gpirt icc
+  for(idx in 1:length(xs)){
+    all_iccs[nrow(all_iccs)+1,] = c(session_id, gpirt_iccs[idx,j, h]-1, xs[idx],
+                     toString(rollcalls[rollcalls$rollnumber==rollnumbers[j], "vote_desc"]))
+  }
+
+}
+
+write.csv(all_iccs, file="./results/gpirt_icc_result.csv")

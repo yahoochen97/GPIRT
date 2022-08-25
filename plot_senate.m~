@@ -60,17 +60,17 @@ for i=1:numel(session_ids)
     y = all_nominate.gpirt(all_nominate.session==session_id);
     continents = all_nominate.continent(all_nominate.session==session_id);
     colors = 'gbrkc';
-    h = gscatter(x,y,continents, colors,'s^odv', 6);
+    h = gscatter(x,y,continents, colors,'s^odv', 8);
     for n = 1:length(h)
       set(h(n), 'MarkerFaceColor', colors(n));
     end
     xlim([-2.5,3.5]);
-    ylim([-1.8,1.2]);
+    ylim([-1.5,1.2]);
     xlabel('CIRI HRPS','FontSize', 16);
     ylabel('GPIRT HRPS','FontSize', 16);
-    xticks((-2.5):0.5:3.5);
+    xticks([-2.5,-2.0,-1.53.5]);
     title("Y " + int2str(session_id), 'FontSize', 12);
-    legend('Location','southeast','FontSize',12);
+    legend('Location','northwest','FontSize',12);
     legend boxoff;
     
 end

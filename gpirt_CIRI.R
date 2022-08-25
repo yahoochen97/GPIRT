@@ -105,8 +105,8 @@ for(h in 1:horizon){
   theta_init[,h] = theta_init[,h] + 0.1*rnorm(n)
 }
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 SEED = 1
 THIN = 1
 CHAIN = 1
@@ -197,3 +197,27 @@ save.image(file='./results/gpirt_CIRI.RData')
 # mask = !is.na(CIRI_data[,1,10])
 # points(pred_theta[mask,10], 2*(CIRI_data[mask,1,10]-2))
 # plot(1:101,samples$theta[,2,2])
+
+library(countrycode)
+continents = countrycode(sourcevar = as.character(country_names),
+                         origin = "country.name",
+                         destination = "continent")
+continents[61] = "Europe"
+continents[144] = "Asia"
+
+all_CIRI_results = data.frame(matrix(ncol = 4, nrow = 0))
+colnames(all_CIRI_results) <- c("session", "gpirt", "CIRI_theta", "country_name", "continent")
+for(h in 1:length(unique_sessions)){
+  session_id = unique_sessions[h]
+  # nominate scores 
+  nominate_scores = CIRI_theta[,h]
+  mask = (!is.na(nominate_scores))
+  nominate_data = data.frame(pred_theta[mask,h], nominate_scores[mask])
+  colnames(nominate_data) = c("gpirt", "CIRI_theta")
+  nominate_data$session = session_id
+  nominate_data$continent = continents[mask]
+  nominate_data$bioname = as.character(country_names)[mask]
+  all_CIRI_results = rbind(all_CIRI_results, nominate_data)
+}
+
+write.csv(all_CIRI_results, file="./results/gpirt_CIRI_results.csv")
