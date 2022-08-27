@@ -64,11 +64,11 @@ for i=1:numel(session_ids)
     for n = 1:length(h)
       set(h(n), 'MarkerFaceColor', colors(n));
     end
-    xlim([-2.5,3.5]);
-    ylim([-1.8,1.2]);
-    xlabel('CIRI HRPS','FontSize', 16);
-    ylabel('GPIRT HRPS','FontSize', 16);
-    xticks((-2.5):0.5:3.5);
+    xlim([-3.0,3.0]);
+    ylim([-1.8,1.4]);
+    xlabel('CIRI score','FontSize', 16);
+    ylabel('GPIRT score','FontSize', 16);
+    xticks((-3.0):0.5:3.0);
     title("Y " + int2str(session_id), 'FontSize', 12);
     legend('Location','southeast','FontSize',12);
     legend boxoff;

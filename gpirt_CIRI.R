@@ -16,9 +16,11 @@ TYPE = "GP"
 
 data = read.csv("./data/dataverse_files/HumanRightsProtectionScores_v4.01.csv")
 
+DOIRT_theta = read.csv("./data/dataverse_files/DOIRT_PhysintLatentVariableEsimates_1981_2010.csv")
+
 # ordered variable for disappearances/extra-judical/political imprisonment/torture
 # in the CIRI dataset
-data = data[data$YEAR>=1981 & data$YEAR<=2011,
+data = data[data$YEAR>=1981 & data$YEAR<=2010,
             c("YEAR", "CIRI", "DISAP", "KILL", 
               "POLPRIS", "TORT", "theta_mean",
               "theta_sd", "country_name")]
@@ -69,7 +71,6 @@ n = length(CIRIs)
 
 CIRI_data = array(array(NA, n*m*horizon), c(n, m, horizon))
 C = 3
-CIRI_theta = array(array(NA, n*horizon), c(n, horizon))
 
 questions = c("DISAP", "KILL", "POLPRIS", "TORT")
 for (h in 1:length(unique(data$YEAR))) {
@@ -79,13 +80,27 @@ for (h in 1:length(unique(data$YEAR))) {
       tmp = data[data$YEAR==year & data$CIRI==CIRIs[i], c("YEAR", "country_name","theta_mean","theta_sd", questions[j])]
       if(nrow(tmp)){
         CIRI_data[i,j,h] = tmp[[questions[j]]] + 1
-        CIRI_theta[i,h] = tmp[["theta_mean"]] + 1
       }
     }
   }
 }
 
-CIRI_theta = (CIRI_theta-mean(CIRI_theta,na.rm = TRUE)) / sd(CIRI_theta,na.rm = TRUE)
+
+CIRI_theta = array(array(NA, n*horizon), c(n, horizon))
+for (h in 1:length(unique(data$YEAR))) {
+  year = unique(data$YEAR)[h]
+  for(j in 1:m){
+    for(i in 1:length(CIRIs)){
+      tmp = DOIRT_theta[DOIRT_theta$YEAR==year & DOIRT_theta$CIRI==CIRIs[i],
+                        c("YEAR", "CTRY","latentmean","latentsd", questions[j])]
+      if(nrow(tmp)){
+        CIRI_theta[i,h] = tmp[["latentmean"]]
+      }
+    }
+  }
+}
+
+# CIRI_theta = (CIRI_theta-mean(CIRI_theta,na.rm = TRUE)) / sd(CIRI_theta,na.rm = TRUE)
 
 if(TYPE=="GP"){
   theta_os = 1
@@ -105,8 +120,8 @@ for(h in 1:horizon){
   theta_init[,h] = theta_init[,h] + 0.1*rnorm(n)
 }
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 SEED = 1
 THIN = 1
 CHAIN = 1
@@ -118,7 +133,7 @@ samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
                      beta_proposal_sds = beta_proposal_sds,
                      theta_os = theta_os, theta_ls = theta_ls, 
                      vote_codes = NULL, thresholds=NULL,
-                     SEED=SEED, constant_IRF = 0)
+                     SEED=SEED, constant_IRF = 1)
 
 samples = samples_all[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
@@ -205,18 +220,22 @@ continents = countrycode(sourcevar = as.character(country_names),
 continents[61] = "Europe"
 continents[144] = "Asia"
 
-all_CIRI_results = data.frame(matrix(ncol = 4, nrow = 0))
+norm_CIRI_theta = (CIRI_theta - mean(CIRI_theta[!is.na(CIRI_theta)])) / sd(CIRI_theta[!is.na(CIRI_theta)])
+all_CIRI_results = data.frame(matrix(ncol = 5, nrow = 0))
 colnames(all_CIRI_results) <- c("session", "gpirt", "CIRI_theta", "country_name", "continent")
 for(h in 1:length(unique_sessions)){
   session_id = unique_sessions[h]
   # nominate scores 
   nominate_scores = CIRI_theta[,h]
   mask = (!is.na(nominate_scores))
+  for(j in 1:m){
+    mask = mask & (!is.na(CIRI_data[,j,h]))
+  }
   nominate_data = data.frame(pred_theta[mask,h], nominate_scores[mask])
   colnames(nominate_data) = c("gpirt", "CIRI_theta")
   nominate_data$session = session_id
   nominate_data$continent = continents[mask]
-  nominate_data$bioname = as.character(country_names)[mask]
+  nominate_data$country_name = as.character(country_names)[mask]
   all_CIRI_results = rbind(all_CIRI_results, nominate_data)
 }
 
