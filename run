@@ -8,7 +8,7 @@ mkdir -p log
 MAXSEED=25
 declare -a Cs=(2 5)
 declare -a ns=(100)
-declare -a ms=(10)
+declare -a ms=(10 50)
 horizon=10
 declare -a TYPES=("GP" "CST" "RDM")
 # declare -a TYPES=("GP")

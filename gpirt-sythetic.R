@@ -6,10 +6,10 @@ if (length(args)==0) {
   SEED = 1
   C = 2
   n = 100
-  m = 10
+  m = 50
   horizon = 10
-  TYPE = "RDM"
-  CONSTANT_IRF = 1
+  TYPE = "GP"
+  CONSTANT_IRF = 0
 }
 
 if (length(args)==7){
@@ -49,15 +49,17 @@ if(TYPE=="GP"){
     theta_os = 1
     theta_ls = as.integer(horizon/2)
 }else if(TYPE=="CST"){
-    theta_os = 0
-    theta_ls = -1
+# constant model
+    theta_os = 1
+    theta_ls = 10*horizon
 }else{
-    theta_os = 0
-    theta_ls = as.integer(horizon/2)
+# random model
+    theta_os = 1
+    theta_ls = 0.1
 }
 
 THIN = 1
-CHAIN = 1
+CHAIN = 3
 beta_prior_means = matrix(0, nrow = 2, ncol = ncol(data_train))
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data_train))
@@ -99,8 +101,8 @@ xs = seq(-5,5,0.01)
 pred_theta = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
 pred_theta_sd = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
 # 0 to keep, 1 to drop
-drop_wrong_signs = array(array(0, n*horizon*SAMPLE_ITERS), 
-                         c(n, horizon, SAMPLE_ITERS))
+# drop_wrong_signs = array(array(0, n*horizon*SAMPLE_ITERS), 
+#                          c(n, horizon, SAMPLE_ITERS))
 for(i in 1:n){
     for (h in 1:horizon) {
       tmp = samples$theta[-1,i,h]
@@ -162,11 +164,12 @@ for (i in 1:n) {
                     lls[iter,] = ll
                     y_pred[iter] =  which.max(ll)
                 }
-                if(sum(drop_wrong_signs[i,h,]==0)>1){
-                  ll = log(colMeans(exp(lls[drop_wrong_signs[i,h,]==0,])))
-                }else{
-                  ll = log(exp(lls[drop_wrong_signs[i,h,]==0,]))
-                }
+                # if(sum(drop_wrong_signs[i,h,]==0)>1){
+                #   ll = log(colMeans(exp(lls[drop_wrong_signs[i,h,]==0,])))
+                # }else{
+                #   ll = log(exp(lls[drop_wrong_signs[i,h,]==0,]))
+                # }
+                ll = log(exp(lls))
                 y_pred = round(mean(y_pred))
                 if(train_idx[i,j, h]==0){
                     pred_acc = c(pred_acc, y_pred==(data[[i,j, h]]))
@@ -235,6 +238,6 @@ print(mean(pred_acc[!is.infinite(pred_lls)]))
 print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
 
-save(gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_sd,pred_theta_ll,train_lls,
+save(theta_rhats, gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_sd,pred_theta_ll,train_lls,
       train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
       file=paste("./results/gpirt_", HYP, ".RData" , sep=""))

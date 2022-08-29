@@ -193,8 +193,15 @@ for (h in 1:horizon) {
       group_by(xs) %>%
       summarize(icc=sum(order*p))
     gpirt_iccs[,j,h] = tmp$icc
+    
+    # probs = getprobs_gpirt(xs[idx], t(IRFs), samples$threshold)
+    q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
+      geom_line(size=2) +ggtitle(paste("GP IRT item ",j, sep="")) +
+      theme(plot.title = element_text(hjust = 0.5))
+    print(q)
   }
 }
+
 
 # plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,3))
 # mask = is.na(CIRI_data[,1,1])
