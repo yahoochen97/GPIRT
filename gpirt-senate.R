@@ -5,7 +5,7 @@ library(stats)
 
 gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
-load(file="./data/senate_data_90.RData")
+load(file="./data/senate_data_92.RData")
 SAMPLE_ITERS = 100
 BURNOUT_ITERS = 100
 TYPE = "GP"
@@ -46,6 +46,8 @@ for(h in 1:length(session_ids)){
   members = members[members$icpsr!=40106, ]
   # excluse RUSSELL, Richard Brevard, Jr. of GA
   members = members[members$icpsr!=8138, ]
+  # exclude James Danforth
+  members = members[members$icpsr!=14447, ]
   current_unique_icpsrs = unique(members$icpsr)
   # nominate scores 
   nominate_scores = matrix(0, nrow=length(current_unique_icpsrs), ncol=2)
@@ -59,7 +61,7 @@ for(h in 1:length(session_ids)){
   }
   # theta_init[idx,h] = theta_init[idx,h]*(2*sign(theta_init[idx,h]*nominate_scores[,1]<0)-1)
   # nominate_scores[,1] + 0.1*rnorm(n=length(idx))
-  theta_init[idx,h] = nominate_scores[,1]
+  theta_init[idx,h] = nominate_scores[,1] + 0.1*rnorm(n=length(idx))
   NOMINATE_SCORE_DIM1[idx,h] = nominate_scores[,1]
   NOMINATE_SCORE_DIM2[idx,h] = nominate_scores[,2]
 }
@@ -82,7 +84,7 @@ samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
 samples = samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
 
-save.image(file='./results/gpirt_senate_90.RData')
+save.image(file='./results/gpirt_senate_92.RData')
 
 # predicted ideology
 pred_theta = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
@@ -96,6 +98,8 @@ for(h in 1:horizon){
   members = members[members$icpsr!=40106, ]
   # excluse RUSSELL, Richard Brevard, Jr. of GA
   members = members[members$icpsr!=8138, ]
+  # exclude James Danforth
+  members = members[members$icpsr!=14447, ]
   current_unique_icpsrs = unique(members$icpsr)
   # nominate scores 
   nominate_scores = matrix(0, nrow=length(current_unique_icpsrs), ncol=2)
@@ -174,6 +178,8 @@ for(h in 1:length(session_ids)){
   members = members[members$icpsr!=40106, ]
   # exclude RUSSELL, Richard Brevard, Jr. of GA
   members = members[members$icpsr!=8138, ]
+  # exclude James Danforth
+  members = members[members$icpsr!=14447, ]
   # exclude JOHNSTON, Olin DeWitt Talmadge
   members = members[members$icpsr!=5009, ]
   current_unique_icpsrs = unique(members$icpsr)
@@ -246,7 +252,7 @@ p = ggplot(all_service_senate_data,
   scale_y_continuous(name="GPIRT") + 
   geom_line() 
 
-png("./results/senate_dynamic_scores_90.png")
+png("./results/senate_dynamic_scores_92.png")
 print(p)
 dev.off()
 
@@ -326,4 +332,4 @@ for (h in 1:horizon) {
   }
 }
 
-save.image(file='./results/gpirt_senate_90.RData')
+save.image(file='./results/gpirt_senate_92.RData')

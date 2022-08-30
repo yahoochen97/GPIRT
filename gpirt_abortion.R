@@ -3,6 +3,7 @@ setwd(gpirt_path)
 library(Rcpp)
 Rcpp::compileAttributes()
 install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
+setwd("../OrdGPIRT")
 
 library(gpirt)
 library(dplyr)
@@ -76,7 +77,7 @@ for (h in 1:length(congresses)) {
     idx = c(idx, which(icpsr==all_senator_ids))
   }
   nominate_theta[idx,h] = nominate_scores[,2]
-  theta_init[idx,h] = nominate_scores[,2]
+  theta_init[idx,h] = nominate_scores[,2] + 0.1*rnorm(length(idx))
 }
 
 if(TYPE=="GP"){
@@ -90,8 +91,8 @@ if(TYPE=="GP"){
   theta_ls = 7
 }
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 SEED = 1
 THIN = 1
 CHAIN = 1
@@ -213,3 +214,50 @@ mask = is.na(rollcall_data[,1,1])
 points(pred_theta[!mask,1], rollcall_data[!mask,1,1])
 
 save.image(file='./results/gpirt_abortion.RData')
+
+all_nominate_data = data.frame(matrix(ncol = 6, nrow = 0))
+colnames(all_nominate_data) <- c("session", "gpirt", "nominate", "party", "icpsr", "bioname")
+for(h in 1:length(congresses)){
+  session_id = congresses[h]
+  members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
+  members = members[members$chamber=="Senate",]
+  # exlude BARKLEY, Dean
+  members = members[members$icpsr!=40106, ]
+  # excluse RUSSELL, Richard Brevard, Jr. of GA
+  members = members[members$icpsr!=8138, ]
+  # exclude JOHNSTON, Olin DeWitt Talmadge
+  members = members[members$icpsr!=5009, ]
+  # exclude James Danforth
+  # members = members[members$icpsr!=14447, ]
+  senator_ids = unique(data[data$congress==session_id,"id"]$id)
+  # nominate scores 
+  nominate_scores = matrix(0, nrow=length(senator_ids), ncol=2)
+  idx = c()
+  bionames = c()
+  party_codes = c()
+  for(j in 1:length(senator_ids)){
+    icpsr = senator_ids[j]
+    nominate_scores[j,1] = members[members$icpsr==icpsr, "nokken_poole_dim1"]
+    nominate_scores[j,2] = members[members$icpsr==icpsr, "nokken_poole_dim2"]
+    idx = c(idx, which(icpsr==all_senator_ids))
+    bionames = c(bionames, toString(members[members$icpsr==icpsr, "bioname"]))
+    party_codes = c(party_codes, members[members$icpsr==icpsr, "party_code"])
+  }
+  current_pred_theta = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx, h]
+  nominate_data = data.frame(current_pred_theta, nominate_scores[,1])
+  colnames(nominate_data) = c("gpirt", "nominate")
+  party_codes[(party_codes!=200)&(party_codes!=100)] = "Independents"
+  party_codes[party_codes==100] = "Democrats"
+  party_codes[party_codes==200] = "Republicans"
+  nominate_data$party = party_codes
+  nominate_data$session = session_id
+  nominate_data$icpsr = senator_ids
+  nominate_data$bioname = bionames
+  all_nominate_data = rbind(all_nominate_data, nominate_data)
+  # p[[h]] = ggplot(nominate_data, aes(y=x, x=y, colour = factor(party))) +
+  #   geom_point(size=2, aes(shape=factor(party))) + 
+  #   xlab("NOMINATE Dimension 1 Ideology") + ylab("GPIRT Ideology") + 
+  #   labs(colour = "Party")
+}
+
+write.csv(all_nominate_data, file="./results/gpirt_abortion_results.csv")

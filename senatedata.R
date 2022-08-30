@@ -1,8 +1,16 @@
+library(haven)
 gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
 
+# read data
+abortion_data = read_dta("./data/SenatePeriods.dta")
+# remove president
+abortion_data = abortion_data[abortion_data$name!="REAGAN",]
+abortion_data = abortion_data[abortion_data$name!="BUSH",]
+abortion_data = abortion_data[abortion_data$name!="CLINTON",]
+
 # get member icpsr for all sessions
-session_ids = 90:99
+session_ids = 92:101
 unique_icpsr = c()
 for(session_id in session_ids){
   votes = read.csv(paste("./data/S", session_id, "_votes.csv", sep=""))
@@ -26,10 +34,12 @@ data = array(array(NA, length(unique_icpsr)*num_bill_per_session*length(session_
 for(h in 1:length(session_ids)){
   session_id = session_ids[h]
   rollcalls = read.csv(paste("./data/S", session_id, "_rollcalls.csv", sep=""))
-  
   rollcalls = rollcalls[,c("congress", "rollnumber", "yea_count","nay_count","date" )]
-  
   rollcalls = rollcalls[(rollcalls$yea_count!=0)&(rollcalls$nay_count!=0),]
+  
+  abortion_rollcalls = unique(abortion_data[abortion_data$congress==session_id, c("rollcall")])
+  rollcalls = rollcalls[!(rollcalls$rollnumber %in% abortion_rollcalls),]
+  
   print(length(unique(rollcalls$rollnumber)))
   # rollcalls = rollcalls[1:num_bill_per_session, ]
   rollnumbers = unique(rollcalls$rollnumber)
@@ -57,24 +67,5 @@ n = nrow(data)
 m = ncol(data)
 horizon = length(data[1,1,])
 C = 2
-train_ratio = 0.8
 
-# split into train and test data
-N = n*m*horizon
-na_mask = matrix(is.na(data), nrow = N)
-train_idx = rep(0,N)
-train_idx[sample((1:N)[!na_mask],as.integer(train_ratio*sum(na_mask==0)),replace=FALSE)] = 1
-train_idx = array(train_idx, c(n,m,horizon))
-data_train = data
-
-for (i in 1:nrow(data)) {
-  for (j in 1:ncol(data)) {
-    for (h in 1:horizon) {
-      if(train_idx[i,j,h]==0){
-        data_train[i,j,h] = NA
-      }
-    }
-  }
-}
-
-save(data,data_train,train_idx,unique_icpsr,session_ids, file="./data/senate_data_90.RData")
+save(data,unique_icpsr,session_ids, file="./data/senate_data_92.RData")

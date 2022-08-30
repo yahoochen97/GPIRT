@@ -8,7 +8,7 @@ all_nominate = sortrows(all_nominate, ["party"]);
 % plot three ideology scores
 % 2001-2003, 2007-2009 , 2019-2021
 session_ids = 107:116;
-session_ids = 90:99;
+session_ids = 92:101;
 
 fig = figure(1);
 tiledlayout(2,5);
@@ -42,6 +42,50 @@ set(fig, 'PaperPosition', [0 0 30 10]);
 set(fig, 'PaperSize', [30 10]); 
 
 filename = "./results/senate_nominate_90.pdf";
+print(fig, filename, '-dpdf','-r300');
+close;
+
+file_name = 'gpirt_abortion_results.csv';
+opts = detectImportOptions(file_name);
+all_nominate = readtable(file_name);
+all_nominate = sortrows(all_nominate, ["party"]);
+
+% plot three ideology scores
+% 92 to 110 sessions
+session_ids = 92:2:110;
+
+fig = figure(1);
+tiledlayout(2,5);
+for i=1:numel(session_ids)
+    nexttile;
+    session_id = session_ids(i);
+    x = all_nominate.nominate(all_nominate.session==session_id);
+    y = all_nominate.gpirt(all_nominate.session==session_id);
+    party = all_nominate.party(all_nominate.session==session_id);
+   
+    if numel(unique(party))==3
+        colors = 'bkr';
+    else
+        colors = 'br';
+    end
+    h = gscatter(x,y,party, colors,'s^o', 8);
+    for n = 1:length(h)
+      set(h(n), 'MarkerFaceColor', colors(n));
+    end
+    xlim([-1.0,1.0]);
+    ylim([-0.8,0.8]);
+    xlabel('NOMINATE Dimension 1 Ideology','FontSize', 16);
+    ylabel('GPIRT Ideology','FontSize', 16);
+    xticks([-0.5,0,0.5]);
+    title( int2str(session_id) + "th U.S. Congress", 'FontSize', 12);
+    legend('Location','northwest','FontSize',12);
+    legend boxoff;
+    
+end
+set(fig, 'PaperPosition', [0 0 30 10]); 
+set(fig, 'PaperSize', [30 10]); 
+
+filename = "./results/abortion_nominate.pdf";
 print(fig, filename, '-dpdf','-r300');
 close;
 
