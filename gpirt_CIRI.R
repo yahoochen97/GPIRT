@@ -79,7 +79,6 @@ for (h in 1:length(unique(data$YEAR))) {
   }
 }
 
-
 CIRI_theta = array(array(NA, n*horizon), c(n, horizon))
 for (h in 1:length(unique(data$YEAR))) {
   year = unique(data$YEAR)[h]
@@ -127,7 +126,7 @@ samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
                      beta_proposal_sds = beta_proposal_sds,
                      theta_os = theta_os, theta_ls = theta_ls, 
                      vote_codes = NULL, thresholds=NULL,
-                     SEED=SEED, constant_IRF = 1)
+                     SEED=SEED, constant_IRF = 0)
 
 samples = samples_all[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN

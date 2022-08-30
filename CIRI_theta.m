@@ -1,6 +1,6 @@
 addpath("~/Documents/Washu/CSE515T/Code/Gaussian Process/gpml-matlab-v3.6-2015-07-07");
 startup;
-data = readmatrix("./data/NOMINATE1_theta.csv");
+data = readmatrix("./data/synthetic_theta.csv");
 data = data ./ std(data,0,"all","omitnan");
 n = size(data, 1);
 horizon = size(data, 2);

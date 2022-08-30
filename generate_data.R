@@ -12,8 +12,8 @@ if (length(args)==0) {
   SEED = 1
   C = 2
   n = 100
-  m = 50
-  horizon = 10
+  m = 10
+  horizon = 20
   TYPE = "GP"
   CONSTANT_IRF = 0
 }
