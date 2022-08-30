@@ -109,7 +109,7 @@ for i=1:numel(session_ids)
       set(h(n), 'MarkerFaceColor', colors(n));
     end
     xlim([-3.0,3.0]);
-    ylim([-1.8,1.4]);
+    ylim([-0.6,0.6]);
     xlabel('CIRI score','FontSize', 16);
     ylabel('GPIRT score','FontSize', 16);
     xticks((-3.0):0.5:3.0);

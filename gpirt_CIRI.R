@@ -126,7 +126,7 @@ samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
                      beta_proposal_sds = beta_proposal_sds,
                      theta_os = theta_os, theta_ls = theta_ls, 
                      vote_codes = NULL, thresholds=NULL,
-                     SEED=SEED, constant_IRF = 0)
+                     SEED=SEED, constant_IRF = 1)
 
 samples = samples_all[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
@@ -170,11 +170,11 @@ for(h in 1:horizon){
 
 xs = seq(-5,5,0.01)
 idx = 301:701
-gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
-                   c(length(xs[idx]),m, horizon))
+gpirt_iccs = array(array(0, length(xs[idx])*m*1),
+                   c(length(xs[idx]),m, 1))
 
 source("getprob_gpirt.R")
-for (h in 1:horizon) {
+for (h in 1:1) {
   for (j in 1:m) {
     IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
     for(iter in 1:SAMPLE_ITERS){
