@@ -236,7 +236,7 @@ print(mean(train_acc[!is.infinite(train_lls)]))
 print(mean(pred_lls[!is.infinite(pred_lls)]))
 print(mean(pred_acc[!is.infinite(pred_lls)]))
 print(mean(array(abs(cor_icc), n*horizon)))
-print(mean(array(rmse_icc, n*horizon)))pred_theta_ll
+print(mean(array(rmse_icc, n*horizon)))
 
 save(theta_rhats, gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_sd,,train_lls,
       train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,

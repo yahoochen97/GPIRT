@@ -163,7 +163,8 @@ for(h in 1:horizon){
     for(k in idx){
       for(c in 1:CHAIN){
         for(t in 1:(1+SAMPLE_ITERS)){
-          sims[t,c] = samples_all[[c]]$fstar[[t]][k,j,h]-samples_all[[c]]$threshold[t,3]
+          tmp = sign(cor(samples_all[[c]]$fstar[[t]][,j,h],samples_all[[c]]$fstar[[1]][,j,h]))
+          sims[t,c] = samples_all[[c]]$fstar[[t]][k,j,h]*tmp
         }
       }
       irf_rhats[k-min(idx)+1, j] = Rhat(sims)
