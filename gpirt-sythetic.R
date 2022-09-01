@@ -43,8 +43,8 @@ print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 if(TYPE=="GP"){
     theta_os = 1
     theta_ls = as.integer(horizon/2)
@@ -59,7 +59,7 @@ if(TYPE=="GP"){
 }
 
 THIN = 1
-CHAIN = 3
+CHAIN = 1
 beta_prior_means = matrix(0, nrow = 2, ncol = ncol(data_train))
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data_train))
@@ -236,8 +236,8 @@ print(mean(train_acc[!is.infinite(train_lls)]))
 print(mean(pred_lls[!is.infinite(pred_lls)]))
 print(mean(pred_acc[!is.infinite(pred_lls)]))
 print(mean(array(abs(cor_icc), n*horizon)))
-print(mean(array(rmse_icc, n*horizon)))
+print(mean(array(rmse_icc, n*horizon)))pred_theta_ll
 
-save(theta_rhats, gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_sd,pred_theta_ll,train_lls,
+save(theta_rhats, gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_sd,,train_lls,
       train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
       file=paste("./results/gpirt_", HYP, ".RData" , sep=""))

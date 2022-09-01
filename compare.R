@@ -2,11 +2,11 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  MAXSEED = 100
+  MAXSEED = 25
   C = 2
-  n = 100
-  m = 50
-  horizon = 10
+  n = 50
+  m = 10
+  horizon = 20
   TYPE = "GP"
   CONSTANT_IRF = 1
 }

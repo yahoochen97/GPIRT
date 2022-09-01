@@ -1,3 +1,10 @@
+gpirt_path = "~/Documents/Github/gpirt"
+setwd(gpirt_path)
+library(Rcpp)
+Rcpp::compileAttributes()
+install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
+setwd("../OrdGPIRT")
+
 library(gpirt)
 library(dplyr)
 library(ggplot2)
@@ -109,15 +116,15 @@ if(TYPE=="GP"){
 
 theta_init = array(array(0, n*horizon), c(n, horizon))
 theta_init[!is.na(CIRI_theta)] = CIRI_theta[!is.na(CIRI_theta)]
-for(h in 1:horizon){
-  theta_init[,h] = theta_init[,h] + 0.1*rnorm(n)
-}
+# for(h in 1:horizon){
+#   theta_init[,h] = theta_init[,h] + 0.1*rnorm(n)
+# }
 
 SAMPLE_ITERS = 100
 BURNOUT_ITERS = 100
 SEED = 1
 THIN = 1
-CHAIN = 1
+CHAIN = 3
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(CIRI_data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(CIRI_data))
 samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
@@ -126,31 +133,50 @@ samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
                      beta_proposal_sds = beta_proposal_sds,
                      theta_os = theta_os, theta_ls = theta_ls, 
                      vote_codes = NULL, thresholds=NULL,
-                     SEED=SEED, constant_IRF = 1)
+                     SEED=SEED, constant_IRF = 0)
 
 samples = samples_all[[1]]
+samples = samples_all[[2]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
 library(rstan)
 sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
 theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
+xs = seq(-5,5,0.01)
+idx = 401:601
+irf_rhats = matrix(rnorm(length(idx)*m), nrow = length(idx), ncol = m)
 for(i in 1:n){
   for(h in 1:horizon){
     for(c in 1:CHAIN){
       pred_theta = colMeans(samples_all[[c]]$theta)
-      sims[,c] = sign(cor(CIRI_theta[,h],pred_theta[,h]))*samples_all[[c]]$theta[,i,h]
+      mask = (!is.na(CIRI_theta[,h]))
+      for(j in 1:m){
+        mask = mask & (!is.na(CIRI_data[,j,h]))
+      }
+      sims[,c] = sign(cor(CIRI_theta[mask,h],pred_theta[mask,h]))*samples_all[[c]]$theta[,i,h]
     }
     theta_rhats[i, h] = Rhat(sims)
   }
+}
+
+for(h in 1:horizon){
+  for(j in 1:m){
+    for(k in idx){
+      for(c in 1:CHAIN){
+        for(t in 1:(1+SAMPLE_ITERS)){
+          sims[t,c] = samples_all[[c]]$fstar[[t]][k,j,h]-samples_all[[c]]$threshold[t,3]
+        }
+      }
+      irf_rhats[k-min(idx)+1, j] = Rhat(sims)
+    }
+  }
+  print(mean(irf_rhats))
+  hist(irf_rhats)
 }
 
 xs = seq(-5,5,0.01)
 pred_theta = matrix(0, nrow=n, ncol=horizon)
 pred_theta_sd = matrix(0, nrow=n, ncol=horizon)
 for(i in 1:n){
-  mask = rep(0,SAMPLE_ITERS)
-  for(iter in 1:SAMPLE_ITERS){
-    mask[iter] = sign(cor(samples$theta[1+iter,i,],samples$theta[1,i,]))
-  }
   for (h in 1:horizon) {
     tmp = samples$theta[-1,i,h]
     pred_theta[i,h] = mean(tmp)
@@ -169,7 +195,7 @@ for(h in 1:horizon){
 }
 
 xs = seq(-5,5,0.01)
-idx = 301:701
+idx = 401:601
 gpirt_iccs = array(array(0, length(xs[idx])*m*1),
                    c(length(xs[idx]),m, 1))
 

@@ -76,8 +76,8 @@ for (h in 1:length(congresses)) {
     nominate_scores[j,2] = members[members$icpsr==icpsr, "nokken_poole_dim2"]
     idx = c(idx, which(icpsr==all_senator_ids))
   }
-  nominate_theta[idx,h] = nominate_scores[,2]
-  theta_init[idx,h] = nominate_scores[,2] + 0.1*rnorm(length(idx))
+  nominate_theta[idx,h] = nominate_scores[,1]
+  theta_init[idx,h] = nominate_scores[,1] + 0.1*rnorm(length(idx))
 }
 
 if(TYPE=="GP"){
@@ -102,7 +102,7 @@ samples <- gpirtMCMC(rollcall_data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN, CHAIN, beta_prior_sds = beta_prior_sds,theta_init = theta_init,
                      beta_proposal_sds = beta_proposal_sds, theta_os = theta_os,
                      theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL,
-                     SEED=SEED, constant_IRF = 0)
+                     SEED=SEED, constant_IRF = 1)
 
 samples = samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
@@ -155,7 +155,7 @@ for(h in 1:length(congresses)){
     idx = c(idx, which(icpsr==all_senator_ids))
   }
   
-  pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx,h]
+  # pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx,h]
   # pred_theta[idx,h] = (pred_theta[idx,h] - mean(pred_theta[idx,h]))
   cor_theta_1 = c(cor_theta_1, cor(pred_theta[idx, h],nominate_scores[,1]))
   plot(pred_theta[idx,h], nominate_scores[,1])
@@ -180,7 +180,7 @@ for(h in 1:length(congresses)){
     idx = c(idx, which(icpsr==all_senator_ids))
   }
   
-  pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,2]))*pred_theta[idx,h]
+  # pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,2]))*pred_theta[idx,h]
   # pred_theta[idx,h] = (pred_theta[idx,h] - mean(pred_theta[idx,h]))
   cor_theta_2 = c(cor_theta_2, cor(pred_theta[idx, h],nominate_scores[,2]))
   plot(pred_theta[idx,h], nominate_scores[,2])
@@ -209,6 +209,7 @@ for (h in 1:horizon) {
   }
 }
 
+idx = 301:701
 plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,2))
 mask = is.na(rollcall_data[,1,1])
 points(pred_theta[!mask,1], rollcall_data[!mask,1,1])
@@ -261,3 +262,13 @@ for(h in 1:length(congresses)){
 }
 
 write.csv(all_nominate_data, file="./results/gpirt_abortion_results.csv")
+
+all_service_senates = all_senator_ids
+for(h in 1:horizon){
+  senator_ids = unique(data[data$congress==congress,"id"]$id)
+  all_service_senates = intersect(all_service_senates, senator_ids)
+}
+
+for(id in all_service_senates){
+  plot(congresses, pred_theta[3,])
+}

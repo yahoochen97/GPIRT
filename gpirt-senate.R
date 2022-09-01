@@ -248,7 +248,7 @@ all_service_senate_data$nominate = as.numeric(all_service_senate_data$nominate)
 all_service_senate_data$norm_gpirt = (all_service_senate_data$gpirt-mean(all_service_senate_data$gpirt))/sd(all_service_senate_data$gpirt)
 
 p = ggplot(all_service_senate_data, 
-       aes(x=session,y=norm_gpirt,group=factor(icpsr), color=factor(party)))+
+       aes(x=session,y=gpirt,group=factor(icpsr), color=factor(party)))+
   scale_y_continuous(name="GPIRT") + 
   geom_line() 
 
