@@ -124,7 +124,7 @@ SAMPLE_ITERS = 100
 BURNOUT_ITERS = 100
 SEED = 1
 THIN = 1
-CHAIN = 3
+CHAIN = 1
 beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(CIRI_data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(CIRI_data))
 samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
