@@ -11,7 +11,7 @@ meanfunc = [];                    % empty: don't use a mean function
 covfunc = @covSEiso;              % Squared Exponental covariance function
 likfunc = @likGauss;              % Gaussian likelihood
 
-hyp = struct('mean', [], 'cov', [0 0], 'lik', -3);
+hyp = struct('mean', [], 'cov', [0 0], 'lik', log(0.1));
 prior.cov = {[], ...
              @priorDelta};
 prior.mean = {};
@@ -40,4 +40,5 @@ function [nlZ, dnlZ] = gp_sum(hyp, inf, mean, cov, lik, x,data)
        dnlZ = dnlZ + unwrap(this_dnlZ);
     end
     dnlZ = rewrap(hyp,dnlZ);
+    dnlZ.lik = 0;
 end

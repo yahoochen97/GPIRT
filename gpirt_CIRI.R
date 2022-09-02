@@ -104,7 +104,7 @@ for (h in 1:length(unique(data$YEAR))) {
 
 if(TYPE=="GP"){
   theta_os = 1
-  theta_ls = 6
+  theta_ls = 3
 }else if(TYPE=="CST"){
   theta_os = 1
   theta_ls = 10*horizon
