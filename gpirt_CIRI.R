@@ -136,7 +136,6 @@ samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
                      SEED=SEED, constant_IRF = 0)
 
 samples = samples_all[[1]]
-samples = samples_all[[2]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
 library(rstan)
 sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
@@ -156,22 +155,6 @@ for(i in 1:n){
     }
     theta_rhats[i, h] = Rhat(sims)
   }
-}
-
-for(h in 1:horizon){
-  for(j in 1:m){
-    for(k in idx){
-      for(c in 1:CHAIN){
-        for(t in 1:(1+SAMPLE_ITERS)){
-          tmp = sign(cor(samples_all[[c]]$fstar[[t]][,j,h],samples_all[[c]]$fstar[[1]][,j,h]))
-          sims[t,c] = samples_all[[c]]$fstar[[t]][k,j,h]*tmp
-        }
-      }
-      irf_rhats[k-min(idx)+1, j] = Rhat(sims)
-    }
-  }
-  print(mean(irf_rhats))
-  hist(irf_rhats)
 }
 
 xs = seq(-5,5,0.01)
@@ -267,3 +250,22 @@ for(h in 1:length(unique_sessions)){
 }
 
 write.csv(all_CIRI_results, file="./results/gpirt_CIRI_results.csv")
+
+library(gganimate)
+animated_data = data.frame(matrix(ncol = 3, nrow = 0))
+colnames(animated_data) = c("it","theta","f")
+for(it in 1:SAMPLE_ITERS){
+  tmp = data.frame(samples$theta[1+it,,1], samples$f[[it]][,1,1])
+  tmp$it = it
+  colnames(tmp) = c("theta","f","it")
+  animated_data = rbind(animated_data, tmp)
+}
+p = animated_data %>%
+  ggplot(aes(theta,f)) +
+  geom_point() +
+  theme_minimal() +
+  ## gganimate functionality starts here
+  transition_time(it) +
+  ease_aes()
+
+anim_save("f1h1.gif", animation=p, renterer = gifski_renderer())
