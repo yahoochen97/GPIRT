@@ -104,7 +104,7 @@ for (h in 1:length(unique(data$YEAR))) {
 
 if(TYPE=="GP"){
   theta_os = 1
-  theta_ls = 3
+  theta_ls = 6
 }else if(TYPE=="CST"){
   theta_os = 1
   theta_ls = 10*horizon
@@ -125,8 +125,8 @@ BURNOUT_ITERS = 100
 SEED = 1
 THIN = 1
 CHAIN = 1
-beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(CIRI_data))
-beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(CIRI_data))
+beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(CIRI_data))
+beta_proposal_sds =  matrix(0.5, nrow = 2, ncol = ncol(CIRI_data))
 samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN, CHAIN, theta_init = theta_init, 
                      beta_prior_sds = beta_prior_sds, 
