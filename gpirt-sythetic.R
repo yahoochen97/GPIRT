@@ -79,18 +79,18 @@ samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
                      theta_init = theta_init,
                      thresholds=NULL, SEED=SEED, constant_IRF = CONSTANT_IRF)
 
-library(rstan)
-sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
-theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
-for(i in 1:n){
-    for(h in 1:horizon){
-        for(c in 1:CHAIN){
-            pred_theta = colMeans(samples[[c]]$theta)
-            sims[,c] = sign(cor(theta[,h],pred_theta[,h]))*samples[[c]]$theta[,i,h]
-        }
-        theta_rhats[i, h] = Rhat(sims)
-    }
-}
+# library(rstan)
+# sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
+# theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
+# for(i in 1:n){
+#     for(h in 1:horizon){
+#         for(c in 1:CHAIN){
+#             pred_theta = colMeans(samples[[c]]$theta)
+#             sims[,c] = sign(cor(theta[,h],pred_theta[,h]))*samples[[c]]$theta[,i,h]
+#         }
+#         theta_rhats[i, h] = Rhat(sims)
+#     }
+# }
 
 samples = samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
