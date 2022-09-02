@@ -106,11 +106,11 @@ if(TYPE=="GP"){
   theta_os = 1
   theta_ls = 6
 }else if(TYPE=="CST"){
-  theta_os = 0
-  theta_ls = -1
+  theta_os = 1
+  theta_ls = 10*horizon
 }else{
-  theta_os = 0
-  theta_ls = as.integer(horizon/2)
+  theta_os = 1
+  theta_ls = 0.1
 }
 
 
@@ -133,7 +133,7 @@ samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
                      beta_proposal_sds = beta_proposal_sds,
                      theta_os = theta_os, theta_ls = theta_ls, 
                      vote_codes = NULL, thresholds=NULL,
-                     SEED=SEED, constant_IRF = 0)
+                     SEED=SEED, constant_IRF = 1)
 
 samples = samples_all[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
@@ -255,17 +255,39 @@ library(gganimate)
 animated_data = data.frame(matrix(ncol = 3, nrow = 0))
 colnames(animated_data) = c("it","theta","f")
 for(it in 1:SAMPLE_ITERS){
-  tmp = data.frame(samples$theta[1+it,,1], samples$f[[it]][,1,1])
+  tmp = data.frame(samples$theta[1+it,,1], samples$f[[it+1]][,1,1])
   tmp$it = it
   colnames(tmp) = c("theta","f","it")
   animated_data = rbind(animated_data, tmp)
 }
 p = animated_data %>%
-  ggplot(aes(theta,f)) +
+  ggplot(aes(theta,f,frame=it)) +
   geom_point() +
   theme_minimal() +
   ## gganimate functionality starts here
-  transition_time(it) +
+  transition_states(it) +
+  ggtitle("iteration: {closest_state}") + 
   ease_aes()
 
-anim_save("f1h1.gif", animation=p, renterer = gifski_renderer())
+animate(p, renderer = gifski_renderer())
+anim_save("f1h1.gif")
+
+animated_data = data.frame(matrix(ncol = 3, nrow = 0))
+colnames(animated_data) = c("it","t","theta")
+for(it in 1:SAMPLE_ITERS){
+  tmp = data.frame(1:horizon, samples$theta[1+it,1,])
+  tmp$it = it
+  colnames(tmp) = c("t","theta","it")
+  animated_data = rbind(animated_data, tmp)
+}
+p = animated_data %>%
+  ggplot(aes(t,theta,frame=it)) +
+  geom_point() +
+  theme_minimal() +
+  ## gganimate functionality starts here
+  transition_states(it) +
+  ggtitle("iteration: {closest_state}") + 
+  ease_aes()
+
+animate(p, renderer = gifski_renderer())
+anim_save("theta1.gif")

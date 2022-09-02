@@ -1,7 +1,7 @@
 addpath("~/Documents/Washu/CSE515T/Code/Gaussian Process/gpml-matlab-v3.6-2015-07-07");
 startup;
-data = readmatrix("./data/synthetic_theta.csv");
-data = data ./ std(data,0,"all","omitnan");
+data = readmatrix("./data/CIRI_theta.csv");
+% data = data ./ std(data,0,"all","omitnan");
 n = size(data, 1);
 horizon = size(data, 2);
 x = (1:horizon)';
@@ -11,21 +11,22 @@ meanfunc = [];                    % empty: don't use a mean function
 covfunc = @covSEiso;              % Squared Exponental covariance function
 likfunc = @likGauss;              % Gaussian likelihood
 
-hyp = struct('mean', [], 'cov', [0 0], 'lik', -1);
+hyp = struct('mean', [], 'cov', [0 0], 'lik', -3);
 prior.cov = {[], ...
              @priorDelta};
 prior.mean = {};
-prior.lik = {[]};
+prior.lik = {@priorDelta};
 
 p.method = 'LBFGS';
 p.length = 100;
 
 inference_method = {@infPrior, @infExact, prior};
 
-hyp = minimize_v2(hyp, @gp_sum, p, inference_method{2}, meanfunc, ...
+hyp = minimize_v2(hyp, @gp_sum, p, inference_method, meanfunc, ...
                     covfunc, likfunc, x, data);
 
 disp(exp(hyp.cov));
+disp(exp(hyp.lik));
 
 function [nlZ, dnlZ] = gp_sum(hyp, inf, mean, cov, lik, x,data) 
     n = size(x, 1);
