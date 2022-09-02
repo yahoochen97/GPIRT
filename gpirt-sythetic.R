@@ -225,9 +225,9 @@ for (i in 1:horizon) {
     cor_theta = c(cor_theta, cor(theta[,i], pred_theta[,i]))
 }
 
-print("Average Rhat:")
-print(mean(theta_rhats))
-print(max(theta_rhats))
+# print("Average Rhat:")
+# print(mean(theta_rhats))
+# print(max(theta_rhats))
 print(mean(abs(cor_theta)))
 print(mean(pred_theta_sd))
 print(mean(pred_theta_ll))
@@ -238,6 +238,6 @@ print(mean(pred_acc[!is.infinite(pred_lls)]))
 print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
 
-save(theta_rhats, gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_ll,pred_theta_sd,train_lls,
+save(gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_ll,pred_theta_sd,train_lls,
       train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
       file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
