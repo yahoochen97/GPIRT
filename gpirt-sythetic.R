@@ -58,11 +58,11 @@ if(TYPE=="GP"){
     theta_ls = 0.1
 }
 
-THIN = 5
+THIN = 4
 CHAIN = 1
 beta_prior_means = matrix(0, nrow = 2, ncol = ncol(data_train))
-beta_prior_sds =  matrix(2.0, nrow = 2, ncol = ncol(data_train))
-beta_proposal_sds =  matrix(0.5, nrow = 2, ncol = ncol(data_train))
+beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data_train))
+beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data_train))
 theta_init = matrix(0, nrow = n, ncol = horizon)
 theta_init[,1] = rnorm(n)
 theta_init[,1] = theta_init[,1]*sign(theta_init[,1]*theta[,1])

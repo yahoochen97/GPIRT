@@ -137,25 +137,25 @@ samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
 
 samples = samples_all[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
-library(rstan)
-sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
-theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
-xs = seq(-5,5,0.01)
-idx = 401:601
-irf_rhats = matrix(rnorm(length(idx)*m), nrow = length(idx), ncol = m)
-for(i in 1:n){
-  for(h in 1:horizon){
-    for(c in 1:CHAIN){
-      pred_theta = colMeans(samples_all[[c]]$theta)
-      mask = (!is.na(CIRI_theta[,h]))
-      for(j in 1:m){
-        mask = mask & (!is.na(CIRI_data[,j,h]))
-      }
-      sims[,c] = sign(cor(CIRI_theta[mask,h],pred_theta[mask,h]))*samples_all[[c]]$theta[,i,h]
-    }
-    theta_rhats[i, h] = Rhat(sims)
-  }
-}
+# library(rstan)
+# sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
+# theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
+# xs = seq(-5,5,0.01)
+# idx = 401:601
+# irf_rhats = matrix(rnorm(length(idx)*m), nrow = length(idx), ncol = m)
+# for(i in 1:n){
+#   for(h in 1:horizon){
+#     for(c in 1:CHAIN){
+#       pred_theta = colMeans(samples_all[[c]]$theta)
+#       mask = (!is.na(CIRI_theta[,h]))
+#       for(j in 1:m){
+#         mask = mask & (!is.na(CIRI_data[,j,h]))
+#       }
+#       sims[,c] = sign(cor(CIRI_theta[mask,h],pred_theta[mask,h]))*samples_all[[c]]$theta[,i,h]
+#     }
+#     theta_rhats[i, h] = Rhat(sims)
+#   }
+# }
 
 xs = seq(-5,5,0.01)
 pred_theta = matrix(0, nrow=n, ncol=horizon)
@@ -179,7 +179,7 @@ for(h in 1:horizon){
 }
 
 xs = seq(-5,5,0.01)
-idx = 401:601
+idx = 301:701
 gpirt_iccs = array(array(0, length(xs[idx])*m*1),
                    c(length(xs[idx]),m, 1))
 
@@ -188,7 +188,8 @@ for (h in 1:1) {
   for (j in 1:m) {
     IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
     for(iter in 1:SAMPLE_ITERS){
-      IRFs[iter, ] = samples$fstar[[iter]][idx, j, h]
+      tmp = sign(cor(samples$fstar[[iter+1]][idx, j, h],samples$fstar[[1]][idx, j, h]))
+      IRFs[iter, ] = samples$fstar[[iter+1]][idx, j, h]*tmp
     }
     probs = getprobs_gpirt(xs[idx], t(IRFs),
                            samples$threshold)
@@ -197,7 +198,6 @@ for (h in 1:1) {
       summarize(icc=sum(order*p))
     gpirt_iccs[,j,h] = tmp$icc
     
-    # probs = getprobs_gpirt(xs[idx], t(IRFs), samples$threshold)
     q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
       geom_line(size=2) +ggtitle(paste("GP IRT item ",j, sep="")) +
       theme(plot.title = element_text(hjust = 0.5))
@@ -255,10 +255,11 @@ library(gganimate)
 animated_data = data.frame(matrix(ncol = 3, nrow = 0))
 colnames(animated_data) = c("it","theta","f")
 for(it in 1:SAMPLE_ITERS){
-  tmp = data.frame(samples$theta[1+it,,1], samples$f[[it+1]][,1,1])
+  tmp = sign(cor(samples$fstar[[iter+1]][idx, 1, 1],samples$fstar[[1]][idx, 1, 1]))
+  tmp = data.frame(samples$theta[1+it,,1], samples$f[[it+1]][,1,1]*tmp)
   tmp$it = it
   colnames(tmp) = c("theta","f","it")
-  animated_data = rbind(animated_data, tmp)
+  animated_data = rbind(animated_data, tmp) 
 }
 p = animated_data %>%
   ggplot(aes(theta,f,frame=it)) +
