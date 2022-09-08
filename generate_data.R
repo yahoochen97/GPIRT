@@ -11,9 +11,9 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
   SEED = 1
   C = 2
-  n = 100
-  m = 10
-  horizon = 20
+  n = 50
+  m = 50
+  horizon = 10
   TYPE = "GP"
   CONSTANT_IRF = 0
 }
@@ -110,6 +110,7 @@ if(TYPE=="GP"){
       K = SEKernel(1:horizon, sigma=as.integer(1+horizon/2))
       K = K + diag(1e-6, horizon, horizon)
       theta[i,] <- t(chol(K))%*%rnorm(horizon)  # Respondent ability parameters
+      theta[i,] = theta[i,] + (2*rbinom(1,1,0.5) -1)
     }
   }else{
     theta[,1] = rnorm(n)
@@ -129,9 +130,9 @@ if(TYPE=="GP"){
       K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
       anchor_ys[j,,h]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) 
       if(CONSTANT_IRF==0){
-        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=1,sd=0.5)
+        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=3,sd=0.5)
       }else{
-        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=1,sd=0.5)
+        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=3,sd=0.5)
       }
       
       anchor_ys[j,,h] = anchor_ys[j,,h] + slope*(anchor_xs[j,,h])

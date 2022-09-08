@@ -5,7 +5,7 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
   SEED = 1
   C = 2
-  n = 100
+  n = 50
   m = 50
   horizon = 10
   TYPE = "GP"
@@ -61,7 +61,7 @@ if(TYPE=="GP"){
 THIN = 4
 CHAIN = 1
 beta_prior_means = matrix(0, nrow = 2, ncol = ncol(data_train))
-beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data_train))
+beta_prior_sds =  matrix(2.0, nrow = 2, ncol = ncol(data_train))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data_train))
 theta_init = matrix(0, nrow = n, ncol = horizon)
 theta_init[,1] = rnorm(n)
@@ -70,7 +70,7 @@ for (h in 2:horizon) {
   theta_init[,h] = theta_init[,1]
 }
 
-samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
+all_samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN=THIN, CHAIN=CHAIN, vote_codes = NULL,
                      beta_prior_means = beta_prior_means,
                      beta_prior_sds = beta_prior_sds, 
@@ -92,7 +92,7 @@ samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
 #     }
 # }
 
-samples = samples[[1]]
+samples = all_samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
 
 xs = seq(-5,5,0.01)
@@ -129,10 +129,8 @@ for(i in 1:n){
 for(it in 1:SAMPLE_ITERS){
   for(h in 1:horizon){
     for(j in 1:m){
-      samples$f[[it]][,j,h] = samples$f[[it]][,j,h] + samples$beta[[it]][1,j,h]
-      + samples$beta[[it]][2,j,h]*samples$theta[it,,h]
-      samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h]
-      + samples$beta[[it]][2,j,h]*xs
+      samples$f[[it]][,j,h] = samples$f[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*samples$theta[it,,h]
+      samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*xs
     }
   }
 }
@@ -196,7 +194,7 @@ for (i in 1:n) {
 
 # cor of icc
 idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
-idx = 301:701
+idx = 401:601
 # IRFs = Reduce("+",samples$IRFs)/length(samples$IRFs)
 # gpirt_iccs = colMeans(IRFs, dim=1)
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon), 
@@ -235,6 +233,18 @@ cor_theta = c()
 for (i in 1:horizon) {
     cor_theta = c(cor_theta, cor(theta[,i], pred_theta[,i]))
 }
+
+plot(samples$theta[10,,10],samples$f[[10]][,1,10])
+
+plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,2))
+mask = is.na(data_train[,1,1])
+points(pred_theta[!mask,1], data_train[!mask,1,1])
+
+tmp=rep(0,SAMPLE_ITERS)
+for(it in 1:SAMPLE_ITERS){
+  tmp[it] = samples$beta[[it]][2,1,1]
+}
+plot(1:SAMPLE_ITERS,tmp)
 
 # print("Average Rhat:")
 # print(mean(theta_rhats))

@@ -120,8 +120,8 @@ for(h in 1:horizon){
   theta_init[,h] = theta_init[,h] + 0.1*rnorm(n)
 }
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 99
+BURNOUT_ITERS = 1
 SEED = 1
 THIN = 1
 CHAIN = 1
@@ -185,10 +185,8 @@ for(h in 1:horizon){
 for(it in 1:SAMPLE_ITERS){
   for(h in 1:horizon){
     for(j in 1:m){
-      samples$f[[it]][,j,h] = samples$f[[it]][,j,h] + samples$beta[[it]][1,j,h]
-          + samples$beta[[it]][2,j,h]*samples$theta[it,,h]
-      samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h]
-      + samples$beta[[it]][2,j,h]*xs
+      samples$f[[it]][,j,h] = samples$f[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*samples$theta[it,,h]
+      samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*xs
     }
   }
   
