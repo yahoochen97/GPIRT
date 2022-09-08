@@ -126,6 +126,17 @@ for(i in 1:n){
     }
 }
 
+for(it in 1:SAMPLE_ITERS){
+  for(h in 1:horizon){
+    for(j in 1:m){
+      samples$f[[it]][,j,h] = samples$f[[it]][,j,h] + samples$beta[[it]][1,j,h]
+      + samples$beta[[it]][2,j,h]*samples$theta[it,,h]
+      samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h]
+      + samples$beta[[it]][2,j,h]*xs
+    }
+  }
+}
+
 ordinal_lls = function(f, thresholds){
     result = c()
     for (c in 1:(length(thresholds)-1)) {
