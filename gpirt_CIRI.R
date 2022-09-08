@@ -120,8 +120,8 @@ for(h in 1:horizon){
   theta_init[,h] = theta_init[,h] + 0.1*rnorm(n)
 }
 
-SAMPLE_ITERS = 99
-BURNOUT_ITERS = 1
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 SEED = 1
 THIN = 1
 CHAIN = 1
