@@ -81,7 +81,7 @@ for (h in 1:length(congresses)) {
 }
 
 if(TYPE=="GP"){
-  theta_os = 1
+  theta_os = 2
   theta_ls = 7
 }else if(TYPE=="CST"){
   theta_os = 0
@@ -91,10 +91,10 @@ if(TYPE=="GP"){
   theta_ls = 7
 }
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 SEED = 1
-THIN = 4
+THIN = 1
 CHAIN = 1
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(rollcall_data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(rollcall_data))
@@ -187,8 +187,17 @@ for(h in 1:length(congresses)){
   pred_theta_ll[idx,h] = log(dnorm(nominate_scores[,2],mean=pred_theta[idx,h],sd=pred_theta_sd[idx,h]))
 }
 
+for(it in 1:SAMPLE_ITERS){
+  for(h in 1:horizon){
+    for(j in 1:m){
+      samples$f[[it]][,j,h] = samples$f[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*samples$theta[it,,h]
+      samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*xs
+    }
+  }
+}
+
 xs = seq(-5,5,0.01)
-idx = 301:701
+idx = 401:601
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
                    c(length(xs[idx]),m, horizon))
 
@@ -206,10 +215,10 @@ for (h in 1:horizon) {
       group_by(xs) %>%
       summarize(icc=sum(order*p))
     gpirt_iccs[,j,h] = tmp$icc
+    gpirt_iccs[,j,h] = probs$p[probs$order==2]
   }
 }
 
-idx = 301:701
 plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,2))
 mask = is.na(rollcall_data[,1,1])
 points(pred_theta[!mask,1], rollcall_data[!mask,1,1])
@@ -272,3 +281,7 @@ for(h in 1:horizon){
 for(id in all_service_senates){
   plot(congresses, pred_theta[3,])
 }
+
+plot(xs[idx],gpirt_iccs[,1,10], ylim=c(0,1))
+mask = is.na(rollcall_data[,1,10])
+points(pred_theta[!mask,10], rollcall_data[!mask,1,10]-1)

@@ -103,7 +103,7 @@ for (h in 1:length(unique(data$YEAR))) {
 # CIRI_theta = (CIRI_theta-mean(CIRI_theta,na.rm = TRUE)) / sd(CIRI_theta,na.rm = TRUE)
 
 if(TYPE=="GP"){
-  theta_os = 1
+  theta_os = 2
   theta_ls = 6
 }else if(TYPE=="CST"){
   theta_os = 1
@@ -120,10 +120,10 @@ for(h in 1:horizon){
   theta_init[,h] = theta_init[,h] + 0.1*rnorm(n)
 }
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 SEED = 1
-THIN = 4
+THIN = 1
 CHAIN = 1
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(CIRI_data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(CIRI_data))
