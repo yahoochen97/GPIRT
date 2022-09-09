@@ -6,8 +6,8 @@ library(stats)
 gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
 load(file="./data/senate_data_92.RData")
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 TYPE = "GP"
 n = nrow(data)
 m = ncol(data)
@@ -70,9 +70,9 @@ write.csv(NOMINATE_SCORE_DIM1, file="./data/NOMINATE1_theta.csv",row.names = FAL
 write.csv(NOMINATE_SCORE_DIM2, file="./data/NOMINATE2_theta.csv",row.names = FALSE)
 
 SEED = 1
-THIN = 1
+THIN = 4
 CHAIN = 1
-beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(data))
+beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data))
 samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN, CHAIN, theta_init = theta_init,

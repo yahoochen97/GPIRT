@@ -91,18 +91,18 @@ if(TYPE=="GP"){
   theta_ls = 7
 }
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 SEED = 1
-THIN = 1
+THIN = 4
 CHAIN = 1
-beta_prior_sds =  matrix(0.5, nrow = 2, ncol = ncol(rollcall_data))
+beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(rollcall_data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(rollcall_data))
 samples <- gpirtMCMC(rollcall_data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN, CHAIN, beta_prior_sds = beta_prior_sds,theta_init = theta_init,
                      beta_proposal_sds = beta_proposal_sds, theta_os = theta_os,
                      theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL,
-                     SEED=SEED, constant_IRF = 1)
+                     SEED=SEED, constant_IRF = 0)
 
 samples = samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN

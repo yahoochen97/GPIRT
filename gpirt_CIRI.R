@@ -120,12 +120,12 @@ for(h in 1:horizon){
   theta_init[,h] = theta_init[,h] + 0.1*rnorm(n)
 }
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 SEED = 1
-THIN = 1
+THIN = 4
 CHAIN = 1
-beta_prior_sds =  matrix(2.0, nrow = 2, ncol = ncol(CIRI_data))
+beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(CIRI_data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(CIRI_data))
 samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN, CHAIN, theta_init = theta_init, 
@@ -189,11 +189,10 @@ for(it in 1:SAMPLE_ITERS){
       samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*xs
     }
   }
-  
 }
 
 xs = seq(-5,5,0.01)
-idx = 301:701
+idx = 401:601
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
                    c(length(xs[idx]),m, horizon))
 
