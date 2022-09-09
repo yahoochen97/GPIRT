@@ -135,7 +135,7 @@ if(TYPE=="GP"){
         slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=2,sd=0.5)
       }
       
-      anchor_ys[j,,h] = anchor_ys[j,,h] + slope*(anchor_xs[j,,h])
+      # anchor_ys[j,,h] = anchor_ys[j,,h] + slope*(anchor_xs[j,,h])
     }
   }
   if(CONSTANT_IRF==1){

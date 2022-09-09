@@ -282,6 +282,8 @@ for(id in all_service_senates){
   plot(congresses, pred_theta[3,])
 }
 
+xs = seq(-5,5,0.01)
+idx = 401:601
 plot(xs[idx],gpirt_iccs[,1,10], ylim=c(0,1))
 mask = is.na(rollcall_data[,1,10])
 points(pred_theta[!mask,10], rollcall_data[!mask,1,10]-1)
