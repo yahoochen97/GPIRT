@@ -6,7 +6,7 @@ if (length(args)==0) {
   C = 2
   n = 50
   m = 10
-  horizon = 20
+  horizon = 10
   TYPE = "GP"
   CONSTANT_IRF = 1
 }

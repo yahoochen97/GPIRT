@@ -3,8 +3,8 @@ library(dplyr)
 library(ggplot2)
 library(stats)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
+# gpirt_path = "~/Documents/Github/OrdGPIRT"
+# setwd(gpirt_path)
 load(file="./data/senate_data_92.RData")
 SAMPLE_ITERS = 500
 BURNOUT_ITERS = 500
@@ -83,8 +83,6 @@ samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
 
 samples = samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
-
-save.image(file='./results/gpirt_senate_92.RData')
 
 # predicted ideology
 pred_theta = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
@@ -312,7 +310,7 @@ dev.off()
 
 # gp IRFs
 xs = seq(-5,5,0.01)
-idx = 301:701
+idx = 401:601
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
                    c(length(xs[idx]),m, horizon))
 
@@ -331,5 +329,9 @@ for (h in 1:horizon) {
     gpirt_iccs[,j,h] = tmp$icc
   }
 }
+
+plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,2))
+mask = is.na(data[,1,1])
+points(pred_theta[!mask,1], data[!mask,1,1])
 
 save.image(file='./results/gpirt_senate_92.RData')

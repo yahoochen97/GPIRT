@@ -1,9 +1,9 @@
-gpirt_path = "~/Documents/Github/gpirt"
-setwd(gpirt_path)
-library(Rcpp)
-Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
-setwd("../OrdGPIRT")
+# gpirt_path = "~/Documents/Github/gpirt"
+# setwd(gpirt_path)
+# library(Rcpp)
+# Rcpp::compileAttributes()
+# install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
+# setwd("../OrdGPIRT")
 
 library(gpirt)
 library(dplyr)
@@ -11,9 +11,9 @@ library(ggplot2)
 library(stats)
 library(haven)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
-TYPE = "GP"
+# gpirt_path = "~/Documents/Github/OrdGPIRT"
+# setwd(gpirt_path)
+# TYPE = "GP"
 
 # read data
 data = read_dta("./data/SenatePeriods.dta")
@@ -81,7 +81,7 @@ for (h in 1:length(congresses)) {
 }
 
 if(TYPE=="GP"){
-  theta_os = 2
+  theta_os = 1
   theta_ls = 7
 }else if(TYPE=="CST"){
   theta_os = 0
@@ -91,10 +91,10 @@ if(TYPE=="GP"){
   theta_ls = 7
 }
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 SEED = 1
-THIN = 1
+THIN = 4
 CHAIN = 1
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(rollcall_data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(rollcall_data))
@@ -106,8 +106,6 @@ samples <- gpirtMCMC(rollcall_data, SAMPLE_ITERS,BURNOUT_ITERS,
 
 samples = samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
-
-save.image(file='./results/gpirt_abortion.RData')
 
 # predicted ideology
 pred_theta = matrix(0, nrow=nrow(rollcall_data), ncol=dim(rollcall_data)[3])
@@ -216,15 +214,13 @@ for (h in 1:horizon) {
       group_by(xs) %>%
       summarize(icc=sum(order*p))
     gpirt_iccs[,j,h] = tmp$icc
-    # gpirt_iccs[,j,h] = probs$p[probs$order==2]
+    gpirt_iccs[,j,h] = probs$p[probs$order==2]
   }
 }
 
 plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,2))
 mask = is.na(rollcall_data[,1,1])
 points(pred_theta[!mask,1], rollcall_data[!mask,1,1])
-
-save.image(file='./results/gpirt_abortion.RData')
 
 all_nominate_data = data.frame(matrix(ncol = 6, nrow = 0))
 colnames(all_nominate_data) <- c("session", "gpirt", "nominate", "party", "icpsr", "bioname")
@@ -275,12 +271,24 @@ write.csv(all_nominate_data, file="./results/gpirt_abortion_results.csv")
 
 all_service_senates = all_senator_ids
 for(h in 1:horizon){
+  congress == congresses[h]
+  rollcall_ids = unique(data[data$congress==congress, "rollcall"]$rollcall)
   senator_ids = unique(data[data$congress==congress,"id"]$id)
-  all_service_senates = intersect(all_service_senates, senator_ids)
+  idx = c()
+  for(j in 1:length(senator_ids)){
+    icpsr = senator_ids[j]
+    i = which(icpsr==all_senator_ids)
+    mask = !is.na(rollcall_data[i,,h])
+    if(sum(mask)>0){
+      idx = c(idx, i)
+    }
+  }
+  all_service_senates = intersect(all_service_senates, all_senator_ids[idx])
 }
 
 for(id in all_service_senates){
-  plot(congresses, pred_theta[3,])
+  plot(congresses, pred_theta[which(id==all_senator_ids),])
+  plot(congresses, nominate_theta[which(id==all_senator_ids),])
 }
 
 xs = seq(-5,5,0.01)
@@ -288,3 +296,44 @@ idx = 401:601
 plot(xs[idx],gpirt_iccs[,1,10], ylim=c(0,1))
 mask = is.na(rollcall_data[,1,10])
 points(pred_theta[!mask,10], rollcall_data[!mask,1,10]-1)
+
+# plot irf
+folder_path = "./figures/abortion/"
+dir.create(file.path(folder_path), showWarnings = FALSE)
+
+for(h in 1:horizon){
+  congress = congresses[h]
+  rollcall_ids = unique(data[data$congress==congress, "rollcall"]$rollcall)
+  senator_ids = unique(data[data$congress==congress,"id"]$id)
+  subfolder = as.character(congresses[h])
+  dir.create(file.path(folder_path,subfolder), showWarnings = FALSE)
+  for(j in 1:length(rollcall_ids)){
+    rid = rollcall_ids[j]
+    idx = c()
+    for(i in 1:length(senator_ids)){
+      icpsr = senator_ids[i]
+      idx = c(idx, which(icpsr==all_senator_ids))
+    }
+    x = pred_theta[idx,h]
+    response = rollcall_data[idx,j,h]
+    irf_plot = data.frame(x,response)
+    xs = seq(-5,5,0.01)
+    idx = 401:601
+    gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h])
+    colnames(gpirt_plot) = c("xs","icc")
+    p = ggplot()+
+      geom_point(data = irf_plot, aes(x=x,y=y,color=factor(response)),
+                 size=2, shape="|") +
+      scale_color_manual(name='response',
+                         labels=c('Nay', 'Yea'),
+                         values=c('black', 'red'))+
+      scale_y_continuous(name="P(yea)") +
+      geom_line(data = gpirt_plot, aes(x=xs,y=icc))
+    
+    png(paste(folder_path, subfolder, "/", as.character(rid), ".png",sep = ""))
+    print(p)
+    dev.off()
+  }
+}
+
+save.image(file='./results/gpirt_abortion.RData')

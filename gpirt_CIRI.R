@@ -1,9 +1,9 @@
-gpirt_path = "~/Documents/Github/gpirt"
-setwd(gpirt_path)
-library(Rcpp)
-Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
-setwd("../OrdGPIRT")
+# gpirt_path = "~/Documents/Github/gpirt"
+# setwd(gpirt_path)
+# library(Rcpp)
+# Rcpp::compileAttributes()
+# install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
+# setwd("../OrdGPIRT")
 
 library(gpirt)
 library(dplyr)
@@ -11,9 +11,9 @@ library(ggplot2)
 library(stats)
 library(haven)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
-TYPE = "GP"
+# gpirt_path = "~/Documents/Github/OrdGPIRT"
+# setwd(gpirt_path)
+# TYPE = "GP"
 
 data = read.csv("./data/dataverse_files/HumanRightsProtectionScores_v4.01.csv")
 
@@ -120,10 +120,10 @@ for(h in 1:horizon){
   theta_init[,h] = theta_init[,h] + 0.1*rnorm(n)
 }
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 SEED = 1
-THIN = 1
+THIN = 4
 CHAIN = 1
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(CIRI_data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(CIRI_data))
@@ -252,7 +252,6 @@ plot(1:SAMPLE_ITERS,tmp)
 # mask = is.na(CIRI_data[,1,1])
 # points(CIRI_theta[!mask,1], CIRI_data[!mask,1,1])
 
-# save.image(file='./results/gpirt_CIRI.RData')
 
 # plot(1:101,samples$ll/sum(!is.na(CIRI_data)))
 # plot(1:31,samples$theta[40,1,])
@@ -291,6 +290,8 @@ for(h in 1:length(unique_sessions)){
 }
 
 write.csv(all_CIRI_results, file="./results/gpirt_CIRI_results.csv")
+
+save.image(file='./results/gpirt_CIRI.RData')
 
 # library(gganimate)
 # animated_data = data.frame(matrix(ncol = 3, nrow = 0))

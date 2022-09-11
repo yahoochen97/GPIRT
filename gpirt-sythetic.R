@@ -18,10 +18,10 @@ if (length(args)==0) {
   SEED = 1
   C = 2
   n = 50
-  m = 50
+  m = 10
   horizon = 10
-  TYPE = "RDM"
-  CONSTANT_IRF = 0
+  TYPE = "GP"
+  CONSTANT_IRF = 1
 }
 
 if (length(args)==7){
@@ -55,8 +55,8 @@ print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 if(TYPE=="GP"){
     theta_os = 1
     theta_ls = as.integer(horizon/2)
@@ -70,7 +70,7 @@ if(TYPE=="GP"){
     theta_ls = 0.1
 }
 
-THIN = 4
+THIN = 1
 CHAIN = 1
 beta_prior_means = matrix(0, nrow = 2, ncol = ncol(data_train))
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data_train))

@@ -73,7 +73,7 @@ for i=1:numel(session_ids)
       set(h(n), 'MarkerFaceColor', colors(n));
     end
     xlim([-1.0,1.0]);
-    ylim([-0.8,0.8]);
+    ylim([-2.5,2.0]);
     xlabel('NOMINATE Dimension 1 Ideology','FontSize', 16);
     ylabel('GPIRT Ideology','FontSize', 16);
     xticks([-0.5,0,0.5]);
@@ -103,6 +103,7 @@ for i=1:numel(session_ids)
     x = all_nominate.CIRI_theta(all_nominate.session==session_id);
     y = all_nominate.gpirt(all_nominate.session==session_id);
     y = sign(corr(x,y))*y;
+    y = y./ std(y);
     continents = all_nominate.continent(all_nominate.session==session_id);
     colors = 'gbrkc';
     h = gscatter(x,y,continents, colors,'s^odv', 6);
@@ -110,7 +111,7 @@ for i=1:numel(session_ids)
       set(h(n), 'MarkerFaceColor', colors(n));
     end
     xlim([-3.0,3.0]);
-    ylim([-1.5,1.5]);
+    ylim([-3.0,3.0]);
     xlabel('CIRI score','FontSize', 16);
     ylabel('GPIRT score','FontSize', 16);
     xticks((-3.0):0.5:3.0);

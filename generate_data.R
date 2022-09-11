@@ -12,10 +12,10 @@ if (length(args)==0) {
   SEED = 1
   C = 2
   n = 50
-  m = 50
+  m = 10
   horizon = 10
   TYPE = "GP"
-  CONSTANT_IRF = 0
+  CONSTANT_IRF = 1
 }
 if (length(args)==7){
   SEED = as.integer(args[1])
