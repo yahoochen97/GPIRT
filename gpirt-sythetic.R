@@ -2,16 +2,16 @@
 args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
-TYPE = "RDM"
+# gpirt_path = "~/Documents/Github/OrdGPIRT"
+# setwd(gpirt_path)
+# TYPE = "RDM"
 
-gpirt_path = "~/Documents/Github/gpirt"
-setwd(gpirt_path)
-library(Rcpp)
-Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
-setwd("../OrdGPIRT")
+# gpirt_path = "~/Documents/Github/gpirt"
+# setwd(gpirt_path)
+# library(Rcpp)
+# Rcpp::compileAttributes()
+# install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
+# setwd("../OrdGPIRT")
 
 
 if (length(args)==0) {
@@ -55,8 +55,8 @@ print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 if(TYPE=="GP"){
     theta_os = 1
     theta_ls = as.integer(horizon/2)
@@ -70,7 +70,7 @@ if(TYPE=="GP"){
     theta_ls = 0.1
 }
 
-THIN = 1
+THIN = 4
 CHAIN = 1
 beta_prior_means = matrix(0, nrow = 2, ncol = ncol(data_train))
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data_train))
