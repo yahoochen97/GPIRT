@@ -103,7 +103,7 @@ for (h in 1:length(unique(data$YEAR))) {
 # CIRI_theta = (CIRI_theta-mean(CIRI_theta,na.rm = TRUE)) / sd(CIRI_theta,na.rm = TRUE)
 
 if(TYPE=="GP"){
-  theta_os = 2
+  theta_os = 1
   theta_ls = 6
 }else if(TYPE=="CST"){
   theta_os = 1

@@ -187,6 +187,7 @@ for(h in 1:length(congresses)){
   pred_theta_ll[idx,h] = log(dnorm(nominate_scores[,2],mean=pred_theta[idx,h],sd=pred_theta_sd[idx,h]))
 }
 
+xs = seq(-5,5,0.01)
 for(it in 1:SAMPLE_ITERS){
   for(h in 1:horizon){
     for(j in 1:m){
@@ -215,7 +216,7 @@ for (h in 1:horizon) {
       group_by(xs) %>%
       summarize(icc=sum(order*p))
     gpirt_iccs[,j,h] = tmp$icc
-    gpirt_iccs[,j,h] = probs$p[probs$order==2]
+    # gpirt_iccs[,j,h] = probs$p[probs$order==2]
   }
 }
 
