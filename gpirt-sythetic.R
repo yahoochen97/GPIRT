@@ -91,21 +91,22 @@ all_samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
                      theta_init = theta_init,
                      thresholds=NULL, SEED=SEED, constant_IRF = CONSTANT_IRF)
 
+
+SAMPLE_ITERS = SAMPLE_ITERS/THIN
 library(rstan)
-sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
+sims <- matrix(rnorm((SAMPLE_ITERS)*CHAIN), nrow = SAMPLE_ITERS, ncol = CHAIN)
 theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
 for(i in 1:n){
     for(h in 1:horizon){
         for(c in 1:CHAIN){
             pred_theta = colMeans(all_samples[[c]]$theta)
-            sims[,c] = sign(cor(theta[,h],pred_theta[,h]))*all_samples$samples[[c]]$theta[,i,h]
+            sims[,c] = sign(cor(theta[,h],pred_theta[,h]))*all_samples[[c]]$theta[,i,h]
         }
         theta_rhats[i, h] = Rhat(sims)
     }
 }
 
 samples = all_samples[[1]]
-SAMPLE_ITERS = SAMPLE_ITERS/THIN
 
 xs = seq(-5,5,0.01)
 # pred_theta = colMeans(samples$theta)
@@ -134,7 +135,9 @@ pred_theta_ll = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
 
 for(i in 1:n){
     for (h in 1:horizon) {
-        pred_theta_ll[i,h] = log(dnorm(theta[i,h], mean=pred_theta[i,h], sd=pred_theta_sd[i,h]))
+        pred_theta_ll[i,h] = log(dnorm(theta[i,h]*sign(cor(theta[,h],pred_theta[,h])), 
+                                       mean=pred_theta[i,h], 
+                                       sd=pred_theta_sd[i,h]))
     }
 }
 
