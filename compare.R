@@ -32,6 +32,7 @@ train_acc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 pred_acc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 cor_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 rmse_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+theta_rhats = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
   for (SEED in 1:MAXSEED) {
     HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
@@ -45,6 +46,7 @@ for(i in 1:length(MODELS)){
     pred_acc[SEED, i] = result[7,2]
     cor_icc[SEED, i] = result[8,2]
     rmse_icc[SEED, i] = result[9,2]
+    theta_rhats[SEED, i] = result[10,2]
     }
 }
 
@@ -59,8 +61,8 @@ RMSE_ICC_ERR =  apply(rmse_icc, 2, sd)/sqrt(MAXSEED)
 print("cor theta")
 print(colMeans(abs(cor_theta)))
 print(COR_THETA_ERR)
-# print("sd theta")
-# print(colMeans(sd_theta))
+print("mean theta rhat")
+print(colMeans(theta_rhats))
 print("ll theta")
 print(colMeans(ll_theta))
 print(apply(ll_theta, 2, sd)/sqrt(MAXSEED))

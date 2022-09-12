@@ -40,7 +40,7 @@ MODELS = c("gpirt")
 #   }
 # }
 
-results = matrix(0, nrow = 9, ncol = length(MODELS))
+results = matrix(0, nrow = 10, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
   load(file=paste("./results/", MODELS[i], "_", HYP, ".RData" , sep=""))
   cor_theta = c()
@@ -56,6 +56,7 @@ for(i in 1:length(MODELS)){
   results[7,i] = mean(pred_acc, na.rm = TRUE)
   results[8,i] = mean(abs(cor_icc), na.rm = TRUE)
   results[9,i] = mean(rmse_icc, na.rm = TRUE)
+  results[10,i] = mean(theta_rhats, na.rm = TRUE)
 }
 
 write.csv(results, file=paste("./results/", HYP, ".csv" , sep=""))
