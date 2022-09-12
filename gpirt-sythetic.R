@@ -55,8 +55,8 @@ print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 if(TYPE=="GP"){
     theta_os = 1
     theta_ls = as.integer(horizon/2)
@@ -70,8 +70,8 @@ if(TYPE=="GP"){
     theta_ls = 0.1
 }
 
-THIN = 1
-CHAIN = 1
+THIN = 4
+CHAIN = 3
 beta_prior_means = matrix(0, nrow = 2, ncol = ncol(data_train))
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data_train))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data_train))
@@ -91,18 +91,18 @@ all_samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
                      theta_init = theta_init,
                      thresholds=NULL, SEED=SEED, constant_IRF = CONSTANT_IRF)
 
-# library(rstan)
-# sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
-# theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
-# for(i in 1:n){
-#     for(h in 1:horizon){
-#         for(c in 1:CHAIN){
-#             pred_theta = colMeans(samples[[c]]$theta)
-#             sims[,c] = sign(cor(theta[,h],pred_theta[,h]))*samples[[c]]$theta[,i,h]
-#         }
-#         theta_rhats[i, h] = Rhat(sims)
-#     }
-# }
+library(rstan)
+sims <- matrix(rnorm((1+SAMPLE_ITERS)*CHAIN), nrow = 1+SAMPLE_ITERS, ncol = CHAIN)
+theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
+for(i in 1:n){
+    for(h in 1:horizon){
+        for(c in 1:CHAIN){
+            pred_theta = colMeans(all_samples[[c]]$theta)
+            sims[,c] = sign(cor(theta[,h],pred_theta[,h]))*all_samplessamples[[c]]$theta[,i,h]
+        }
+        theta_rhats[i, h] = Rhat(sims)
+    }
+}
 
 samples = all_samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
@@ -258,9 +258,9 @@ for(it in 1:SAMPLE_ITERS){
 }
 plot(1:SAMPLE_ITERS,tmp)
 
-# print("Average Rhat:")
-# print(mean(theta_rhats))
-# print(max(theta_rhats))
+print("Average Rhat:")
+print(mean(theta_rhats))
+print(max(theta_rhats))
 print(mean(abs(cor_theta)))
 print(mean(pred_theta_sd))
 print(mean(pred_theta_ll))
@@ -272,5 +272,5 @@ print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
 
 save(gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_ll,pred_theta_sd,train_lls,
-      train_acc, pred_lls, pred_acc,cor_icc, rmse_icc,
+      train_acc, pred_lls, pred_acc,cor_icc, rmse_icc, theta_rhats,
       file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
