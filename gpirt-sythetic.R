@@ -98,7 +98,7 @@ for(i in 1:n){
     for(h in 1:horizon){
         for(c in 1:CHAIN){
             pred_theta = colMeans(all_samples[[c]]$theta)
-            sims[,c] = sign(cor(theta[,h],pred_theta[,h]))*all_samplessamples[[c]]$theta[,i,h]
+            sims[,c] = sign(cor(theta[,h],pred_theta[,h]))*all_samples$samples[[c]]$theta[,i,h]
         }
         theta_rhats[i, h] = Rhat(sims)
     }
