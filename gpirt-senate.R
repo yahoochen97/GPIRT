@@ -3,11 +3,11 @@ library(dplyr)
 library(ggplot2)
 library(stats)
 
-# gpirt_path = "~/Documents/Github/OrdGPIRT"
-# setwd(gpirt_path)
+gpirt_path = "~/Documents/Github/OrdGPIRT"
+setwd(gpirt_path)
 load(file="./data/senate_data_92.RData")
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 TYPE = "GP"
 n = nrow(data)
 m = ncol(data)
@@ -70,7 +70,7 @@ write.csv(NOMINATE_SCORE_DIM1, file="./data/NOMINATE1_theta.csv",row.names = FAL
 write.csv(NOMINATE_SCORE_DIM2, file="./data/NOMINATE2_theta.csv",row.names = FALSE)
 
 SEED = 1
-THIN = 4
+THIN = 1
 CHAIN = 1
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data))
@@ -310,7 +310,7 @@ dev.off()
 
 # gp IRFs
 xs = seq(-5,5,0.01)
-idx = 401:601
+idx = 201:801
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
                    c(length(xs[idx]),m, horizon))
 
@@ -333,5 +333,65 @@ for (h in 1:horizon) {
 plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,2))
 mask = is.na(data[,1,1])
 points(pred_theta[!mask,1], data[!mask,1,1])
+
+# plot irf
+folder_path = "./figures/senate/"
+dir.create(file.path(folder_path), showWarnings = FALSE)
+
+# read data
+library(haven)
+abortion_data = read_dta("./data/SenatePeriods.dta")
+# remove president
+abortion_data = abortion_data[abortion_data$name!="REAGAN",]
+abortion_data = abortion_data[abortion_data$name!="BUSH",]
+abortion_data = abortion_data[abortion_data$name!="CLINTON",]
+
+
+for(h in 1:horizon){
+  congress = session_ids[h]
+  session_id = congress
+  rollcalls = read.csv(paste("./data/S", session_id, "_rollcalls.csv", sep=""))
+  rollcalls = rollcalls[,c("congress", "rollnumber", "yea_count","nay_count","date" )]
+  rollcalls = rollcalls[(rollcalls$yea_count!=0)&(rollcalls$nay_count!=0),]
+  
+  abortion_rollcalls = unique(abortion_data[abortion_data$congress==session_id, c("rollcall")])
+  rollcalls = rollcalls[!(rollcalls$rollnumber %in% abortion_rollcalls),]
+  rollcall_ids = unique(rollcalls$rollnumber)
+  
+  members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
+  members = members[members$chamber=="Senate", c("icpsr", 
+                                                 "nokken_poole_dim1", "nokken_poole_dim2")]
+  
+  senator_ids = unique(members$icpsr)
+  subfolder = as.character(session_ids[h])
+  dir.create(file.path(folder_path,subfolder), showWarnings = FALSE)
+  for(j in 1:length(rollcall_ids)){
+    rid = rollcall_ids[j]
+    idx = c()
+    for(i in 1:length(senator_ids)){
+      icpsr = senator_ids[i]
+      idx = c(idx, which(icpsr==unique_icpsr))
+    }
+    x = pred_theta[idx,h]
+    response = data[idx,j,h] - 1
+    irf_plot = data.frame(x,response)
+    xs = seq(-5,5,0.01)
+    idx = 401:601
+    gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h]-1)
+    colnames(gpirt_plot) = c("xs","icc")
+    p = ggplot()+
+      geom_point(data = na.omit(irf_plot), aes(x=x,y=response,color=factor(response)),
+                 size=2, shape="|") +
+      scale_color_manual(name='response',
+                         labels=c('Nay', 'Yea'),
+                         values=c('black', 'red'))+
+      scale_y_continuous(name="P(yea)") +
+      geom_line(data = gpirt_plot, aes(x=xs,y=icc))
+    
+    png(paste(folder_path, subfolder, "/", as.character(rid), ".png",sep = ""))
+    print(p)
+    dev.off()
+  }
+}
 
 save.image(file='./results/gpirt_senate_92.RData')

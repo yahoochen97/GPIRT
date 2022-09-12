@@ -11,9 +11,9 @@ library(ggplot2)
 library(stats)
 library(haven)
 
-# gpirt_path = "~/Documents/Github/OrdGPIRT"
-# setwd(gpirt_path)
-# TYPE = "GP"
+gpirt_path = "~/Documents/Github/OrdGPIRT"
+setwd(gpirt_path)
+TYPE = "GP"
 
 # read data
 data = read_dta("./data/SenatePeriods.dta")
@@ -91,10 +91,10 @@ if(TYPE=="GP"){
   theta_ls = 7
 }
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 SEED = 1
-THIN = 4
+THIN = 1
 CHAIN = 1
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(rollcall_data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(rollcall_data))
@@ -196,7 +196,7 @@ for(it in 1:SAMPLE_ITERS){
 }
 
 xs = seq(-5,5,0.01)
-idx = 401:601
+idx = 201:801
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
                    c(length(xs[idx]),m, horizon))
 
@@ -316,13 +316,14 @@ for(h in 1:horizon){
     }
     x = pred_theta[idx,h]
     response = rollcall_data[idx,j,h]
-    irf_plot = data.frame(x,response)
+    irf_plot = data.frame(x,response-1)
+    colnames(irf_plot) = c("x" , "response")
     xs = seq(-5,5,0.01)
-    idx = 401:601
+    idx = 201:801
     gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h])
     colnames(gpirt_plot) = c("xs","icc")
     p = ggplot()+
-      geom_point(data = irf_plot, aes(x=x,y=y,color=factor(response)),
+      geom_point(data = na.omit(irf_plot), aes(x=x,y=response,color=factor(response)),
                  size=2, shape="|") +
       scale_color_manual(name='response',
                          labels=c('Nay', 'Yea'),

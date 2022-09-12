@@ -11,9 +11,9 @@ library(ggplot2)
 library(stats)
 library(haven)
 
-# gpirt_path = "~/Documents/Github/OrdGPIRT"
-# setwd(gpirt_path)
-# TYPE = "GP"
+gpirt_path = "~/Documents/Github/OrdGPIRT"
+setwd(gpirt_path)
+TYPE = "GP"
 
 data = read.csv("./data/dataverse_files/HumanRightsProtectionScores_v4.01.csv")
 
@@ -120,10 +120,10 @@ for(h in 1:horizon){
   theta_init[,h] = theta_init[,h] + 0.1*rnorm(n)
 }
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 SEED = 1
-THIN = 4
+THIN = 1
 CHAIN = 1
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(CIRI_data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(CIRI_data))
@@ -192,7 +192,7 @@ for(it in 1:SAMPLE_ITERS){
 }
 
 xs = seq(-5,5,0.01)
-idx = 401:601
+idx = 201:801
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
                    c(length(xs[idx]),m, horizon))
 
@@ -290,6 +290,39 @@ for(h in 1:length(unique_sessions)){
 }
 
 write.csv(all_CIRI_results, file="./results/gpirt_CIRI_results.csv")
+
+
+folder_path = "./figures/CIRI/"
+dir.create(file.path(folder_path), showWarnings = FALSE)
+
+for(h in 1:horizon){
+  congress = unique_sessions[h]
+  rollcall_ids = 1:4
+  senator_ids = CIRIs
+  subfolder = as.character(unique_sessions[h])
+  dir.create(file.path(folder_path,subfolder), showWarnings = FALSE)
+  for(j in 1:length(rollcall_ids)){
+    x = pred_theta[,h]
+    response = CIRI_data[,j,h]
+    irf_plot = data.frame(x,response)
+    xs = seq(-5,5,0.01)
+    idx = 201:801
+    gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h])
+    colnames(gpirt_plot) = c("xs","icc")
+    p = ggplot()+
+      geom_point(data = na.omit(irf_plot), aes(x=x,y=response,color=factor(response)),
+                 size=2, shape="|") +
+      scale_color_manual(name='Level',
+                         labels=c("Low", 'Medium','High'),
+                         values=c( 'red', "blue",'black'))+
+      scale_y_continuous(name="Human right") +
+      geom_line(data = gpirt_plot, aes(x=xs,y=icc))
+    
+    png(paste(folder_path, subfolder, "/", as.character(j), ".png",sep = ""))
+    print(p)
+    dev.off()
+  }
+}
 
 save.image(file='./results/gpirt_CIRI.RData')
 

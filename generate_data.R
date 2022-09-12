@@ -110,7 +110,7 @@ if(TYPE=="GP"){
       K = SEKernel(1:horizon, sigma=as.integer(1+horizon/2))
       K = K + diag(1e-6, horizon, horizon)
       theta[i,] <- t(chol(K))%*%rnorm(horizon)  # Respondent ability parameters
-      # theta[i,] = theta[i,] + (2*rbinom(1,1,0.5) -1)
+      theta[i,] = theta[i,] + (2*rbinom(1,1,0.5) -1)
     }
   }else{
     theta[,1] = rnorm(n)
@@ -135,7 +135,7 @@ if(TYPE=="GP"){
         slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=2,sd=0.5)
       }
       
-      # anchor_ys[j,,h] = anchor_ys[j,,h] + slope*(anchor_xs[j,,h])
+      anchor_ys[j,,h] = anchor_ys[j,,h] + slope*(anchor_xs[j,,h])
     }
   }
   if(CONSTANT_IRF==1){
