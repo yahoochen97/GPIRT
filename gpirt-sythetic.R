@@ -249,8 +249,6 @@ for (i in 1:horizon) {
     cor_theta = c(cor_theta, cor(theta[,i], pred_theta[,i]))
 }
 
-plot(samples$theta[10,,10],samples$f[[10]][,1,10])
-
 plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,2))
 mask = is.na(data_train[,1,1])
 points(pred_theta[!mask,1], data_train[!mask,1,1])

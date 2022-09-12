@@ -126,6 +126,15 @@ for(h in 1:horizon){
   }
 }
 
+for(it in 1:SAMPLE_ITERS){
+  for(h in 1:horizon){
+    for(j in 1:m){
+      samples$f[[it]][,j,h] = samples$f[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*samples$theta[it,,h]
+      samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*xs
+    }
+  }
+}
+
 # # Mark Hatfield
 # pred_theta[169,6] = mean(samples$theta[-1,169,6])
 # pred_theta_sd[169,6] = sd(samples$theta[-1,169,6])
@@ -308,6 +317,15 @@ dev.off()
 # print(mean(pred_lls[!is.infinite(pred_lls)]))
 # print(mean(pred_acc[!is.infinite(pred_lls)]))
 
+# read data
+library(haven)
+abortion_data = read_dta("./data/SenatePeriods.dta")
+# remove president
+abortion_data = abortion_data[abortion_data$name!="REAGAN",]
+abortion_data = abortion_data[abortion_data$name!="BUSH",]
+abortion_data = abortion_data[abortion_data$name!="CLINTON",]
+
+
 # gp IRFs
 xs = seq(-5,5,0.01)
 idx = 201:801
@@ -315,8 +333,18 @@ gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
                    c(length(xs[idx]),m, horizon))
 
 source("getprob_gpirt.R")
-for (h in 1:horizon) {
-  for (j in 1:m) {
+for (h in 1:horizon){
+  session_id = session_ids[h]
+  
+  rollcalls = read.csv(paste("./data/S", session_id, "_rollcalls.csv", sep=""))
+  rollcalls = rollcalls[,c("congress", "rollnumber", "yea_count","nay_count","date" )]
+  rollcalls = rollcalls[(rollcalls$yea_count!=0)&(rollcalls$nay_count!=0),]
+  
+  abortion_rollcalls = unique(abortion_data[abortion_data$congress==session_id, c("rollcall")])
+  rollcalls = rollcalls[!(rollcalls$rollnumber %in% abortion_rollcalls),]
+  rollcall_ids = unique(rollcalls$rollnumber)
+  for (j in 1:length(rollcall_ids)) {
+    print(j)
     IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
     for(iter in 1:SAMPLE_ITERS){
       IRFs[iter, ] = samples$fstar[[iter]][idx, j, h]
@@ -327,25 +355,17 @@ for (h in 1:horizon) {
       group_by(xs) %>%
       summarize(icc=sum(order*p))
     gpirt_iccs[,j,h] = tmp$icc
+    gpirt_iccs[,j,h] = probs$p[probs$order==2]
   }
 }
 
-plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,2))
+plot(xs[idx],gpirt_iccs[,1,1], ylim=c(0,1))
 mask = is.na(data[,1,1])
-points(pred_theta[!mask,1], data[!mask,1,1])
+points(pred_theta[!mask,1], data[!mask,1,1]-1)
 
 # plot irf
 folder_path = "./figures/senate/"
 dir.create(file.path(folder_path), showWarnings = FALSE)
-
-# read data
-library(haven)
-abortion_data = read_dta("./data/SenatePeriods.dta")
-# remove president
-abortion_data = abortion_data[abortion_data$name!="REAGAN",]
-abortion_data = abortion_data[abortion_data$name!="BUSH",]
-abortion_data = abortion_data[abortion_data$name!="CLINTON",]
-
 
 for(h in 1:horizon){
   congress = session_ids[h]
@@ -376,7 +396,7 @@ for(h in 1:horizon){
     response = data[idx,j,h] - 1
     irf_plot = data.frame(x,response)
     xs = seq(-5,5,0.01)
-    idx = 401:601
+    idx = 201:801
     gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h]-1)
     colnames(gpirt_plot) = c("xs","icc")
     p = ggplot()+

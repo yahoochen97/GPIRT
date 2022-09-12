@@ -103,7 +103,7 @@ for i=1:numel(session_ids)
     x = all_nominate.CIRI_theta(all_nominate.session==session_id);
     y = all_nominate.gpirt(all_nominate.session==session_id);
     y = sign(corr(x,y))*y;
-    y = y./ std(y);
+    % y = y./ std(y);
     continents = all_nominate.continent(all_nominate.session==session_id);
     colors = 'gbrkc';
     h = gscatter(x,y,continents, colors,'s^odv', 6);
