@@ -292,7 +292,7 @@ for(id in all_service_senates){
 }
 
 xs = seq(-5,5,0.01)
-idx = 401:601
+idx = 201:801
 plot(xs[idx],gpirt_iccs[,1,10], ylim=c(0,1))
 mask = is.na(rollcall_data[,1,10])
 points(pred_theta[!mask,10], rollcall_data[!mask,1,10]-1)
@@ -324,17 +324,24 @@ for(h in 1:horizon){
     colnames(gpirt_plot) = c("xs","icc")
     p = ggplot()+
       geom_point(data = na.omit(irf_plot), aes(x=x,y=response,color=factor(response)),
-                 size=2, shape="|") +
+                 size=4, shape="|") +
       scale_color_manual(name='response',
                          labels=c('Nay', 'Yea'),
                          values=c('black', 'red'))+
-      scale_y_continuous(name="P(yea)") +
-      geom_line(data = gpirt_plot, aes(x=xs,y=icc))
+      scale_x_continuous(name=bquote(theta), breaks = seq(-2, 2, by = 1)) + 
+      scale_y_continuous(name="P(yea)", breaks=seq(0, 1, by = 0.2)) +
+      geom_line(data = gpirt_plot, aes(x=xs,y=icc)) +
+      theme(panel.background = element_blank(),
+            panel.border = element_rect(colour = "black", fill=NA, size=1),
+            legend.position = "none")
     
-    png(paste(folder_path, subfolder, "/", as.character(rid), ".png",sep = ""))
-    print(p)
-    dev.off()
+    ggsave(filename = paste(folder_path, subfolder, "/", as.character(rid), ".png",sep = ""),width = 3, height = 2, dpi = 300)
+    # png(paste(folder_path, subfolder, "/", as.character(rid), ".png",sep = ""))
+    # print(p)
+    # dev.off()
   }
 }
+
+print(data[data$congress==100 & data$rollcall==653,"mynotes"][1,])
 
 save.image(file='./results/gpirt_abortion.RData')

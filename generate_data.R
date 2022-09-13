@@ -130,11 +130,10 @@ if(TYPE=="GP"){
       K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
       anchor_ys[j,,h]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) 
       if(CONSTANT_IRF==0){
-        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=2,sd=0.5)
+        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=0,sd=1)
       }else{
-        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=4,sd=0.5)
+        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=0,sd=1)
       }
-      
       anchor_ys[j,,h] = anchor_ys[j,,h] + slope*(anchor_xs[j,,h])
     }
   }

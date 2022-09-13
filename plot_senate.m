@@ -52,10 +52,10 @@ all_nominate = sortrows(all_nominate, ["party"]);
 
 % plot three ideology scores
 % 92 to 110 sessions
-session_ids = 92:2:110;
+session_ids = 92:4:110;
 
 fig = figure(1);
-tiledlayout(2,5);
+tiledlayout(1,5);
 for i=1:numel(session_ids)
     nexttile;
     session_id = session_ids(i);
@@ -69,21 +69,23 @@ for i=1:numel(session_ids)
         colors = 'br';
     end
     h = gscatter(x,y,party, colors,'s^o', 8);
+    
+    text(0.6,-2.8,"{\rho} = " + round(corr(x,y),3), 'FontSize',14);
     for n = 1:length(h)
       set(h(n), 'MarkerFaceColor', colors(n));
     end
     xlim([-1.0,1.0]);
-    ylim([-2.5,2.0]);
-    xlabel('NOMINATE Dimension 1 Ideology','FontSize', 16);
+    ylim([-3.2,3.2]);
+    xlabel('NOMINATE Ideology','FontSize', 16);
     ylabel('GPIRT Ideology','FontSize', 16);
-    xticks([-0.5,0,0.5]);
+    xticks([-1.0, -0.5,0,0.5, 1.0]);
     title( int2str(session_id) + "th U.S. Congress", 'FontSize', 12);
     legend('Location','northwest','FontSize',12);
     legend boxoff;
     
 end
-set(fig, 'PaperPosition', [0 0 30 10]); 
-set(fig, 'PaperSize', [30 10]); 
+set(fig, 'PaperPosition', [0 0 30 5]); 
+set(fig, 'PaperSize', [30 5]); 
 
 filename = "./results/abortion_nominate.pdf";
 print(fig, filename, '-dpdf','-r300');
@@ -93,7 +95,7 @@ file_name = 'gpirt_CIRI_results.csv';
 opts = detectImportOptions(file_name);
 all_nominate = readtable(file_name);
 
-session_ids = 1981:3:2010;
+session_ids = 1981:6:2010;
 
 fig = figure(1);
 tiledlayout(2,5);
@@ -102,7 +104,7 @@ for i=1:numel(session_ids)
     session_id = session_ids(i);
     x = all_nominate.CIRI_theta(all_nominate.session==session_id);
     y = all_nominate.gpirt(all_nominate.session==session_id);
-    y = sign(corr(x,y))*y;
+    % y = sign(corr(x,y))*y;
     % y = y./ std(y);
     continents = all_nominate.continent(all_nominate.session==session_id);
     colors = 'gbrkc';
@@ -110,16 +112,41 @@ for i=1:numel(session_ids)
     for n = 1:length(h)
       set(h(n), 'MarkerFaceColor', colors(n));
     end
-    xlim([-3.0,3.0]);
-    ylim([-3.0,3.0]);
+    xlim([-3.5,3.5]);
+    ylim([-3.5,3.5]);
     xlabel('CIRI score','FontSize', 16);
     ylabel('GPIRT score','FontSize', 16);
-    xticks((-3.0):0.5:3.0);
-    title("Y " + int2str(session_id), 'FontSize', 12);
+    xticks((-3.5):0.5:3.5);
+    title("Y " + int2str(session_id) + " (all)", 'FontSize', 12);
     legend('Location','southeast','FontSize',12);
     legend boxoff;
     
 end
+
+for i=1:numel(session_ids)
+    nexttile;
+    session_id = session_ids(i);
+    x = all_nominate.CIRI_theta(all_nominate.session==session_id);
+    y = all_nominate.gpirt(all_nominate.session==session_id);
+    % y = sign(corr(x,y))*y;
+    % y = y./ std(y);
+    continents = all_nominate.continent(all_nominate.session==session_id);
+    colors = 'gbrkc';
+    h = gscatter(x,y,continents, colors,'s^odv', 6);
+    for n = 1:length(h)
+      set(h(n), 'MarkerFaceColor', colors(n));
+    end
+    xlim([-1.0,1.0]);
+    ylim([-1.0,1.0]);
+    xlabel('CIRI score','FontSize', 16);
+    ylabel('GPIRT score','FontSize', 16);
+    xticks((-1.0):0.5:1.0);
+    title("Y " + int2str(session_id)  + " (zoomed in)", 'FontSize', 12);
+    legend('Location','southeast','FontSize',12);
+    legend boxoff;
+    
+end
+
 set(fig, 'PaperPosition', [0 0 30 10]); 
 set(fig, 'PaperSize', [30 10]); 
 

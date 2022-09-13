@@ -397,7 +397,7 @@ for(h in 1:horizon){
     irf_plot = data.frame(x,response)
     xs = seq(-5,5,0.01)
     idx = 201:801
-    gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h]-1)
+    gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h])
     colnames(gpirt_plot) = c("xs","icc")
     p = ggplot()+
       geom_point(data = na.omit(irf_plot), aes(x=x,y=response,color=factor(response)),

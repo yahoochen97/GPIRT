@@ -209,7 +209,7 @@ for (i in 1:n) {
 
 # cor of icc
 idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
-idx = 401:601
+idx = 301:701
 # IRFs = Reduce("+",samples$IRFs)/length(samples$IRFs)
 # gpirt_iccs = colMeans(IRFs, dim=1)
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon), 

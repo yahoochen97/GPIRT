@@ -133,7 +133,7 @@ samples_all <- gpirtMCMC(CIRI_data, SAMPLE_ITERS,BURNOUT_ITERS,
                      beta_proposal_sds = beta_proposal_sds,
                      theta_os = theta_os, theta_ls = theta_ls, 
                      vote_codes = NULL, thresholds=NULL,
-                     SEED=SEED, constant_IRF = 0)
+                     SEED=SEED, constant_IRF = 1)
 
 samples = samples_all[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
@@ -192,12 +192,12 @@ for(it in 1:SAMPLE_ITERS){
 }
 
 xs = seq(-5,5,0.01)
-idx = 201:801
+idx = 221:751
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
                    c(length(xs[idx]),m, horizon))
 
 source("getprob_gpirt.R")
-for (h in 1:horizon) {
+for (h in 1:1) {
   for (j in 1:m) {
     IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
     for(iter in 1:SAMPLE_ITERS){
@@ -306,25 +306,33 @@ for(h in 1:horizon){
     response = CIRI_data[,j,h]
     irf_plot = data.frame(x,response)
     xs = seq(-5,5,0.01)
-    idx = 201:801
-    gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h])
+    idx = 221:751
+    gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,1])
     colnames(gpirt_plot) = c("xs","icc")
     p = ggplot()+
       geom_point(data = na.omit(irf_plot), aes(x=x,y=response,color=factor(response)),
-                 size=2, shape="|") +
+                 size=4, shape="|") +
       scale_color_manual(name='Level',
                          labels=c("Low", 'Medium','High'),
                          values=c( 'red', "blue",'black'))+
-      scale_y_continuous(name="Human right") +
-      geom_line(data = gpirt_plot, aes(x=xs,y=icc))
+      geom_line(data = gpirt_plot, aes(x=xs,y=icc), size=1, )+
+      scale_x_continuous(name=bquote(theta), breaks = seq(-3, 3, by = 1)) + 
+      scale_y_discrete(name=NULL, limits=c("low","median","high")) +
+      theme(panel.background = element_blank(),
+            panel.border = element_rect(colour = "black", fill=NA, size=2),
+            legend.position = "none",
+            axis.text.y = element_text(size=16),
+            axis.text.x = element_text(size=16))
     
-    png(paste(folder_path, subfolder, "/", as.character(j), ".png",sep = ""))
-    print(p)
-    dev.off()
+    ggsave(filename = paste(folder_path, subfolder, "/", as.character(j), ".png",sep = ""),width = 4, height = 3, dpi = 300)
+    
+    # png(paste(folder_path, subfolder, "/", as.character(j), ".png",sep = ""))
+    # print(p)
+    # dev.off()
   }
 }
 
-save.image(file='./results/gpirt_CIRI.RData')
+# save.image(file='./results/gpirt_CIRI.RData')
 
 # library(gganimate)
 # animated_data = data.frame(matrix(ncol = 3, nrow = 0))
