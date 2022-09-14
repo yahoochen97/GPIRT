@@ -4,6 +4,7 @@ options(show.error.locations = TRUE)
 
 # gpirt_path = "~/Documents/Github/OrdGPIRT"
 # setwd(gpirt_path)
+print("Loading stan")
 
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
