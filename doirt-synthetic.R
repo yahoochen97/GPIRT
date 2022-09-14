@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
-args = commandArgs(trailingOnly=TRUE)
-options(show.error.locations = TRUE)
+# args = commandArgs(trailingOnly=TRUE)
+# options(show.error.locations = TRUE)
 
 # gpirt_path = "~/Documents/Github/OrdGPIRT"
 # setwd(gpirt_path)
