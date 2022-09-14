@@ -82,7 +82,7 @@ for (h in 2:horizon) {
   theta_init[,h] = theta_init[,1]
 }
 
-all_samples <- gpirtMCMC(data_train, SAMPLE_ITERS,BURNOUT_ITERS,
+all_samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN=THIN, CHAIN=CHAIN, vote_codes = NULL,
                      beta_prior_means = beta_prior_means,
                      beta_prior_sds = beta_prior_sds, 
