@@ -19,15 +19,15 @@ horizon=$5
 TYPE=$6
 CONSTANT_IRF=$7
 
-# Rscript --vanilla generate_data.R $SEED $C $n $m $horizon 'GP' ${CONSTANT_IRF}
+Rscript --vanilla generate_data.R $SEED $C $n $m $horizon 'GP' ${CONSTANT_IRF}
 # Rscript --vanilla 2PL.R $SEED $C $n $m $horizon 'GP'
-if [ $TYPE = "BRW" ]
-then
-    Rscript --vanilla doirt-synthetic.R $SEED $C $n $m $horizon 'GP' ${CONSTANT_IRF}
-else
-    Rscript --vanilla gpirt-sythetic.R $SEED $C $n $m $horizon $TYPE ${CONSTANT_IRF}
-fi
+# if [ $TYPE = "BRW" ]
+# then
+#     Rscript --vanilla doirt-synthetic.R $SEED $C $n $m $horizon 'GP' ${CONSTANT_IRF}
+# else
+#     Rscript --vanilla gpirt-sythetic.R $SEED $C $n $m $horizon $TYPE ${CONSTANT_IRF}
+# fi
 # Rscript --vanilla bgrm_logit.R $SEED $C $n $m 'GP'
-Rscript --vanilla evaluate.R $SEED $C $n $m $horizon $TYPE ${CONSTANT_IRF}
+# Rscript --vanilla evaluate.R $SEED $C $n $m $horizon $TYPE ${CONSTANT_IRF}
 
 # conda deactivate
