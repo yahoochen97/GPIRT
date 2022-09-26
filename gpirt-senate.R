@@ -5,9 +5,9 @@ library(stats)
 
 gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
-load(file="./data/senate_data_92.RData")
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+load(file="./data/senate_data_90.RData")
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 TYPE = "GP"
 n = nrow(data)
 m = ncol(data)
@@ -70,7 +70,7 @@ write.csv(NOMINATE_SCORE_DIM1, file="./data/NOMINATE1_theta.csv",row.names = FAL
 write.csv(NOMINATE_SCORE_DIM2, file="./data/NOMINATE2_theta.csv",row.names = FALSE)
 
 SEED = 1
-THIN = 1
+THIN = 4
 CHAIN = 1
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data))
@@ -126,6 +126,7 @@ for(h in 1:horizon){
   }
 }
 
+xs = seq(-5,5,0.01)
 for(it in 1:SAMPLE_ITERS){
   for(h in 1:horizon){
     for(j in 1:m){
@@ -157,21 +158,21 @@ for(it in 1:SAMPLE_ITERS){
 # pred_theta[202,8] = mean(samples$theta[-1,202,8])
 # pred_theta_sd[202,8] = sd(samples$theta[-1,202,8])
 
-mask = (samples$theta[-1,60,7]>-3)
-pred_theta[60,7] = mean(samples$theta[-1,60,7][mask])
-pred_theta_sd[60,7] = sd(samples$theta[-1,60,7][mask])
-
-mask = (samples$theta[-1,60,8]>-3)
-pred_theta[60,8] = mean(samples$theta[-1,60,8][mask])
-pred_theta_sd[60,8] = sd(samples$theta[-1,60,8][mask])
-
-mask = (samples$theta[-1,60,9]>-3)
-pred_theta[60,9] = mean(samples$theta[-1,60,9][mask])
-pred_theta_sd[60,9] = sd(samples$theta[-1,60,9][mask])
-
-mask = (samples$theta[-1,60,10]>-3)
-pred_theta[60,10] = mean(samples$theta[-1,60,10][mask])
-pred_theta_sd[60,10] = sd(samples$theta[-1,60,10][mask])
+# mask = (samples$theta[-1,60,7]>-3)
+# pred_theta[60,7] = mean(samples$theta[-1,60,7][mask])
+# pred_theta_sd[60,7] = sd(samples$theta[-1,60,7][mask])
+# 
+# mask = (samples$theta[-1,60,8]>-3)
+# pred_theta[60,8] = mean(samples$theta[-1,60,8][mask])
+# pred_theta_sd[60,8] = sd(samples$theta[-1,60,8][mask])
+# 
+# mask = (samples$theta[-1,60,9]>-3)
+# pred_theta[60,9] = mean(samples$theta[-1,60,9][mask])
+# pred_theta_sd[60,9] = sd(samples$theta[-1,60,9][mask])
+# 
+# mask = (samples$theta[-1,60,10]>-3)
+# pred_theta[60,10] = mean(samples$theta[-1,60,10][mask])
+# pred_theta_sd[60,10] = sd(samples$theta[-1,60,10][mask])
 
 cor_theta = c()
 pred_theta_ll = matrix(NA, nrow=nrow(data), ncol=dim(data)[3])
@@ -214,16 +215,16 @@ for(h in 1:horizon){
   all_service_senates = intersect(all_service_senates, all_current_unique_icpsrs[[h]])
 }
 
-for(icpsr in all_service_senates){
-  idx = which(icpsr==unique_icpsr)
-  session_id = session_ids[horizon]
-  members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
-  bioname =toString(members$bioname[members$icpsr==icpsr])
-  jpeg(file=paste('./results/', toString(icpsr) ,'.jpeg' , sep=''))
-  plot(1:horizon, pred_theta[idx,])
-  title(bioname)
-  dev.off()
-}
+# for(icpsr in all_service_senates){
+#   idx = which(icpsr==unique_icpsr)
+#   session_id = session_ids[horizon]
+#   members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
+#   bioname =toString(members$bioname[members$icpsr==icpsr])
+#   jpeg(file=paste('./results/', toString(icpsr) ,'.jpeg' , sep=''))
+#   plot(1:horizon, pred_theta[idx,])
+#   title(bioname)
+#   dev.off()
+# }
 
 # MANCHIN, Joe, III
 # all_service_senates = c(all_service_senates, 40915)
@@ -259,7 +260,7 @@ p = ggplot(all_service_senate_data,
   scale_y_continuous(name="GPIRT") + 
   geom_line() 
 
-png("./results/senate_dynamic_scores_92.png")
+png("./results/senate_dynamic_scores_90.png")
 print(p)
 dev.off()
 
@@ -325,7 +326,6 @@ abortion_data = abortion_data[abortion_data$name!="REAGAN",]
 abortion_data = abortion_data[abortion_data$name!="BUSH",]
 abortion_data = abortion_data[abortion_data$name!="CLINTON",]
 
-
 # gp IRFs
 xs = seq(-5,5,0.01)
 idx = 201:801
@@ -340,8 +340,8 @@ for (h in 1:horizon){
   rollcalls = rollcalls[,c("congress", "rollnumber", "yea_count","nay_count","date" )]
   rollcalls = rollcalls[(rollcalls$yea_count!=0)&(rollcalls$nay_count!=0),]
   
-  abortion_rollcalls = unique(abortion_data[abortion_data$congress==session_id, c("rollcall")])
-  rollcalls = rollcalls[!(rollcalls$rollnumber %in% abortion_rollcalls),]
+  # abortion_rollcalls = unique(abortion_data[abortion_data$congress==session_id, c("rollcall")])
+  # rollcalls = rollcalls[!(rollcalls$rollnumber %in% abortion_rollcalls),]
   rollcall_ids = unique(rollcalls$rollnumber)
   for (j in 1:length(rollcall_ids)) {
     print(j)
@@ -359,10 +359,6 @@ for (h in 1:horizon){
   }
 }
 
-plot(xs[idx],gpirt_iccs[,1,1], ylim=c(0,1))
-mask = is.na(data[,1,1])
-points(pred_theta[!mask,1], data[!mask,1,1]-1)
-
 # plot irf
 folder_path = "./figures/senate/"
 dir.create(file.path(folder_path), showWarnings = FALSE)
@@ -374,8 +370,8 @@ for(h in 1:horizon){
   rollcalls = rollcalls[,c("congress", "rollnumber", "yea_count","nay_count","date" )]
   rollcalls = rollcalls[(rollcalls$yea_count!=0)&(rollcalls$nay_count!=0),]
   
-  abortion_rollcalls = unique(abortion_data[abortion_data$congress==session_id, c("rollcall")])
-  rollcalls = rollcalls[!(rollcalls$rollnumber %in% abortion_rollcalls),]
+  # abortion_rollcalls = unique(abortion_data[abortion_data$congress==session_id, c("rollcall")])
+  # rollcalls = rollcalls[!(rollcalls$rollnumber %in% abortion_rollcalls),]
   rollcall_ids = unique(rollcalls$rollnumber)
   
   members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
@@ -414,4 +410,4 @@ for(h in 1:horizon){
   }
 }
 
-save.image(file='./results/gpirt_senate_92.RData')
+save.image(file='./results/gpirt_senate_90.RData')

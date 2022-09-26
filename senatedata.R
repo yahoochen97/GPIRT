@@ -10,7 +10,7 @@ abortion_data = abortion_data[abortion_data$name!="BUSH",]
 abortion_data = abortion_data[abortion_data$name!="CLINTON",]
 
 # get member icpsr for all sessions
-session_ids = 92:101
+session_ids = 90:99
 unique_icpsr = c()
 for(session_id in session_ids){
   votes = read.csv(paste("./data/S", session_id, "_votes.csv", sep=""))
@@ -37,8 +37,8 @@ for(h in 1:length(session_ids)){
   rollcalls = rollcalls[,c("congress", "rollnumber", "yea_count","nay_count","date" )]
   rollcalls = rollcalls[(rollcalls$yea_count!=0)&(rollcalls$nay_count!=0),]
   
-  abortion_rollcalls = unique(abortion_data[abortion_data$congress==session_id, c("rollcall")])
-  rollcalls = rollcalls[!(rollcalls$rollnumber %in% abortion_rollcalls),]
+  # abortion_rollcalls = unique(abortion_data[abortion_data$congress==session_id, c("rollcall")])
+  # rollcalls = rollcalls[!(rollcalls$rollnumber %in% abortion_rollcalls),]
   
   print(length(unique(rollcalls$rollnumber)))
   # rollcalls = rollcalls[1:num_bill_per_session, ]
@@ -68,4 +68,4 @@ m = ncol(data)
 horizon = length(data[1,1,])
 C = 2
 
-save(data,unique_icpsr,session_ids, file="./data/senate_data_92.RData")
+save(data,unique_icpsr,session_ids, file="./data/senate_data_90.RData")

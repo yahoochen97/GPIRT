@@ -62,6 +62,7 @@ for (h in 1:length(congresses)) {
 # n by horizon
 theta_init = matrix(0, nrow = n, ncol = horizon)
 nominate_theta =  array(array(NA, n*horizon), c(n, horizon))
+nominate_theta2 =  array(array(NA, n*horizon), c(n, horizon))
 for (h in 1:length(congresses)) {
   congress = congresses[h]
   members = read.csv(paste("./data/S", congress, "_members.csv", sep=""))
@@ -77,6 +78,7 @@ for (h in 1:length(congresses)) {
     idx = c(idx, which(icpsr==all_senator_ids))
   }
   nominate_theta[idx,h] = nominate_scores[,1]
+  nominate_theta2[idx,h] = nominate_scores[,2]
   theta_init[idx,h] = nominate_scores[,1] + 0.1*rnorm(length(idx))
 }
 
@@ -269,27 +271,59 @@ for(h in 1:length(congresses)){
 
 write.csv(all_nominate_data, file="./results/gpirt_abortion_results.csv")
 
-all_service_senates = all_senator_ids
-for(h in 1:horizon){
-  congress == congresses[h]
-  rollcall_ids = unique(data[data$congress==congress, "rollcall"]$rollcall)
-  senator_ids = unique(data[data$congress==congress,"id"]$id)
-  idx = c()
-  for(j in 1:length(senator_ids)){
-    icpsr = senator_ids[j]
-    i = which(icpsr==all_senator_ids)
-    mask = !is.na(rollcall_data[i,,h])
-    if(sum(mask)>0){
-      idx = c(idx, i)
-    }
+# all_service_senates = all_senator_ids
+# for(h in 1:horizon){
+#   congress == congresses[h]
+#   rollcall_ids = unique(data[data$congress==congress, "rollcall"]$rollcall)
+#   senator_ids = unique(data[data$congress==congress,"id"]$id)
+#   idx = c()
+#   for(j in 1:length(senator_ids)){
+#     icpsr = senator_ids[j]
+#     i = which(icpsr==all_senator_ids)
+#     mask = !is.na(rollcall_data[i,,h])
+#     if(sum(mask)>0){
+#       idx = c(idx, i)
+#     }
+#   }
+#   all_service_senates = intersect(all_service_senates, all_senator_ids[idx])
+# }
+
+all_service_senates = c(1366, 10808,14105,12032, 14226)
+
+dynamic_score_data = data.frame(matrix(ncol = 5, nrow = 0))
+colnames(dynamic_score_data) <- c("session","score", "type", "icpsr", "bioname")
+for(h in 1:length(congresses)){
+  session_id = congresses[h]
+  members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
+  members = members[members$chamber=="Senate",]
+  senator_ids = intersect(unique(members$icpsr), all_service_senates)
+  tmp = nominate_theta[match(senator_ids,all_senator_ids),h]
+  mask = !is.na(tmp)
+  tmp = data.frame(tmp[mask])
+  colnames(tmp) = c("score")
+  tmp$type = "NOMINATE"
+  tmp$session = congresses[h]
+  tmp$icpsr = senator_ids[mask]
+  tmp$bioname = as.character(members[members$icpsr %in% senator_ids[mask], "bioname"])
+  
+  for(k in 1:length(senator_ids[mask])){
+    icpsr = senator_ids[mask][k]
+    tmp$bioname[k] = as.character(members[members$icpsr==icpsr, "bioname"])
   }
-  all_service_senates = intersect(all_service_senates, all_senator_ids[idx])
+  dynamic_score_data= rbind(dynamic_score_data, tmp)
+  
+  tmp$score = pred_theta[match(senator_ids[mask],all_senator_ids),h]/sd(pred_theta)*sd(nominate_theta[!is.na(nominate_theta)])
+  tmp$type = "GPIRT"
+  dynamic_score_data= rbind(dynamic_score_data, tmp)
 }
 
-for(id in all_service_senates){
-  plot(congresses, pred_theta[which(id==all_senator_ids),])
-  plot(congresses, nominate_theta[which(id==all_senator_ids),])
-}
+write.csv(dynamic_score_data, file="./results/gpirt_abortion_dynamic.csv")
+
+
+# for(id in all_service_senates){
+#   plot(congresses, pred_theta[which(id==all_senator_ids),])
+#   plot(congresses, nominate_theta[which(id==all_senator_ids),])
+# }
 
 xs = seq(-5,5,0.01)
 idx = 201:801
@@ -345,3 +379,52 @@ for(h in 1:horizon){
 print(data[data$congress==100 & data$rollcall==653,"mynotes"][1,])
 
 save.image(file='./results/gpirt_abortion.RData')
+
+# GPIRT
+train_lls = c()
+train_acc = c()
+
+# DO-IRT
+train_lls2 = c()
+train_acc2 = c()
+
+for(h in 1:horizon) {
+  congress = congresses[h]
+  # votes = read.csv(paste("./data/S", toString(congress), "_votes.csv", sep=""))
+  rollcall_ids = unique(data[data$congress==congress, "rollcall"]$rollcall)
+  for (j in 1:length(rollcall_ids)){
+    IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(xs))
+    for(iter in 1:SAMPLE_ITERS){
+      # tmp = sign(cor(samples$fstar[[iter]][, j, h],samples$fstar[[1]][, j, h]))
+      IRFs[iter, ] = samples$fstar[[iter]][, j, h]# *tmp
+    }
+    probs = getprobs_gpirt(xs, t(IRFs), samples$threshold)
+    for (i in 1:n) {
+      if(!is.na(rollcall_data[[i,j,h]])  & !is.na(nominate_theta[i,h]) ){
+        # GP-IRT
+        pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
+        ll = log(probs$p[probs$xs==xs[pred_idx]])
+        y_pred = which.max(ll)
+        train_acc = c(train_acc, y_pred==(rollcall_data[[i,j, h]]))
+        train_lls = c(train_lls, ll[rollcall_data[[i,j, h]]])
+        
+        # NOMINATE
+        pred_idx = 1+as.integer((nominate_theta[i,h]+5)*100)
+        ll = log(probs$p[probs$xs==xs[pred_idx]])
+        y_pred = which.max(ll)
+        train_acc2 = c(train_acc2, y_pred==(rollcall_data[[i,j, h]]))
+        train_lls2 = c(train_lls2, ll[rollcall_data[[i,j, h]]])
+      }
+    }
+  }
+}
+
+print(mean(train_acc))
+print(mean(train_acc2))
+
+print(t.test(train_acc,train_acc2,paired=TRUE))
+
+print(mean(train_lls))
+print(mean(train_lls2))
+print(t.test(train_lls,train_lls2,paired=TRUE))
+

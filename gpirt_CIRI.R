@@ -291,6 +291,48 @@ for(h in 1:length(unique_sessions)){
 
 write.csv(all_CIRI_results, file="./results/gpirt_CIRI_results.csv")
 
+folder_path = "./figures/CIRI/countries/"
+dir.create(file.path(folder_path), showWarnings = FALSE)
+
+for(i in 1:length(country_names)){
+  mask = (!is.na(CIRI_theta[i,]))
+  for(j in 1:m){
+    mask = mask & (!is.na(CIRI_data[i,j,]))
+  }
+  pdf(file = paste(folder_path,as.character(country_names[i]),".pdf", sep=""), width = 4, height = 4) 
+  plot((1:horizon)[mask],pred_theta[i,mask], ylim=c(min(c(CIRI_theta[i,mask],pred_theta[i,mask])),
+                                                         max(c(CIRI_theta[i,mask],pred_theta[i,mask]))))
+  lines((1:horizon)[mask],CIRI_theta[i,mask])
+  dev.off()
+}
+
+dynamic_score_data = data.frame(matrix(ncol = 5, nrow = 0))
+colnames(dynamic_score_data) <- c("year","score", "type","continent", "country")
+for(h in 1:length(unique_sessions)){
+  session_id = unique_sessions[h]
+  nominate_scores = CIRI_theta[,h]
+  mask = (!is.na(nominate_scores))
+  for(j in 1:m){
+    mask = mask & (!is.na(CIRI_data[,j,h]))
+  }
+  tmp = data.frame(pred_theta[mask,h])
+  colnames(tmp) = c("score")
+  tmp$type = "GPIRT"
+  tmp$session = session_id
+  tmp$continent = continents[mask]
+  tmp$country_name = as.character(country_names)[mask]
+  dynamic_score_data= rbind(dynamic_score_data, tmp)
+  
+  tmp = data.frame(nominate_scores[mask])
+  colnames(tmp) = c("score")
+  tmp$type = "DO-IRT"
+  tmp$session = session_id
+  tmp$continent = continents[mask]
+  tmp$country_name = as.character(country_names)[mask]
+  dynamic_score_data= rbind(dynamic_score_data, tmp)
+}
+
+write.csv(dynamic_score_data, file="./results/CIRI_dynamic.csv")
 
 folder_path = "./figures/CIRI/"
 dir.create(file.path(folder_path), showWarnings = FALSE)
@@ -375,3 +417,75 @@ for(h in 1:horizon){
 # 
 # animate(p, renderer = gifski_renderer())
 # anim_save("theta1.gif")
+
+# dynamic human rights
+# China(157), Guatemala(18), Namibia(122), Uzbekistan(155)
+
+selective_countries = c("Guatemala", "China", "Namibia", "Uzbekistan")
+selective_ids = c(18,157,122,155)
+
+dynamic_score_data = data.frame(matrix(ncol = 5, nrow = 0))
+colnames(dynamic_score_data) <- c("session","score", "type", "id", "country")
+for(h in 1:length(unique_sessions)){
+  session_id = unique_sessions[h]
+  tmp = CIRI_theta[selective_ids,h]
+  mask = !is.na(tmp)
+  tmp = data.frame(tmp[mask])
+  colnames(tmp) = c("score")
+  tmp$type = "DO-IRT"
+  tmp$session = unique_sessions[h]
+  tmp$id = selective_ids[mask]
+  tmp$country = selective_countries[mask]
+  dynamic_score_data= rbind(dynamic_score_data, tmp)
+  
+  tmp$score = pred_theta[selective_ids[mask],h]/sd(pred_theta)*sd(CIRI_theta[!is.na(CIRI_theta)])
+  tmp$type = "GPIRT"
+  dynamic_score_data= rbind(dynamic_score_data, tmp)
+}
+
+write.csv(dynamic_score_data, file="./results/gpirt_CIRI_dynamic.csv")
+
+# GPIRT
+train_lls = c()
+train_acc = c()
+
+# DO-IRT
+train_lls2 = c()
+train_acc2 = c()
+
+for(h in 1:horizon) {
+  for (j in 1:m){
+    IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(xs))
+    for(iter in 1:SAMPLE_ITERS){
+      # tmp = sign(cor(samples$fstar[[iter]][, j, h],samples$fstar[[1]][, j, h]))
+      IRFs[iter, ] = samples$fstar[[iter]][, j, h]# *tmp
+    }
+    probs = getprobs_gpirt(xs, t(IRFs), samples$threshold)
+    for (i in 1:n) {
+        if(!is.na(CIRI_data[[i,j,h]])  & !is.na(CIRI_theta[i,h]) ){
+          # GP-IRT
+          pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
+          ll = log(probs$p[probs$xs==xs[pred_idx]])
+          y_pred = which.max(ll)
+          train_acc = c(train_acc, y_pred==(CIRI_data[[i,j, h]]))
+          train_lls = c(train_lls, ll[CIRI_data[[i,j, h]]])
+          
+          # DO-IRT
+          pred_idx = 1+as.integer((CIRI_theta[i,h]+5)*100)
+          ll = log(probs$p[probs$xs==xs[pred_idx]])
+          y_pred = which.max(ll)
+          train_acc2 = c(train_acc2, y_pred==(CIRI_data[[i,j, h]]))
+          train_lls2 = c(train_lls2, ll[CIRI_data[[i,j, h]]])
+      }
+    }
+  }
+}
+
+print(mean(train_acc))
+print(mean(train_acc2))
+
+print(t.test(train_acc,train_acc2,paired=TRUE))
+
+print(mean(train_lls))
+print(mean(train_lls2))
+print(t.test(train_lls,train_lls2,paired=TRUE))

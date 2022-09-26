@@ -10,7 +10,8 @@ load(file='./results/gpirt_senate_90.RData')
 # 2001-2003, 2009-2011 , 2019-2021
 
 all_nominate_data = data.frame(matrix(ncol = 6, nrow = 0))
-colnames(all_nominate_data) <- c("session", "gpirt", "nominate", "party", "icpsr", "bioname")
+colnames(all_nominate_data) <- c("session", "gpirt",
+                                 "nominate", "party", "icpsr", "bioname")
 for(h in 1:length(session_ids)){
   session_id = session_ids[h]
   members = read.csv(paste("./data/S", session_id, "_members.csv", sep=""))
@@ -54,7 +55,11 @@ for(h in 1:length(session_ids)){
   #   labs(colour = "Party")
 }
 
-write.csv(all_nominate_data, file="./results/all_nominate_data_92.csv")
+write.csv(all_nominate_data, file="./results/all_nominate_data_90.csv")
+
+all_nominate_data = all_nominate_data[!(all_nominate_data$session==94 & all_nominate_data$icpsr==2087),]
+all_nominate_data = all_nominate_data[!(all_nominate_data$session>=96 & all_nominate_data$icpsr==7638),]
+
 
 # plot six IRFs
 # 2001-2003, 2009-2011 , 2019-2021
