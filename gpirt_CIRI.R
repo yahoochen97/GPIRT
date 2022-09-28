@@ -430,6 +430,9 @@ for(h in 1:length(unique_sessions)){
   session_id = unique_sessions[h]
   tmp = CIRI_theta[selective_ids,h]
   mask = !is.na(tmp)
+  for(j in 1:m){
+    mask = mask & (!is.na(CIRI_data[selective_ids,j,h]))
+  }
   tmp = data.frame(tmp[mask])
   colnames(tmp) = c("score")
   tmp$type = "DO-IRT"
@@ -438,7 +441,7 @@ for(h in 1:length(unique_sessions)){
   tmp$country = selective_countries[mask]
   dynamic_score_data= rbind(dynamic_score_data, tmp)
   
-  tmp$score = pred_theta[selective_ids[mask],h]/sd(pred_theta)*sd(CIRI_theta[!is.na(CIRI_theta)])
+  tmp$score = pred_theta[selective_ids[mask],h]# /sd(pred_theta)*sd(CIRI_theta[!is.na(CIRI_theta)])
   tmp$type = "GPIRT"
   dynamic_score_data= rbind(dynamic_score_data, tmp)
 }
@@ -448,10 +451,14 @@ write.csv(dynamic_score_data, file="./results/gpirt_CIRI_dynamic.csv")
 # GPIRT
 train_lls = c()
 train_acc = c()
+response1 = c()
+prediction1 = c()
 
 # DO-IRT
 train_lls2 = c()
 train_acc2 = c()
+response2 = c()
+prediction2 = c()
 
 for(h in 1:horizon) {
   for (j in 1:m){
@@ -469,6 +476,8 @@ for(h in 1:horizon) {
           y_pred = which.max(ll)
           train_acc = c(train_acc, y_pred==(CIRI_data[[i,j, h]]))
           train_lls = c(train_lls, ll[CIRI_data[[i,j, h]]])
+          response1 = c(response1, CIRI_data[[i,j, h]])
+          prediction1 = c(prediction1, y_pred)
           
           # DO-IRT
           pred_idx = 1+as.integer((CIRI_theta[i,h]+5)*100)
@@ -476,6 +485,8 @@ for(h in 1:horizon) {
           y_pred = which.max(ll)
           train_acc2 = c(train_acc2, y_pred==(CIRI_data[[i,j, h]]))
           train_lls2 = c(train_lls2, ll[CIRI_data[[i,j, h]]])
+          response2 = c(response2, CIRI_data[[i,j, h]])
+          prediction2 = c(prediction2, y_pred)
       }
     }
   }
@@ -489,3 +500,9 @@ print(t.test(train_acc,train_acc2,paired=TRUE))
 print(mean(train_lls))
 print(mean(train_lls2))
 print(t.test(train_lls,train_lls2,paired=TRUE))
+
+
+library(pROC)
+
+print(auc(response1, prediction1))
+print(auc(response2, prediction2))

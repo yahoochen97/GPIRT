@@ -1,0 +1,26 @@
+#!/bin/bash
+
+mkdir -p data
+mkdir -p figures
+mkdir -p results
+mkdir -p log
+
+x=10
+declare -a is=(1 2 5)
+
+if [ $1 = "run" ]
+then
+    for i in ${is[@]}; do
+        for TSY in $(seq 1981 1 $((2001-$i)) ); do
+            TEY=$(($TSY+9))
+            TY=$(($TEY+$i))
+            bsub -G SEAS-Lab-Garnett -J "$TSY_$TEY_$TY" -o "./log/$TSY_$TEY_$TY.log" "./onerun_CIRI $TSY $TEY $TY"
+            # echo $TSY
+            # echo $TEY
+            # echo $TY
+        done
+    done
+elif [ $1 = "compare" ]
+then
+    echo "compare"
+fi

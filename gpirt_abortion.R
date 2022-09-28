@@ -288,7 +288,10 @@ write.csv(all_nominate_data, file="./results/gpirt_abortion_results.csv")
 #   all_service_senates = intersect(all_service_senates, all_senator_ids[idx])
 # }
 
-all_service_senates = c(1366, 10808,14105,12032, 14226)
+
+# 1252, 10818, 14101, 14503, 14511, 14713, 14904
+# 14101, 14511, 12032, 14226,
+all_service_senates = c(1366, 10808, 14101, 14503, 14511, 14713)
 
 dynamic_score_data = data.frame(matrix(ncol = 5, nrow = 0))
 colnames(dynamic_score_data) <- c("session","score", "type", "icpsr", "bioname")
@@ -383,10 +386,14 @@ save.image(file='./results/gpirt_abortion.RData')
 # GPIRT
 train_lls = c()
 train_acc = c()
+response1 = c()
+prediction1 = c()
 
 # DO-IRT
 train_lls2 = c()
 train_acc2 = c()
+response2 = c()
+prediction2 = c()
 
 for(h in 1:horizon) {
   congress = congresses[h]
@@ -407,6 +414,8 @@ for(h in 1:horizon) {
         y_pred = which.max(ll)
         train_acc = c(train_acc, y_pred==(rollcall_data[[i,j, h]]))
         train_lls = c(train_lls, ll[rollcall_data[[i,j, h]]])
+        response1 = c(response1, rollcall_data[[i,j, h]])
+        prediction1 = c(prediction1, y_pred)
         
         # NOMINATE
         pred_idx = 1+as.integer((nominate_theta[i,h]+5)*100)
@@ -414,6 +423,8 @@ for(h in 1:horizon) {
         y_pred = which.max(ll)
         train_acc2 = c(train_acc2, y_pred==(rollcall_data[[i,j, h]]))
         train_lls2 = c(train_lls2, ll[rollcall_data[[i,j, h]]])
+        response2 = c(response2, rollcall_data[[i,j, h]])
+        prediction2 = c(prediction2, y_pred)
       }
     }
   }
@@ -428,3 +439,7 @@ print(mean(train_lls))
 print(mean(train_lls2))
 print(t.test(train_lls,train_lls2,paired=TRUE))
 
+library(pROC)
+
+print(auc(response1, prediction1))
+print(auc(response2, prediction2))
