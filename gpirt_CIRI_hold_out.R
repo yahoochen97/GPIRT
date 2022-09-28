@@ -22,8 +22,8 @@ library(dplyr)
 library(ggplot2)
 library(stats)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
+# gpirt_path = "~/Documents/Github/OrdGPIRT"
+# setwd(gpirt_path)
 TYPE = "GP"
 
 data = read.csv("./data/dataverse_files/HumanRightsProtectionScores_v4.01.csv")
