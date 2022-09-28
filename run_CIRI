@@ -14,7 +14,7 @@ then
         for TSY in $(seq 1981 1 $((2001-$i)) ); do
             TEY=$(($TSY+9))
             TY=$(($TEY+$i))
-            bsub -G SEAS-Lab-Garnett -J "${TSY}_${TEY}_${TY}" -o "./log/${TSY}_${TEY}_${TY}.log" "./onerun_CIRI $TSY $TEY $TY"
+            bsub -G SEAS-Lab-Garnett -J "doirt_${TSY}_${TEY}_${TY}" -o "./log/doirt_${TSY}_${TEY}_${TY}.log" "./onerun_CIRI $TSY $TEY $TY"
             # echo $TSY
             # echo $TEY
             # echo $TY
