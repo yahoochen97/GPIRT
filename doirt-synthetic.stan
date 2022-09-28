@@ -5,7 +5,7 @@ data {
   int<lower=0> horizon;
   int<lower=2> K;
   real sigma;
-  int<lower=1, upper=K> y[n, m, horizon];
+  int<lower=0, upper=K> y[n, m, horizon];
 }
 
 // The parameters accepted by the model.
@@ -34,7 +34,9 @@ model {
     }
     for(j in 1:m){
       for(h in 1:horizon){
-        y[i,j,h] ~ ordered_logistic(theta[i,h]*beta[j,h], alpha[j,h]);
+        if(y[i,j,h]>0){
+          y[i,j,h] ~ ordered_logistic(theta[i,h]*beta[j,h], alpha[j,h]);
+        }
       }
     }
   }

@@ -22,8 +22,6 @@ library(gpirt)
 library(dplyr)
 library(ggplot2)
 library(stats)
-library(haven)
-
 gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
 TYPE = "GP"
@@ -137,16 +135,19 @@ CIRI_data_train = CIRI_data[,,(TRAIN_START_YEAR-1980):(TEST_YEAR-1980)]
 CIRI_data_train[,,(TRAIN_END_YEAR-1979):(TEST_YEAR-1980)] = NA
 
 SEED = 1
-SAMPLE_ITERS = 5
-BURNOUT_ITERS = 5
-THIN = 1
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
+THIN = 4
 CHAIN = 1
+
+CIRI_data_train[is.na(CIRI_data_train)] = 0
 stan_data <- list(n=n,
                   m=m,
                   horizon=ncol(CIRI_data_train[1,,]),
                   K=C,
                   sigma=0.1,
                   y=CIRI_data_train)
+CIRI_data_train[CIRI_data_train==0] = NA
 
 # train stan model
 fit <- stan(file = "doirt-synthetic.stan",
@@ -238,4 +239,4 @@ x = TRAIN_END_YEAR - TRAIN_START_YEAR + 1
 i = TEST_YEAR - TRAIN_END_YEAR
 HYP = paste("_year_", TRAIN_START_YEAR, '_x_', x, '_i_', i, sep="")
 
-save.image(file=paste("./results/doirt_CIRI", HYP, ".RData" , sep=""))
+# save.image(file=paste("./results/doirt_CIRI", HYP, ".RData" , sep=""))

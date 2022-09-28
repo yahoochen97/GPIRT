@@ -65,7 +65,7 @@ SEED = 1
 THIN = 4
 CHAIN = 1
 constant_IRF = 1
-beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data))
+beta_prior_sds =  matrix(2.0, nrow = 2, ncol = ncol(data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data))
 samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN, CHAIN,
@@ -143,13 +143,19 @@ for(h in 1:horizon){
   }
 }
 
-for(h in 13:13){
+folder_path = "./figures/esm/"
+dir.create(file.path(folder_path), showWarnings = FALSE)
+
+for(h in 1:horizon){
+  subfolder = as.character(h)
+  dir.create(file.path(folder_path,subfolder), showWarnings = FALSE)
   for(j in 1:m){
     x = pred_theta[,h]
     response = data[,j,h]
     irf_plot = data.frame(x,response)
     xs = seq(-5,5,0.01)
-    gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h])
+    idx = 401:601
+    gpirt_plot = data.frame(xs[idx],gpirt_iccs[101:301,j,h])
     colnames(gpirt_plot) = c("xs","icc")
     p = ggplot()+
       geom_point(data = na.omit(irf_plot), aes(x=x,y=response,color=factor(response)),
@@ -157,16 +163,18 @@ for(h in 13:13){
       scale_color_manual(name='Level',
                          labels=c("Strong Disagree","Disagree", "Neural", "Agree", "Stronly Dgree"),
                          values=c('red','red', 'blue', 'black', 'black'))+
-      geom_line(data = gpirt_plot, aes(x=xs,y=icc), size=1, )+
+      geom_line(data = gpirt_plot, aes(x=xs,y=icc), size=1)+
       scale_x_continuous(name=bquote(theta), breaks = seq(-2, 2, by = 1)) + 
       scale_y_discrete(name=NULL, limits=c("Strong Disagree","Disagree", "Neural", "Agree", "Stronly Agree")) +
       theme(panel.background = element_blank(),
             panel.border = element_rect(colour = "black", fill=NA, size=2),
             legend.position = "none",
             axis.text.y = element_text(size=16),
-            axis.text.x = element_text(size=16))
+            axis.text.x = element_text(size=16),
+            plot.title = element_text(hjust = 0.5)) +
+      ggtitle(irf_names[j])
     print(p)
-    # ggsave(filename = paste(folder_path, subfolder, "/", as.character(j), ".png",sep = ""),width = 4, height = 3, dpi = 300)
+    ggsave(filename = paste(folder_path, subfolder, "/", as.character(j), ".png",sep = ""),width = 4, height = 3, dpi = 300)
   }
 }
 

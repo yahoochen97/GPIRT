@@ -357,7 +357,7 @@ for(h in 1:horizon){
       scale_color_manual(name='Level',
                          labels=c("Low", 'Medium','High'),
                          values=c( 'red', "blue",'black'))+
-      geom_line(data = gpirt_plot, aes(x=xs,y=icc), size=1, )+
+      geom_line(data = gpirt_plot, aes(x=xs,y=icc), size=1)+
       scale_x_continuous(name=bquote(theta), breaks = seq(-3, 3, by = 1)) + 
       scale_y_discrete(name=NULL, limits=c("low","median","high")) +
       theme(panel.background = element_blank(),

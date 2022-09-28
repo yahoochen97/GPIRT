@@ -21,7 +21,6 @@ library(gpirt)
 library(dplyr)
 library(ggplot2)
 library(stats)
-library(haven)
 
 gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
