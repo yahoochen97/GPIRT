@@ -114,7 +114,7 @@ for (h in 1:horizon) {
   for (j in 1:m) {
     IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
     for(iter in 1:SAMPLE_ITERS){
-      IRFs[iter, ] = sample_IRFs[[iter]][idx, j, h]
+      IRFs[iter, ] = samples$fstar[[iter]][idx, j, h]
       IRFs[iter, ] = IRFs[iter, ] * sign(cor(IRFs[iter, ], grm_together_iccs[,j]))
     }
     probs = getprobs_gpirt(xs[idx], t(IRFs),

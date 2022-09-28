@@ -282,6 +282,7 @@ end
 % yyaxis left;
 ylim([-3.0,4.0]);
 ylabel('GD-GPIRT score','FontSize', 12);
+ylabel('Pro-life','FontSize', 16);
 % yticks((-3.0):1.0:3.0);
 YTICKS = (1:1:numel(session_ids))-1;
 xticks(YTICKS);
@@ -291,6 +292,13 @@ xtickformat('%dth');
 a = get(gca,'XTickLabel');
 set(gca,'box','off','ytick',[],...
     'XTickLabel',(session_ids-min(session_ids))*2+1971,'fontsize',8);
+% annotation('textarrow', [0 0],[0.8 1.0], 'String','pro-life');
+% [-1.0,2.0],...
+%     'YTickLabel',["pro-choice","pro-life"],'fontsize',8,...
+%     'YTickLabelRotation',90,...
+
+% the arrows
+annotation('arrow', [0.0205 0.0205],[0.65 0.75], 'LineWidth', 0.01);
 
 % unique(all_nominate.icpsr)'
 
@@ -379,7 +387,7 @@ end
 
 % yyaxis left;
 ylim([-1.0,1.2]);
-ylabel('D-NOMINATE score','FontSize', 12);
+ylabel('Pro-life','FontSize', 16);
 % yticks((-3.0):1.0:3.0);
 YTICKS = (1:1:numel(session_ids))-1;
 xticks(YTICKS);
@@ -389,6 +397,9 @@ xtickformat('%dth');
 a = get(gca,'XTickLabel');
 set(gca,'box','off','ytick',[],...
     'XTickLabel',(session_ids-min(session_ids))*2+1971,'fontsize',8);
+
+% the arrows
+annotation('arrow', [0.0205 0.0205],[0.65 0.75], 'LineWidth', 0.01);
 
 % yyaxis right;
 % yticks(YTICKS);
