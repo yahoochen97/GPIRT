@@ -131,8 +131,9 @@ for(h in 1:horizon){
 
 theta_init = theta_init[,(TRAIN_START_YEAR-1980):(TEST_YEAR-1980)]
 
-CIRI_data_train = CIRI_data[,,(TRAIN_START_YEAR-1980):(TEST_YEAR-1980)]
+CIRI_data_train = CIRI_data
 CIRI_data_train[,,(TRAIN_END_YEAR-1979):(TEST_YEAR-1980)] = NA
+CIRI_data_train = CIRI_data_train[,,(TRAIN_START_YEAR-1980):(TEST_YEAR-1980)]
 
 SEED = 1
 SAMPLE_ITERS = 500

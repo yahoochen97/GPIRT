@@ -3,9 +3,9 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  TRAIN_START_YEAR = 1981
-  TRAIN_END_YEAR = 1990
-  TEST_YEAR = 1995
+  TRAIN_START_YEAR = 1998
+  TRAIN_END_YEAR = 2007
+  TEST_YEAR = 2009
 }
 
 if (length(args)==3){
@@ -131,13 +131,14 @@ for(h in 1:horizon){
 
 theta_init = theta_init[,(TRAIN_START_YEAR-1980):(TEST_YEAR-1980)]
 
-CIRI_data_train = CIRI_data[,,(TRAIN_START_YEAR-1980):(TEST_YEAR-1980)]
+CIRI_data_train = CIRI_data
 CIRI_data_train[,,(TRAIN_END_YEAR-1979):(TEST_YEAR-1980)] = NA
+CIRI_data_train = CIRI_data_train[,,(TRAIN_START_YEAR-1980):(TEST_YEAR-1980)]
 
-SAMPLE_ITERS = 5
-BURNOUT_ITERS = 5
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 SEED = 1
-THIN = 1
+THIN = 4
 CHAIN = 1
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(CIRI_data_train))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(CIRI_data_train))
