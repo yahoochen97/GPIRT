@@ -5,8 +5,8 @@ library(stats)
 
 gpirt_path = "~/Documents/Github/OrdGPIRT"
 setwd(gpirt_path)
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 TYPE = "GP"
 
 source("2PL_esm.R")
@@ -62,7 +62,7 @@ theta_init = together_pred_theta
 set.seed(12345)
 
 SEED = 1
-THIN = 1
+THIN = 4
 CHAIN = 1
 constant_IRF = 1
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data))
@@ -85,12 +85,17 @@ pred_theta_sd = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
 
 for(h in 1:horizon){
   for (i in 1:n) {
-    if(is.na(mean(tmp))){
+    if(!is.na(mean(tmp))){
       tmp = samples$theta[-1,i,h]
     }
     pred_theta[i,h] = mean(tmp)
     pred_theta_sd[i,h] = sd(tmp)
   }
+}
+
+cor_theta = c()
+for(h in 1:horizon){
+  cor_theta = c(cor_theta, cor(pred_theta[,h],together_pred_theta[,h]))
 }
 
 xs = seq(-5,5,0.01)
@@ -125,5 +130,45 @@ for (h in 1:horizon) {
     gpirt_iccs[,j,h] = tmp$icc
   }
 }
+
+for(h in 1:horizon){
+  all_C = TRUE
+  for(j in 1:m){
+    if(length(na.omit(unique(data[,j,h])))<5){
+      all_C = FALSE
+    }
+  }
+  if(all_C){
+    print(h)
+  }
+}
+
+for(h in 13:13){
+  for(j in 1:m){
+    x = pred_theta[,h]
+    response = data[,j,h]
+    irf_plot = data.frame(x,response)
+    xs = seq(-5,5,0.01)
+    gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h])
+    colnames(gpirt_plot) = c("xs","icc")
+    p = ggplot()+
+      geom_point(data = na.omit(irf_plot), aes(x=x,y=response,color=factor(response)),
+                 size=4, shape="|") +
+      scale_color_manual(name='Level',
+                         labels=c("Strong Disagree","Disagree", "Neural", "Agree", "Stronly Dgree"),
+                         values=c('red','red', 'blue', 'black', 'black'))+
+      geom_line(data = gpirt_plot, aes(x=xs,y=icc), size=1, )+
+      scale_x_continuous(name=bquote(theta), breaks = seq(-2, 2, by = 1)) + 
+      scale_y_discrete(name=NULL, limits=c("Strong Disagree","Disagree", "Neural", "Agree", "Stronly Agree")) +
+      theme(panel.background = element_blank(),
+            panel.border = element_rect(colour = "black", fill=NA, size=2),
+            legend.position = "none",
+            axis.text.y = element_text(size=16),
+            axis.text.x = element_text(size=16))
+    print(p)
+    # ggsave(filename = paste(folder_path, subfolder, "/", as.character(j), ".png",sep = ""),width = 4, height = 3, dpi = 300)
+  }
+}
+
 
 save.image(file='./results/gpirt_esm.RData')

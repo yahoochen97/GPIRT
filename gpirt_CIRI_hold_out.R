@@ -14,6 +14,9 @@ if (length(args)==3){
   TEST_YEAR = as.integer(args[3])
 }
 
+R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
+.libPaths(R_path)
+
 library(gpirt)
 library(dplyr)
 library(ggplot2)
