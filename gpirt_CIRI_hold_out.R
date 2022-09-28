@@ -134,10 +134,10 @@ theta_init = theta_init[,(TRAIN_START_YEAR-1980):(TEST_YEAR-1980)]
 CIRI_data_train = CIRI_data[,,(TRAIN_START_YEAR-1980):(TEST_YEAR-1980)]
 CIRI_data_train[,,(TRAIN_END_YEAR-1979):(TEST_YEAR-1980)] = NA
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 5
+BURNOUT_ITERS = 5
 SEED = 1
-THIN = 4
+THIN = 1
 CHAIN = 1
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(CIRI_data_train))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(CIRI_data_train))
@@ -223,4 +223,4 @@ x = TRAIN_END_YEAR - TRAIN_START_YEAR + 1
 i = TEST_YEAR - TRAIN_END_YEAR
 HYP = paste("_year_", TRAIN_START_YEAR, '_x_', x, '_i_', i, sep="")
 
-save.image(file=paste("./results/gpirt_CIRI", HYP, ".RData" , sep=""))
+# save.image(file=paste("./results/gpirt_CIRI", HYP, ".RData" , sep=""))
