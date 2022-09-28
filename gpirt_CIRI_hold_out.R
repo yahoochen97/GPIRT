@@ -24,7 +24,7 @@ library(stats)
 
 # gpirt_path = "~/Documents/Github/OrdGPIRT"
 # setwd(gpirt_path)
-TYPE = "GP"
+TYPE = "CST"
 
 data = read.csv("./data/dataverse_files/HumanRightsProtectionScores_v4.01.csv")
 
@@ -224,4 +224,4 @@ x = TRAIN_END_YEAR - TRAIN_START_YEAR + 1
 i = TEST_YEAR - TRAIN_END_YEAR
 HYP = paste("_year_", TRAIN_START_YEAR, '_x_', x, '_i_', i, sep="")
 
-save.image(file=paste("./results/gpirt_CIRI", HYP, ".RData" , sep=""))
+save.image(file=paste("./results/cstirt_CIRI", HYP, ".RData" , sep=""))
