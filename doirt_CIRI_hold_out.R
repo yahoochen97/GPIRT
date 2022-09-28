@@ -240,4 +240,4 @@ x = TRAIN_END_YEAR - TRAIN_START_YEAR + 1
 i = TEST_YEAR - TRAIN_END_YEAR
 HYP = paste("_year_", TRAIN_START_YEAR, '_x_', x, '_i_', i, sep="")
 
-# save.image(file=paste("./results/doirt_CIRI", HYP, ".RData" , sep=""))
+save.image(file=paste("./results/doirt_CIRI", HYP, ".RData" , sep=""))

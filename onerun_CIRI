@@ -16,5 +16,6 @@ TEY=$2
 TY=$3
 
 Rscript --vanilla gpirt_CIRI_hold_out.R $TSY $TEY $TY
+# Rscript --vanilla doirt_CIRI_hold_out.R $TSY $TEY $TY
 
 # conda deactivate
