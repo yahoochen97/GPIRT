@@ -18,7 +18,7 @@ irf_names = c("relax", "depress", "worried")
 
 # data = data[(data$day<=3) & (data$SID<50000), ]
 
-# data = data[(data$freq>=40), ]
+data = data[(data$freq>=40), ]
 data = data %>%
      group_by(SID,day) %>%
      summarise_at(vars(N_relax,N_depress,N_worried), list(name = mean))

@@ -189,6 +189,17 @@ for (it in 1:SAMPLE_ITERS) {
   }
 }
 
+xs = seq(-5,5,0.01)
+pred_theta = matrix(0, nrow=n, ncol=ncol(CIRI_data_train[1,,]))
+pred_theta_sd = matrix(0, nrow=n, ncol=ncol(CIRI_data_train[1,,]))
+for(i in 1:n){
+  for (h in 1:ncol(CIRI_data_train[1,,])) {
+    tmp = samples$theta[-1,i,h]
+    pred_theta[i,h] = mean(tmp)
+    pred_theta_sd[i,h] = sd(tmp)
+  }
+}
+
 # train/test statistics
 # train
 train_lls = c()

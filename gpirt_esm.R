@@ -64,8 +64,8 @@ set.seed(12345)
 SEED = 1
 THIN = 4
 CHAIN = 1
-constant_IRF = 1
-beta_prior_sds =  matrix(2.0, nrow = 2, ncol = ncol(data))
+constant_IRF = 0
+beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data))
 samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN, CHAIN,
@@ -79,6 +79,16 @@ SAMPLE_ITERS = SAMPLE_ITERS/THIN
 
 save.image(file='./results/gpirt_esm.RData')
 
+xs = seq(-5,5,0.01)
+for(it in 1:SAMPLE_ITERS){
+  for(h in 1:horizon){
+    for(j in 1:m){
+      samples$f[[it]][,j,h] = samples$f[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*samples$theta[it,,h]
+      samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*xs
+    }
+  }
+}
+
 # predicted ideology
 pred_theta = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
 pred_theta_sd = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
@@ -87,6 +97,10 @@ for(h in 1:horizon){
   for (i in 1:n) {
     if(!is.na(mean(tmp))){
       tmp = samples$theta[-1,i,h]
+    }
+    mask = rep(1, SAMPLE_ITERS)
+    for(iter in 1:SAMPLE_ITERS){
+      mask[iter, ] = IRFs[iter, ] * sign(cor(IRFs[iter, ], grm_together_iccs[,j]))
     }
     pred_theta[i,h] = mean(tmp)
     pred_theta_sd[i,h] = sd(tmp)
@@ -98,15 +112,12 @@ for(h in 1:horizon){
   cor_theta = c(cor_theta, cor(pred_theta[,h],together_pred_theta[,h]))
 }
 
-xs = seq(-5,5,0.01)
+
+tmp = c()
 for(it in 1:SAMPLE_ITERS){
-  for(h in 1:horizon){
-    for(j in 1:m){
-      samples$f[[it]][,j,h] = samples$f[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*samples$theta[it,,h]
-      samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*xs
-    }
-  }
+  tmp = c(tmp, samples$beta[[it]][2,1,1])
 }
+plot(1:SAMPLE_ITERS, tmp)
 
 # icc
 xs = seq(-5,5,0.01)
@@ -169,8 +180,9 @@ for(h in 1:horizon){
       theme(panel.background = element_blank(),
             panel.border = element_rect(colour = "black", fill=NA, size=2),
             legend.position = "none",
-            axis.text.y = element_text(size=16),
-            axis.text.x = element_text(size=16),
+            axis.text.y = element_text(size=12,colour = "black"),
+            axis.text.x = element_text(size=12,colour = "black"),
+            axis.title.x=element_text(size=20,face="bold",colour = "black"),
             plot.title = element_text(hjust = 0.5)) +
       ggtitle(irf_names[j])
     print(p)
@@ -178,5 +190,21 @@ for(h in 1:horizon){
   }
 }
 
+idx = 301:701
+for(j in 1:m){
+  IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(idx))
+  for(iter in 1:SAMPLE_ITERS){
+    IRFs[iter, ] = samples$fstar[[iter]][idx, j, 1]
+    IRFs[iter, ] = IRFs[iter, ] * sign(cor(IRFs[iter, ], grm_together_iccs[,j]))
+  }
+  probs = getprobs_gpirt(xs[idx], t(IRFs),
+                         samples$threshold[1:SAMPLE_ITERS,])
+  
+q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
+  geom_line(size=2) +ggtitle(paste("IRT q",j, sep="")) +
+  theme(plot.title = element_text(hjust = 0.5))
+print(q)
+# ggsave(paste("./figures/trueirfq",l,".pdf", sep=""), plot=q, width = 7, height = 4, units = "in")
+}
 
 save.image(file='./results/gpirt_esm.RData')

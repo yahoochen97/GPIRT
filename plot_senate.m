@@ -540,7 +540,7 @@ YLABELS = ["GD-GPIRT", "DO-IRT"];
 shapes = ["-s", "-o"];
 
 fig = figure(1);
-tiledlayout(1,2);   
+tiledlayout(1,2,'Padding', 'none', 'TileSpacing', 'compact');   
 for k=1:2
     clear h;
     nexttile;
@@ -548,20 +548,20 @@ for k=1:2
         id = country_ids(i);
         x = all_nominate.session(all_nominate.id==id & strcmp(all_nominate.type, score_types(k)));
         y = all_nominate.score(all_nominate.id==id & strcmp(all_nominate.type, score_types(k)));
-        h{i} = plot(x,y,strcat(shapes(k),colors(i)),'MarkerSize',8, 'LineWidth', 4); hold on;
+        h{i} = plot(x,y,strcat(shapes(k),colors(i)),'MarkerSize',4, 'LineWidth', 2); hold on;
     end
     
-    xlabel('year','FontSize', 18);
+%     xlabel('year','FontSize', 10);
     % ylim([-1.0*(3-k),1.0*(3-k)]);
-    ylim([-2.5,1.5]);
-    ylabel(char(score_types(k)),'FontSize', 18);
-    ylabel(YLABELS(k),'FontSize', 18);
-    legend(country_names, 'Location','northwest','FontSize',12, 'NumColumns', 4);
+    ylim([-2.5,2.0]);
+    ylabel(char(score_types(k)),'FontSize', 10);
+    ylabel(YLABELS(k),'FontSize', 10);
+    legend(country_names, 'Location','northwest','FontSize',8, 'NumColumns', 2);
     legend boxoff;
 end
     
-set(fig, 'PaperPosition', [0 0 10 4]); 
-set(fig, 'PaperSize', [10 4]); 
+set(fig, 'PaperPosition', [0 0 10 3]); 
+set(fig, 'PaperSize', [10 3]); 
 
 filename = "./results/CIRI_dynamic.pdf";
 print(fig, filename, '-dpdf','-r300', '-fillpage');
