@@ -13,8 +13,8 @@ library(dplyr)
 library(ggplot2)
 library(stats)
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 TYPE = "GP"
 
 source("2PL_esm.R")
@@ -70,7 +70,7 @@ theta_init = together_pred_theta
 set.seed(12345)
 
 SEED = 1
-THIN = 1
+THIN = 4
 CHAIN = 3
 constant_IRF = 0
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data))
