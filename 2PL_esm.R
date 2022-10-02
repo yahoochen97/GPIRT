@@ -3,8 +3,8 @@ library(ggplot2)
 library(stats)
 library(ltm)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
+# gpirt_path = "~/Documents/Github/OrdGPIRT"
+# setwd(gpirt_path)
 
 # esm.BFI21 and esm.BFI36
 data = read.csv("./data/esm_w1_redacted.csv")
