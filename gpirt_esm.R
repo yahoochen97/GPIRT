@@ -1,12 +1,12 @@
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 
-gpirt_path = "~/Documents/Github/gpirt"
-setwd(gpirt_path)
-library(Rcpp)
-Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL)
-setwd("../OrdGPIRT")
+# gpirt_path = "~/Documents/Github/gpirt"
+# setwd(gpirt_path)
+# library(Rcpp)
+# Rcpp::compileAttributes()
+# install.packages(gpirt_path, type="source", repos = NULL)
+# setwd("../OrdGPIRT")
 
 library(gpirt)
 library(dplyr)
