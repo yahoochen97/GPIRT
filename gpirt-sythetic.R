@@ -10,7 +10,7 @@ options(show.error.locations = TRUE)
 # setwd(gpirt_path)
 # library(Rcpp)
 # Rcpp::compileAttributes()
-# install.packages(gpirt_path, type="source", repos = NULL)#,lib=R_path, INSTALL_opts = '--no-lock')
+# install.packages(gpirt_path, type="source", repos = NULL,lib=R_path, INSTALL_opts = '--no-lock')
 # setwd("../OrdGPIRT")
 
 

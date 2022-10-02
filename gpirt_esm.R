@@ -1,12 +1,20 @@
+R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
+.libPaths(R_path)
+
+gpirt_path = "~/Documents/Github/gpirt"
+setwd(gpirt_path)
+library(Rcpp)
+Rcpp::compileAttributes()
+install.packages(gpirt_path, type="source", repos = NULL)
+setwd("../OrdGPIRT")
+
 library(gpirt)
 library(dplyr)
 library(ggplot2)
 library(stats)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 TYPE = "GP"
 
 source("2PL_esm.R")
@@ -48,7 +56,7 @@ source("2PL_esm.R")
 
 if(TYPE=="GP"){
   theta_os = 1
-  theta_ls = as.integer(horizon)
+  theta_ls = 8
 }else if(TYPE=="CST"){
   theta_os = 0
   theta_ls = -1
@@ -62,20 +70,32 @@ theta_init = together_pred_theta
 set.seed(12345)
 
 SEED = 1
-THIN = 4
-CHAIN = 1
+THIN = 1
+CHAIN = 3
 constant_IRF = 0
 beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data))
-samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
+all_samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN, CHAIN,
                      beta_proposal_sds = beta_proposal_sds, theta_init = theta_init,
                      beta_prior_sds = beta_prior_sds, theta_os = theta_os,
                      theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL,
                      SEED=SEED, constant_IRF = constant_IRF)
 
-samples = samples[[1]]
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
+library(rstan)
+sims <- matrix(rnorm((SAMPLE_ITERS)*CHAIN), nrow = SAMPLE_ITERS, ncol = CHAIN)
+theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
+for(i in 1:n){
+  for(h in 1:horizon){
+    for(c in 1:CHAIN){
+      sims[,c] = all_samples[[c]]$theta[,i,h]
+    }
+    theta_rhats[i, h] = Rhat(sims)
+  }
+}
+
+samples = all_samples[[1]]
 
 save.image(file='./results/gpirt_esm.RData')
 
@@ -95,13 +115,11 @@ pred_theta_sd = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
 
 for(h in 1:horizon){
   for (i in 1:n) {
-    if(!is.na(mean(tmp))){
-      tmp = samples$theta[-1,i,h]
-    }
-    mask = rep(1, SAMPLE_ITERS)
-    for(iter in 1:SAMPLE_ITERS){
-      mask[iter, ] = IRFs[iter, ] * sign(cor(IRFs[iter, ], grm_together_iccs[,j]))
-    }
+    tmp = samples$theta[-1,i,h]
+    # mask = rep(1, SAMPLE_ITERS)
+    # for(iter in 1:SAMPLE_ITERS){
+    #   mask[iter, ] = samples$fstar[[it]][,j,h] * sign(cor(samples$fstar[[it]][,j,h], grm_together_iccs[,j]))
+    # }
     pred_theta[i,h] = mean(tmp)
     pred_theta_sd[i,h] = sd(tmp)
   }
@@ -133,8 +151,11 @@ for (h in 1:horizon) {
       IRFs[iter, ] = samples$fstar[[iter]][idx, j, h]
       IRFs[iter, ] = IRFs[iter, ] * sign(cor(IRFs[iter, ], grm_together_iccs[,j]))
     }
-    probs = getprobs_gpirt(xs[idx], t(IRFs),
-                           samples$threshold[1:SAMPLE_ITERS,])
+    thresholds = matrix(0,nrow=SAMPLE_ITERS,ncol=C+1)
+    for(iter in 1:SAMPLE_ITERS){
+      thresholds[iter, ] = samples$threshold[[iter]][j,,h]
+    }
+    probs = getprobs_gpirt(xs[idx], t(IRFs), thresholds)
     tmp = probs %>%
       group_by(xs) %>%
       summarize(icc=sum(order*p))
@@ -185,7 +206,6 @@ for(h in 1:horizon){
             axis.title.x=element_text(size=20,face="bold",colour = "black"),
             plot.title = element_text(hjust = 0.5)) +
       ggtitle(irf_names[j])
-    print(p)
     ggsave(filename = paste(folder_path, subfolder, "/", as.character(j), ".png",sep = ""),width = 4, height = 3, dpi = 300)
   }
 }
@@ -197,8 +217,11 @@ for(j in 1:m){
     IRFs[iter, ] = samples$fstar[[iter]][idx, j, 1]
     IRFs[iter, ] = IRFs[iter, ] * sign(cor(IRFs[iter, ], grm_together_iccs[,j]))
   }
-  probs = getprobs_gpirt(xs[idx], t(IRFs),
-                         samples$threshold[1:SAMPLE_ITERS,])
+  thresholds = matrix(0,nrow=SAMPLE_ITERS,ncol=C+1)
+  for(iter in 1:SAMPLE_ITERS){
+    thresholds[iter, ] = samples$threshold[[iter]][j,,h]
+  }
+  probs = getprobs_gpirt(xs[idx], t(IRFs),thresholds)
   
 q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
   geom_line(size=2) +ggtitle(paste("IRT q",j, sep="")) +

@@ -232,9 +232,13 @@ close;
 
 session_ids = 92:2:110;
 fig = figure(1);
-tiledlayout(4,1,'Padding', 'none', 'TileSpacing', 'compact');
+% subplot(4,1,1);
+h1 = subplot(2,1,1);
+set(h1, 'OuterPosition', [0,0.75, 1, .25]);
+set(h1, 'Position', [0.05,0.80, 0.95, .20]);
+% tiledlayout(4,1,'Padding', 'none', 'TileSpacing', 'compact');
 polarization = [];
-nexttile;
+% nexttile;
 for i=1:numel(session_ids)
     session_id = session_ids(i);
     x = all_nominate.gpirt(all_nominate.session==session_id);
@@ -251,13 +255,18 @@ xlim([-0.6,(numel(session_ids))+0.2]);
 xtickformat('%dth');
 % xticklabels(session_ids);
 a = get(gca,'XTickLabel');
-set(gca,'box','off','ytick',[0.4:0.1:1.0],...
+set(gca,'box','off','ytick',[0.5:0.25:1.0],...
     'XTickLabel',(session_ids-min(session_ids))*2+1971,'fontsize',8);
-legend([p1],{'Polarization ratio'},...
-    'Location','northwest','FontSize',12, 'NumColumns' ,1);
+lgd = legend([p1],{'Polarization ratio'},...
+ 'Location','northwest','FontSize',12, 'NumColumns' ,1);
 legend boxoff;
+lgd.Position(2) = 0.960;
 
-nexttile([3 1]);
+% nexttile([3 1]);
+% subplot(4,1,[2,3,4]);
+h2 = subplot(2,1,2);
+set(h2, 'OuterPosition', [0, 0, 1, .70]);
+set(h2, 'Position', [0.05,0.05, 0.95, .65]);
 for i=1:numel(session_ids)
     session_id = session_ids(i);
     x = all_nominate.gpirt(all_nominate.session==session_id);
@@ -280,7 +289,7 @@ for i=1:numel(session_ids)
 end
 
 % yyaxis left;
-ylim([-3.0,4.0]);
+ylim([-3.0,3.8]);
 ylabel('GD-GPIRT score','FontSize', 12);
 ylabel('Pro-life','FontSize', 16);
 % yticks((-3.0):1.0:3.0);
@@ -298,7 +307,7 @@ set(gca,'box','off','ytick',[],...
 %     'YTickLabelRotation',90,...
 
 % the arrows
-annotation('arrow', [0.0205 0.0205],[0.65 0.75], 'LineWidth', 0.01);
+annotation('arrow', [0.05 0.05],[0.6 0.7], 'LineStyle', 'none');
 
 % unique(all_nominate.icpsr)'
 
@@ -323,9 +332,11 @@ for icpsr=select_icpsr
 end
 
 % title( int2str(session_id) + "th U.S. Congress", 'FontSize', 12);
-legend([p1,p2],{'Democrats','Republicans'},...
-    'Location','northeast','FontSize',12, 'NumColumns' ,2);
+lgd = legend([p1,p2],{'Democrats','Republicans'},...
+    'Location','southwest','FontSize',12, 'NumColumns' ,2);
 legend boxoff;
+lgd.Position(1) = 0.03;
+lgd.Position(2) = 0.650;
 
 set(fig, 'PaperPosition', [0 0 10 4]); 
 set(fig, 'PaperSize', [10 4]); 
@@ -337,32 +348,38 @@ close;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 session_ids = 92:2:110;
 fig = figure(1);
-tiledlayout(4,1,'Padding', 'none', 'TileSpacing', 'compact');
-nexttile;
+% tiledlayout(4,1,'Padding', 'none', 'TileSpacing', 'compact');
+% nexttile;
+h1 = subplot(2,1,1);
+set(h1, 'OuterPosition', [0,0.75, 1, .25]);
+set(h1, 'Position', [0.05,0.80, 0.95, .20]);
 polarization = [];
 for i=1:numel(session_ids)
     session_id = session_ids(i);
-    x = all_nominate.gpirt(all_nominate.session==session_id);
+    x = all_nominate.nominate(all_nominate.session==session_id);
     party = all_nominate.party(all_nominate.session==session_id);
     polarization = [polarization, sum(strcmp(party,'Republicans')==(x>=0))/numel(x)];
 end
 p1 = plot((1:1:numel(session_ids))-1,polarization,'-','Color',...
     [0.5,0.5,0.5], 'LineWidth',2);
 
-ylim([0.4,1.0]);
+ylim([0.8,1.0]);
 YTICKS = (1:1:numel(session_ids))-1;
 xticks(YTICKS);
 xlim([-0.6,(numel(session_ids))+0.2]);
 xtickformat('%dth');
 % xticklabels(session_ids);
 a = get(gca,'XTickLabel');
-set(gca,'box','off','ytick',[0.4:0.1:1.0],...
+set(gca,'box','off','ytick',[0.8:0.1:1.0],...
     'XTickLabel',(session_ids-min(session_ids))*2+1971,'fontsize',8);
-legend([p1],{'Polarization ratio'},...
-    'Location','northwest','FontSize',12, 'NumColumns' ,1);
+lgd = legend({'Polarization ratio'},'Location','northwest','FontSize',12, 'NumColumns' ,1);
 legend boxoff;
+lgd.Position(2) = 0.960;
 
-nexttile([3 1]);
+% nexttile([3 1]);
+h2 = subplot(2,1,2);
+set(h2, 'OuterPosition', [0, 0, 1, .70]);
+set(h2, 'Position', [0.05,0.05, 0.95, .65]);
 polarization = [];
 for i=1:numel(session_ids)
     session_id = session_ids(i);
@@ -399,7 +416,7 @@ set(gca,'box','off','ytick',[],...
     'XTickLabel',(session_ids-min(session_ids))*2+1971,'fontsize',8);
 
 % the arrows
-annotation('arrow', [0.0205 0.0205],[0.65 0.75], 'LineWidth', 0.01);
+annotation('arrow', [0.05 0.05],[0.6 0.7], 'LineStyle', 'none');
 
 % yyaxis right;
 % yticks(YTICKS);
@@ -430,9 +447,10 @@ for icpsr=select_icpsr
 end
 
 % title( int2str(session_id) + "th U.S. Congress", 'FontSize', 12);
-legend([p1,p2],{'Democrats','Republicans'},...
-    'Location','northeast','FontSize',12, 'NumColumns' ,2);
+lgd = legend([p1,p2],{'Democrats','Republicans'},...
+    'Location','northwest','FontSize',12, 'NumColumns' ,2);
 legend boxoff;
+lgd.Position(2) = 0.650;
 
 set(fig, 'PaperPosition', [0 0 10 4]); 
 set(fig, 'PaperSize', [10 4]); 
@@ -534,31 +552,52 @@ for id = country_ids'
         string(unique(all_nominate.country(all_nominate.id==id,1)))];
 end
 
-colors = ["k", "b","r","magenta"];
+% colors = ["k", "b","r","magenta"];
+colors = {[166,206,227]/255,...
+    [31,120,180]/255,...
+    [178,223,138]/255,...
+    [51,160,44]/255};
+
+
 score_types = flip(unique(all_nominate.type));
 YLABELS = ["GD-GPIRT", "DO-IRT"];
-shapes = ["-s", "-o"];
+shapes = ["-", "-"];
 
 fig = figure(1);
 tiledlayout(1,2,'Padding', 'none', 'TileSpacing', 'compact');   
 for k=1:2
     clear h;
-    nexttile;
+    ax = nexttile;
     for i=1:numel(country_ids)
         id = country_ids(i);
         x = all_nominate.session(all_nominate.id==id & strcmp(all_nominate.type, score_types(k)));
         y = all_nominate.score(all_nominate.id==id & strcmp(all_nominate.type, score_types(k)));
-        h{i} = plot(x,y,strcat(shapes(k),colors(i)),'MarkerSize',4, 'LineWidth', 2); hold on;
+        y_sd = all_nominate.sd(all_nominate.id==id & strcmp(all_nominate.type, score_types(k)));
+        
+%         h{i} = errorbar(x,y,y_sd, shapes(k),'Color',colors{i},...
+%             'LineWidth', 2); hold on;
+        f = [y+2*y_sd; flipdim(y-2*y_sd,1)];
+        h{i} = fill([x; flipdim(x,1)], f, colors{i},...
+            'facealpha', 0.3, 'edgecolor', 'none'); hold on;
     end
+    
+%     for i=1:4
+%         h{i}.Color = [h{i}.Color 0.7];  % alpha=0.7
+%     end
     
 %     xlabel('year','FontSize', 10);
     % ylim([-1.0*(3-k),1.0*(3-k)]);
-    ylim([-2.5,2.0]);
-    ylabel(char(score_types(k)),'FontSize', 10);
-    ylabel(YLABELS(k),'FontSize', 10);
-    legend(country_names, 'Location','northwest','FontSize',8, 'NumColumns', 2);
+    ylim([-2.0,2.0]);
+    ylabel("Respect for human right",'FontSize', 10);
+    title(YLABELS(k),'FontSize', 10);
+    legend([h{1},h{2},h{3},h{4}],country_names, 'Location','northwest','FontSize',8, 'NumColumns', 4);
     legend boxoff;
+    box(ax,'off');
+    set(gca,'ytick',[]);
 end
+
+annotation('arrow', [0.025 0.025],[0.85 0.95], 'LineStyle', 'none');
+annotation('arrow', [0.54 0.54],[0.85 0.95], 'LineStyle', 'none');
     
 set(fig, 'PaperPosition', [0 0 10 3]); 
 set(fig, 'PaperSize', [10 3]); 

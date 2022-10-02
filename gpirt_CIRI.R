@@ -87,6 +87,7 @@ for (h in 1:length(unique(data$YEAR))) {
 }
 
 CIRI_theta = array(array(NA, n*horizon), c(n, horizon))
+CIRI_theta_sd = array(array(NA, n*horizon), c(n, horizon))
 for (h in 1:length(unique(data$YEAR))) {
   year = unique(data$YEAR)[h]
   for(j in 1:m){
@@ -95,6 +96,7 @@ for (h in 1:length(unique(data$YEAR))) {
                         c("YEAR", "CTRY","latentmean","latentsd", questions[j])]
       if(nrow(tmp)){
         CIRI_theta[i,h] = tmp[["latentmean"]]
+        CIRI_theta_sd[i,h] = tmp[["latentsd"]]
       }
     }
   }
@@ -205,6 +207,11 @@ for (h in 1:1) {
       IRFs[iter, ] = samples$fstar[[iter]][idx, j, h]# *tmp
     }
     probs = getprobs_gpirt(xs[idx], t(IRFs), samples$threshold)
+    q = ggplot(probs, aes(x=xs, y=p, group=order, color=factor(order))) +
+      geom_line(size=2) +ggtitle(paste("IRT q",j, sep="")) +
+      theme(plot.title = element_text(hjust = 0.5))
+    print(q)
+    
     tmp = probs %>%
       group_by(xs) %>%
       summarize(icc=sum(order*p))
@@ -299,11 +306,17 @@ for(i in 1:length(country_names)){
   for(j in 1:m){
     mask = mask & (!is.na(CIRI_data[i,j,]))
   }
-  pdf(file = paste(folder_path,as.character(country_names[i]),".pdf", sep=""), width = 4, height = 4) 
-  plot((1:horizon)[mask],pred_theta[i,mask], ylim=c(min(c(CIRI_theta[i,mask],pred_theta[i,mask])),
-                                                         max(c(CIRI_theta[i,mask],pred_theta[i,mask]))))
-  lines((1:horizon)[mask],CIRI_theta[i,mask])
-  dev.off()
+  
+  if(cor(pred_theta[i,mask],CIRI_theta[i,mask])<0.2){
+    print(as.character(country_names[i]))
+    
+    pdf(file = paste(folder_path,as.character(country_names[i]),".pdf", sep=""), width = 4, height = 4) 
+    plot((1:horizon)[mask],pred_theta[i,mask], ylim=c(min(c(CIRI_theta[i,mask],pred_theta[i,mask])),
+                                                      max(c(CIRI_theta[i,mask],pred_theta[i,mask]))))
+    lines((1:horizon)[mask],CIRI_theta[i,mask])
+    dev.off()
+  }
+ 
 }
 
 dynamic_score_data = data.frame(matrix(ncol = 5, nrow = 0))
@@ -421,11 +434,16 @@ for(h in 1:horizon){
 # dynamic human rights
 # China(157), Guatemala(18), Namibia(122), Uzbekistan(155)
 
+# Lebanon(140), South Korea(161), Finland(78)
+
 selective_countries = c("Guatemala", "China", "Namibia", "Uzbekistan")
 selective_ids = c(18,157,122,155)
 
-dynamic_score_data = data.frame(matrix(ncol = 5, nrow = 0))
-colnames(dynamic_score_data) <- c("session","score", "type", "id", "country")
+selective_countries = c("Lebanon", "Guatemala", "South Korea", "Namibia")
+selective_ids = c(140,18,161,122)
+
+dynamic_score_data = data.frame(matrix(ncol = 6, nrow = 0))
+colnames(dynamic_score_data) <- c("session","score","sd", "type", "id", "country")
 for(h in 1:length(unique_sessions)){
   session_id = unique_sessions[h]
   tmp = CIRI_theta[selective_ids,h]
@@ -439,10 +457,12 @@ for(h in 1:length(unique_sessions)){
   tmp$session = unique_sessions[h]
   tmp$id = selective_ids[mask]
   tmp$country = selective_countries[mask]
+  tmp$sd = CIRI_theta_sd[selective_ids[mask],h]
   dynamic_score_data= rbind(dynamic_score_data, tmp)
   
   tmp$score = pred_theta[selective_ids[mask],h]# /sd(pred_theta)*sd(CIRI_theta[!is.na(CIRI_theta)])
   tmp$type = "GPIRT"
+  tmp$sd = pred_theta_sd[selective_ids[mask],h]
   dynamic_score_data= rbind(dynamic_score_data, tmp)
 }
 
