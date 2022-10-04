@@ -82,6 +82,8 @@ all_samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
                      theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL,
                      SEED=SEED, constant_IRF = constant_IRF)
 
+save.image(file='./results/gpirt_esm.RData')
+
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
 library(rstan)
 sims <- matrix(rnorm((SAMPLE_ITERS)*CHAIN), nrow = SAMPLE_ITERS, ncol = CHAIN)
@@ -97,7 +99,7 @@ for(i in 1:n){
 
 samples = all_samples[[1]]
 
-save.image(file='./results/gpirt_esm.RData')
+
 
 xs = seq(-5,5,0.01)
 for(it in 1:SAMPLE_ITERS){
