@@ -13,8 +13,8 @@ library(dplyr)
 library(ggplot2)
 library(stats)
 
-SAMPLE_ITERS = 5000
-BURNOUT_ITERS = 5000
+SAMPLE_ITERS = 4000
+BURNOUT_ITERS = 4000
 TYPE = "GP"
 
 source("2PL_esm.R")
