@@ -8,7 +8,7 @@ mkdir -p log
 TSY=2000
 TEY=2015
 TY=2020
-MAXSEED=1
+MAXSEED=25
 declare -a TYPES=("GPIRT" "DOIRT")
 
 if [ $1 = "run" ]
