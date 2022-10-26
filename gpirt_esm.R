@@ -1,20 +1,20 @@
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
 
-# gpirt_path = "~/Documents/Github/gpirt"
-# setwd(gpirt_path)
+gpirt_path = "~/Documents/Github/gpirt"
+setwd(gpirt_path)
 # library(Rcpp)
 # Rcpp::compileAttributes()
 # install.packages(gpirt_path, type="source", repos = NULL)
-# setwd("../OrdGPIRT")
+setwd("../OrdGPIRT")
 
 library(gpirt)
 library(dplyr)
 library(ggplot2)
 library(stats)
 
-SAMPLE_ITERS = 4000
-BURNOUT_ITERS = 4000
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
 TYPE = "GP"
 
 source("2PL_esm.R")
@@ -70,14 +70,16 @@ theta_init = together_pred_theta
 set.seed(12345)
 
 SEED = 1
-THIN = 4
+THIN = 1
 CHAIN = 3
-constant_IRF = 0
-beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data))
-beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data))
+constant_IRF = 1
+beta_prior_sds =  matrix(3.0, nrow = 3, ncol = ncol(data))
+theta_prior_sds =  matrix(1.0, nrow = 2, ncol = nrow(data))
+theta_prior_sds[2,] = 1/horizon
+beta_prior_sds[3,] = 0.5
 all_samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
-                     THIN, CHAIN,
-                     beta_proposal_sds = beta_proposal_sds, theta_init = theta_init,
+                     THIN, CHAIN, theta_init = theta_init,
+                     theta_prior_sds = theta_prior_sds,
                      beta_prior_sds = beta_prior_sds, theta_os = theta_os,
                      theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL,
                      SEED=SEED, constant_IRF = constant_IRF)
@@ -98,8 +100,6 @@ for(i in 1:n){
 }
 
 samples = all_samples[[1]]
-
-
 
 xs = seq(-5,5,0.01)
 for(it in 1:SAMPLE_ITERS){
@@ -129,9 +129,9 @@ for(h in 1:horizon){
 
 cor_theta = c()
 for(h in 1:horizon){
-  cor_theta = c(cor_theta, cor(pred_theta[,h],together_pred_theta[,h]))
+  mask = (!is.na(data[,1,h])) &  (!is.na(data[,2,h])) & (!is.na(data[,3,h])) 
+  cor_theta = c(cor_theta, cor(pred_theta[mask,h],together_pred_theta[mask,h]))
 }
-
 
 tmp = c()
 for(it in 1:SAMPLE_ITERS){
@@ -188,8 +188,8 @@ for(h in 1:horizon){
     response = data[,j,h]
     irf_plot = data.frame(x,response)
     xs = seq(-5,5,0.01)
-    idx = 401:601
-    gpirt_plot = data.frame(xs[idx],gpirt_iccs[101:301,j,h])
+    idx = 301:701
+    gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h])
     colnames(gpirt_plot) = c("xs","icc")
     p = ggplot()+
       geom_point(data = na.omit(irf_plot), aes(x=x,y=response,color=factor(response)),

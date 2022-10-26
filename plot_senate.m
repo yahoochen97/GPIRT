@@ -605,3 +605,47 @@ set(fig, 'PaperSize', [10 3]);
 filename = "./results/CIRI_dynamic.pdf";
 print(fig, filename, '-dpdf','-r300', '-fillpage');
 close;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+file_name = 'gpirt_Supreme_Court_dynamic.csv';
+opts = detectImportOptions(file_name);
+all_nominate = readtable(file_name);
+% all_nominate = sortrows(all_nominate, ["score"]);
+
+close all;
+fig = figure(1);
+x = all_nominate.score(strcmp(all_nominate.type,"GPIRT"));
+y = all_nominate.score(strcmp(all_nominate.type,"Martin-Quinn"));
+JUSTICES = all_nominate.name(strcmp(all_nominate.type,"GPIRT"));
+[x, idx] = sort(x);
+y = y(idx);
+JUSTICES = JUSTICES(idx);
+
+n_justice = numel(unique(JUSTICES));
+colors = [[28, 111, 248]; [254, 247, 32]];
+colors = [linspace(28,254,n_justice)',...
+    linspace(111,247,n_justice)',...
+    linspace(248,32,n_justice)']/255;
+
+h = gscatter(y,x,JUSTICES);
+for i=1:n_justice
+    h(i).Color=colors(i,:);
+end
+% xlim([-1.0,1.0]);
+% ylim([-3.0,3.0]);
+xlabel('Martin-Quinn score','FontSize', 16);
+ylabel('GD-GPIRT score','FontSize', 16);
+% xticks([-1.0:0.5:1.0]);
+% yticks([-3.0:0.5:3.0]);
+% title( int2str(session_id) + "th U.S. Congress", 'FontSize', 12);
+legend('Location','northwest','FontSize',12);
+legend boxoff;
+
+set(fig, 'PaperPosition', [0 0 10 10]); 
+set(fig, 'PaperSize', [10 10]); 
+
+filename = "./results/gpirt_supreme_court.pdf";
+print(fig, filename, '-dpdf','-r300', '-fillpage');
+close;
