@@ -2,8 +2,8 @@
 args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 1000
+BURNOUT_ITERS = 1000
 THIN = 4
 CHAIN = 1
 TYPE = "GP"
