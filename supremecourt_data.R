@@ -5,8 +5,8 @@ data = data[, c("caseId", "term", "caseName", "justice",
                 "justiceName", "vote", "caseDisposition")]
 data = na.omit(data)
 
-# data$caseId_noyear = as.integer(data.frame(do.call("rbind", strsplit(as.character(data$caseId), "-", fixed = TRUE)))$X2)
-# data = data[data$caseId_noyear<=10,]
+data$caseId_noyear = as.integer(data.frame(do.call("rbind", strsplit(as.character(data$caseId), "-", fixed = TRUE)))$X2)
+data = data[data$caseId_noyear<=10,]
 
 all_justices = unique(data[,c("justiceName", "justice")])
 all_justice_names = as.character(all_justices$justiceName)
