@@ -48,10 +48,7 @@ for (SEED in 1:MAXSEED){
   tmp = t.test(train_lls1, train_lls2)
   results[nrow(results)+1,] = c(0, "ll", SEED, tmp[["p.value"]],
                                 tmp[['estimate']][[1]]-tmp[['estimate']][[2]])
-  tmp = t.test(train_lls1, train_lls2)
-  results[nrow(results)+1,] = c(0, "ll", SEED, tmp[["p.value"]],
-                                tmp[['estimate']][[1]]-tmp[['estimate']][[2]])
-        
+
   for(h in 1:horizon) {
     h_ = h+1999-TRAIN_END_YEAR
     if(h_>0){
@@ -68,7 +65,15 @@ for (SEED in 1:MAXSEED){
       test_lls2 = test_lls[[h_]]
       test_response2 = test_response[[h_]]
       test_prediction2 = test_prediction[[h_]]
+      
+      tmp = t.test(test_acc1, test_acc2)
+      results[nrow(results)+1,] = c(h_, "acc", SEED, tmp[["p.value"]],
+                                    tmp[['estimate']][[1]]-tmp[['estimate']][[2]])
+      tmp = t.test(test_lls1, test_lls2)
+      results[nrow(results)+1,] = c(h_, "ll", SEED, tmp[["p.value"]],
+                                    tmp[['estimate']][[1]]-tmp[['estimate']][[2]])
     }
   }
 }
 
+write.csv(results, paste("./results/",DATANAME,"_holdout.csv", sep=""))
