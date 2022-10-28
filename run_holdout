@@ -11,14 +11,14 @@ TY=2020
 MAXSEED=1
 declare -a TYPES=("GPIRT" "DOIRT")
 
-if [ $1 == "run" ]
+if [[ $1 == "run" ]]
 then
     for TYPE in ${TYPES[@]}; do
         for SEED in $(seq 1 1 $MAXSEED); do
             bsub -G SEAS-Lab-Garnett -J "${TYPE}_${SEED}" -o "./log/${TYPE}_${SEED}.log" "./onerun_holdout $TSY $TEY $TY $SEED $TYPE"
         done
     done
-elif [ $1 == "compare" ]
+elif [[ $1 == "compare" ]]
 then
     echo "compare"
 fi
