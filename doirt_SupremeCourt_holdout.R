@@ -2,9 +2,9 @@
 args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
-SAMPLE_ITERS = 3000
-BURNOUT_ITERS = 3000
-THIN = 4
+SAMPLE_ITERS = 3
+BURNOUT_ITERS = 3
+THIN = 1
 CHAIN = 1
 TYPE = "GP"
 
@@ -180,7 +180,7 @@ for(h in 1:horizon) {
   }
 }
 
-save(gpirt_data_train, gpirt_data, pred_theta,pred_theta_ll,pred_theta_sd,train_lls,
+save(gpirt_data_train, gpirt_data, pred_theta,pred_theta_sd,train_lls,
      train_acc, train_response, train_prediction,test_lls,
      test_acc, test_response, test_prediction,
      file=paste("./results/doirt_SupremeCourt_holdout_SEED_", SEED, ".RData" , sep=""))

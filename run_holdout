@@ -8,7 +8,7 @@ mkdir -p log
 TSY=2000
 TEY=2015
 TY=2020
-MAXSEED=25
+MAXSEED=1
 declare -a TYPES=("GPIRT" "DOIRT")
 
 if [[ $1 == "run" ]]
@@ -20,5 +20,5 @@ then
     done
 elif [[ $1 == "compare" ]]
 then
-    echo "compare"
+    Rscript --vanilla compare_holdout.R $TSY $TEY $TY $MAXSEED 'SupremeCourt'
 fi
