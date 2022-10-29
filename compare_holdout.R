@@ -55,7 +55,7 @@ for(h in 1:horizon) {
     results[nrow(results)+1,] = c(h_, "acc", tmp[["p.value"]],
                        tmp[['estimate']][[1]]-tmp[['estimate']][[2]])
     tmp = t.test(ttest_lls[,h_+1,1], ttest_lls[,h_+1,2])
-    results[nrow(results)+1,] = c(h_, "acc", tmp[["p.value"]],
+    results[nrow(results)+1,] = c(h_, "ll", tmp[["p.value"]],
                                   tmp[['estimate']][[1]]-tmp[['estimate']][[2]])
   }
 }
