@@ -40,14 +40,14 @@ for (SEED in 1:MAXSEED){
     for(j in 1:ncol(gpirt_data)){
       pred_theta_sd_[,j,]=pred_theta_sd
     }
-    ttest_sds[SEED,1,k] = mean(pred_theta_sd_[TRAIN_MASK])
+    ttest_sds[SEED,1,k] = mean(unique(pred_theta_sd_[TRAIN_MASK]))
     
     for(h in 1:horizon) {
       h_ = h+1999-TRAIN_END_YEAR
       if(h_>0){
         ttest_acc[SEED,1+h_,k] = mean(test_acc[[h_]])
         ttest_lls[SEED,1+h_,k] = mean(test_lls[[h_]])
-        ttest_sds[SEED,1+h_,k] = mean(pred_theta_sd_[,,h][TEST_MASK[,,h]])
+        ttest_sds[SEED,1+h_,k] = mean(unique(pred_theta_sd_[,,h][TEST_MASK[,,h]]))
       }
     }
     # ttest_acc[SEED,2,k] = mean(unlist(test_acc))
