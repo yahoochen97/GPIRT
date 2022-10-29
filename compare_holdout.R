@@ -53,14 +53,13 @@ colnames(results) = c("type","measure","pvalue","diff_mean")
 for(h in 1:horizon) {
   h_ = h+1999-TRAIN_END_YEAR
   if(h_>=0){
-    tmp = t.test(ttest_acc[,h_+1,1], ttest_acc[,h_+1,2], paired = TRUE)
+    tmp = t.test(ttest_acc[,h_+1,1], ttest_acc[,h_+1,2])
     results[nrow(results)+1,] = c(h_, "acc", tmp[["p.value"]],
-                       tmp[['estimate']][[1]])
+                    mean(ttest_acc[,h_+1,1])-mean(ttest_acc[,h_+1,2]))
     # -tmp[['estimate']][[2]]
-    tmp = t.test(ttest_lls[,h_+1,1], ttest_lls[,h_+1,2], paired = TRUE)
+    tmp = t.test(ttest_lls[,h_+1,1], ttest_lls[,h_+1,2])
     results[nrow(results)+1,] = c(h_, "ll", tmp[["p.value"]],
-                                  tmp[['estimate']][[1]])
-    # -tmp[['estimate']][[2]]
+                     mean(ttest_lls[,h_+1,1])-mean(ttest_lls[,h_+1,2]))
   }
 }
 
