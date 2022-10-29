@@ -47,7 +47,7 @@ for (SEED in 1:MAXSEED){
       if(h_>0){
         ttest_acc[SEED,1+h_,k] = mean(test_acc[[h_]])
         ttest_lls[SEED,1+h_,k] = mean(test_lls[[h_]])
-        ttest_sds[SEED,1+h_,k] = mean(pred_theta_sd_[TEST_MASK[,,h]])
+        ttest_sds[SEED,1+h_,k] = mean(pred_theta_sd_[,,h][TEST_MASK[,,h]])
       }
     }
     # ttest_acc[SEED,2,k] = mean(unlist(test_acc))
@@ -74,7 +74,7 @@ for(h in 1:horizon) {
     
     tmp = t.test(ttest_sds[,h_+1,1], ttest_sds[,h_+1,2])
     results[nrow(results)+1,] = c(h_, "sd", tmp[["p.value"]],
-                                  mean(ttest_sds[,h_+1,1])-mean(ttest_sds[,h_+1,2]))
+                     mean(ttest_sds[,h_+1,1])-mean(ttest_sds[,h_+1,2]))
   }
 }
 
