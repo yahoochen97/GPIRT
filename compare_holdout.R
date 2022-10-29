@@ -28,14 +28,14 @@ for (SEED in 1:MAXSEED){
   for(k in 1:length(MODELS)){
     HYP = paste(MODELS[k], "_", DATANAME, "_holdout_SEED_", SEED , sep="")
     load(file=paste("./results/", HYP, ".RData", sep=""))
-    ttest_acc[i,1,k] = mean(train_acc)
-    ttest_lls[i,1,k] = mean(train_lls)
+    ttest_acc[SEED,1,k] = mean(train_acc)
+    ttest_lls[SEED,1,k] = mean(train_lls)
     
     for(h in 1:horizon) {
       h_ = h+1999-TRAIN_END_YEAR
       if(h_>0){
-        ttest_acc[i,1+h_,k] = mean(test_acc[[h_]])
-        ttest_lls[i,1+h_,k] = mean(test_lls[[h_]])
+        ttest_acc[SEED,1+h_,k] = mean(test_acc[[h_]])
+        ttest_lls[SEED,1+h_,k] = mean(test_lls[[h_]])
         
       }
     }
