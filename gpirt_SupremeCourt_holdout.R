@@ -6,20 +6,21 @@ SAMPLE_ITERS = 300
 BURNOUT_ITERS = 300
 THIN = 3
 CHAIN = 1
-TYPE = "GP"
 
-if (length(args)==0) {
+if (length(args)==5) {
   TRAIN_START_YEAR = 2000
   TRAIN_END_YEAR = 2015
   TEST_YEAR = 2020
   SEED = 1
+  TYPE = "Matern"
 }
 
-if (length(args)==4){
+if (length(args)==5){
   TRAIN_START_YEAR = as.integer(args[1])
   TRAIN_END_YEAR = as.integer(args[2])
   TEST_YEAR = as.integer(args[3])
   SEED = as.integer(args[4])
+  TYPE = args[5]
 }
 
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
@@ -65,10 +66,11 @@ beta_prior_sds =  matrix(3.0, nrow = 3, ncol = ncol(gpirt_data_train))
 theta_prior_sds =  matrix(1.0, nrow = 2, ncol = nrow(gpirt_data_train))
 theta_prior_sds[2,] = 1/horizon
 beta_prior_sds[3,] = 0.5
+
 samples_all <- gpirtMCMC(gpirt_data_train, SAMPLE_ITERS,BURNOUT_ITERS,
                          THIN, CHAIN, beta_prior_sds = beta_prior_sds, 
                          theta_prior_sds = theta_prior_sds,
-                         theta_os = theta_os, theta_ls = theta_ls, 
+                         theta_os = theta_os, theta_ls = theta_ls, KERNEL=TYPE,
                          vote_codes = NULL, thresholds=NULL,
                          SEED=SEED, constant_IRF = 0)
 
@@ -145,7 +147,15 @@ for(h in 1:horizon) {
   #      file=paste("./results/gpirt_SupremeCourt_holdout", HYP, ".RData" , sep=""))
 }
 
+if(TYPE=="RBF"){
+  file_name = paste("./results/SEirt_SupremeCourt_holdout_SEED_", SEED, ".RData" , sep="")
+}
+
+if(TYPE=="Matern"){
+  file_name = paste("./results/gpirt_SupremeCourt_holdout_SEED_", SEED, ".RData" , sep="")
+}
+
 save(gpirt_data_train, gpirt_data, pred_theta,pred_theta_sd,train_lls,
      train_acc, train_response, train_prediction,test_lls,
      test_acc, test_response, test_prediction,
-     file=paste("./results/gpirt_SupremeCourt_holdout_SEED_", SEED, ".RData" , sep=""))
+     file=file_name)

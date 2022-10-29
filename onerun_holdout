@@ -19,7 +19,9 @@ TYPE=$5
 
 if [ $TYPE = "GPIRT" ]
 then
-    Rscript --vanilla gpirt_SupremeCourt_holdout.R $TSY $TEY $TY $SEED
+    Rscript --vanilla gpirt_SupremeCourt_holdout.R $TSY $TEY $TY $SEED "Matern"
+elif [ $TYPE = "SEIRT" ]; then
+    Rscript --vanilla gpirt_SupremeCourt_holdout.R $TSY $TEY $TY $SEED "RBF"
 else
     Rscript --vanilla doirt_SupremeCourt_holdout.R $TSY $TEY $TY $SEED
 fi
