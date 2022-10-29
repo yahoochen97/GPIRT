@@ -55,10 +55,12 @@ for(h in 1:horizon) {
   if(h_>=0){
     tmp = t.test(ttest_acc[,h_+1,1], ttest_acc[,h_+1,2], paired = TRUE)
     results[nrow(results)+1,] = c(h_, "acc", tmp[["p.value"]],
-                       tmp[['estimate']][[1]]-tmp[['estimate']][[2]])
+                       tmp[['estimate']][[1]])
+    # -tmp[['estimate']][[2]]
     tmp = t.test(ttest_lls[,h_+1,1], ttest_lls[,h_+1,2], paired = TRUE)
     results[nrow(results)+1,] = c(h_, "ll", tmp[["p.value"]],
-                                  tmp[['estimate']][[1]]-tmp[['estimate']][[2]])
+                                  tmp[['estimate']][[1]])
+    # -tmp[['estimate']][[2]]
   }
 }
 
