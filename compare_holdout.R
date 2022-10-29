@@ -16,7 +16,7 @@ if (length(args)==5){
   DATANAME = args[5]
 }
 
-MODELS = c("gpirt","doirt")
+MODELS = c("gpirt","SEirt","doirt")
 horizon = TEST_YEAR - TRAIN_START_YEAR + 1
 
 ttest_acc = array(array(0, MAXSEED*(TEST_YEAR-TRAIN_END_YEAR+1)*length(MODELS)),
@@ -56,26 +56,30 @@ for (SEED in 1:MAXSEED){
 }
 
 # t tests
-results = data.frame(matrix(ncol = 4, nrow = 0))
-colnames(results) = c("type","measure","pvalue","diff_mean")
-# train 0/test h, acc, pvalue0.5, E[gpirt]-E[doirt]
+results = data.frame(matrix(ncol = 5, nrow = 0))
+colnames(results) = c("type","measure","pvalue","diff_mean","compare")
+# train 0/test h, acc, pvalue0.5, E[gpirt]-E[doirt], gpirt vs 
 
 
 for(h in 1:horizon) {
   h_ = h+1999-TRAIN_END_YEAR
-  if(h_>=0){
-    tmp = t.test(ttest_acc[,h_+1,1], ttest_acc[,h_+1,2])
-    results[nrow(results)+1,] = c(h_, "acc", tmp[["p.value"]],
-                    mean(ttest_acc[,h_+1,1])-mean(ttest_acc[,h_+1,2]))
-    # -tmp[['estimate']][[2]]
-    tmp = t.test(ttest_lls[,h_+1,1], ttest_lls[,h_+1,2])
-    results[nrow(results)+1,] = c(h_, "ll", tmp[["p.value"]],
-                     mean(ttest_lls[,h_+1,1])-mean(ttest_lls[,h_+1,2]))
-    
-    tmp = t.test(ttest_sds[,h_+1,1], ttest_sds[,h_+1,2])
-    results[nrow(results)+1,] = c(h_, "sd", tmp[["p.value"]],
-                     mean(ttest_sds[,h_+1,1])-mean(ttest_sds[,h_+1,2]))
+  for(k in 2:length(MODELS)){
+    MODEL_COMPARE = paste(MODELS[1], " vs ", MODELS[k], sep="")
+    if(h_>=0){
+      tmp = t.test(ttest_acc[,h_+1,1], ttest_acc[,h_+1,2])
+      results[nrow(results)+1,] = c(h_, "acc", tmp[["p.value"]],
+                mean(ttest_acc[,h_+1,1])-mean(ttest_acc[,h_+1,2]), MODEL_COMPARE)
+      # -tmp[['estimate']][[2]]
+      tmp = t.test(ttest_lls[,h_+1,1], ttest_lls[,h_+1,2])
+      results[nrow(results)+1,] = c(h_, "ll", tmp[["p.value"]],
+                mean(ttest_lls[,h_+1,1])-mean(ttest_lls[,h_+1,2]),MODEL_COMPARE)
+      
+      tmp = t.test(ttest_sds[,h_+1,1], ttest_sds[,h_+1,2])
+      results[nrow(results)+1,] = c(h_, "sd", tmp[["p.value"]],
+                 mean(ttest_sds[,h_+1,1])-mean(ttest_sds[,h_+1,2]),MODEL_COMPARE)
+    }
   }
+  
 }
 
 write.csv(results, paste("./results/",DATANAME,"_holdout.csv", sep=""))
