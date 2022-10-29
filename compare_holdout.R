@@ -23,6 +23,8 @@ ttest_acc = array(array(0, MAXSEED*(TEST_YEAR-TRAIN_END_YEAR+1)*length(MODELS)),
                   c(MAXSEED,(TEST_YEAR-TRAIN_END_YEAR+1),length(MODELS)))
 ttest_lls = array(array(0, MAXSEED*(TEST_YEAR-TRAIN_END_YEAR+1)*length(MODELS)),
                   c(MAXSEED,(TEST_YEAR-TRAIN_END_YEAR+1),length(MODELS)))
+ttest_sds = array(array(0, MAXSEED*(TEST_YEAR-TRAIN_END_YEAR+1)*length(MODELS)),
+                  c(MAXSEED,(TEST_YEAR-TRAIN_END_YEAR+1),length(MODELS)))
 
 for (SEED in 1:MAXSEED){
   for(k in 1:length(MODELS)){
@@ -31,12 +33,16 @@ for (SEED in 1:MAXSEED){
     ttest_acc[SEED,1,k] = mean(train_acc)
     ttest_lls[SEED,1,k] = mean(train_lls)
     
+    TEST_MASK = (!is.na(gpirt_data)) & (is.na(gpirt_data_train))
+    TRAIN_MASK = (!is.na(gpirt_data)) & (!is.na(gpirt_data_train))
+    ttest_sds[SEED,1,k] = mean(pred_theta_sd[TRAIN_MASK])
+    
     for(h in 1:horizon) {
       h_ = h+1999-TRAIN_END_YEAR
       if(h_>0){
         ttest_acc[SEED,1+h_,k] = mean(test_acc[[h_]])
         ttest_lls[SEED,1+h_,k] = mean(test_lls[[h_]])
-
+        ttest_sds[SEED,1+h_,k] = mean(pred_theta_sd[TRAIN_MASK][,,h])
       }
     }
     # ttest_acc[SEED,2,k] = mean(unlist(test_acc))
@@ -60,6 +66,10 @@ for(h in 1:horizon) {
     tmp = t.test(ttest_lls[,h_+1,1], ttest_lls[,h_+1,2])
     results[nrow(results)+1,] = c(h_, "ll", tmp[["p.value"]],
                      mean(ttest_lls[,h_+1,1])-mean(ttest_lls[,h_+1,2]))
+    
+    tmp = t.test(ttest_sds[,h_+1,1], ttest_sds[,h_+1,2])
+    results[nrow(results)+1,] = c(h_, "sd", tmp[["p.value"]],
+                                  mean(ttest_sds[,h_+1,1])-mean(ttest_sds[,h_+1,2]))
   }
 }
 
