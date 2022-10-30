@@ -16,7 +16,7 @@ if (length(args)==5){
   DATANAME = args[5]
 }
 
-MODELS = c("gpirt","SEirt","doirt")
+MODELS = c("gpirt","doirt")
 horizon = TEST_YEAR - TRAIN_START_YEAR + 1
 
 ttest_acc = array(array(0, MAXSEED*(TEST_YEAR-TRAIN_END_YEAR+1)*length(MODELS)),
