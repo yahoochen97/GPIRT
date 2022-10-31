@@ -2,8 +2,8 @@
 args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 1
+BURNOUT_ITERS = 1
 THIN = 1
 CHAIN = 1
 
@@ -12,7 +12,7 @@ if (length(args)==5) {
   TRAIN_END_YEAR = 2015
   TEST_YEAR = 2020
   SEED = 1
-  TYPE = "Matern"
+  TYPE = "RBF"
 }
 
 if (length(args)==5){
