@@ -4,6 +4,7 @@ data = data[data$term>=2000,]
 data = data[, c("caseId", "term", "caseName", "justice",
                 "justiceName", "vote", "caseDisposition")]
 data = na.omit(data)
+data = data[data$vote %in% c(1,2,3,4,5,7), ]
 
 # data$caseId_noyear = as.integer(data.frame(do.call("rbind", strsplit(as.character(data$caseId), "-", fixed = TRUE)))$X2)
 # data = data[data$caseId_noyear<=10,]
@@ -60,6 +61,7 @@ for(h in 1:horizon){
   for(j in 1:length(caseIds)){
     if(length(unique(gpirt_data[!is.na(gpirt_data[,j,h]),j,h]))!=1){
       mask[j] = 1
+    }else{
       data = data[data$caseId!=caseIds[j],]
     }
   }

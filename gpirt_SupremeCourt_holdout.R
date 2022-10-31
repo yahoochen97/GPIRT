@@ -12,7 +12,7 @@ if (length(args)==0) {
   TRAIN_END_YEAR = 2015
   TEST_YEAR = 2020
   SEED = 1
-  TYPE = "RBF"
+  TYPE = "Matern"
 }
 
 if (length(args)==5){
@@ -31,8 +31,8 @@ library(dplyr)
 library(ggplot2)
 library(stats)
 
-# gpirt_path = "~/Documents/Github/OrdGPIRT"
-# setwd(gpirt_path)
+gpirt_path = "~/Documents/Github/OrdGPIRT"
+setwd(gpirt_path)
 source("supremecourt_data.R")
 
 theta_os = 1
@@ -76,6 +76,15 @@ for(i in 1:n){
     tmp = samples$theta[-1,i,h]
     pred_theta[i,h] = mean(tmp)
     pred_theta_sd[i,h] = sd(tmp)
+  }
+}
+
+for(it in 1:SAMPLE_ITERS){
+  for(h in 1:horizon){
+    for(j in 1:m){
+      samples$f[[it]][,j,h] = samples$f[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*samples$theta[it,,h]
+      samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*xs
+    }
   }
 }
 
