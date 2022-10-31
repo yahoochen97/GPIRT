@@ -7,7 +7,7 @@ BURNOUT_ITERS = 1
 THIN = 1
 CHAIN = 1
 
-if (length(args)==5) {
+if (length(args)==0) {
   TRAIN_START_YEAR = 2000
   TRAIN_END_YEAR = 2015
   TEST_YEAR = 2020
@@ -35,17 +35,8 @@ library(stats)
 # setwd(gpirt_path)
 source("supremecourt_data.R")
 
-if(TYPE=="GP"){
-  theta_os = 1
-  theta_ls = 7
-}else if(TYPE=="CST"){
-  theta_os = 1
-  theta_ls = 10*horizon
-}else{
-  theta_os = 1
-  theta_ls = 0.1
-}
-
+theta_os = 1
+theta_ls = 7
 gpirt_data_train = gpirt_data
 
 # set random seed

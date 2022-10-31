@@ -6,7 +6,7 @@ mkdir -p results
 mkdir -p log
 
 TSY=2000
-TEY=2010
+TEY=2015
 TY=2020
 MAXSEED=25
 declare -a TYPES=("GPIRT" "DOIRT" "SEIRT")

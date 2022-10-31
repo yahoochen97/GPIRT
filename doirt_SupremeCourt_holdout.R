@@ -32,16 +32,8 @@ library(ggplot2)
 library(stats)
 source("supremecourt_data.R")
 
-if(TYPE=="GP"){
-  theta_os = 1
-  theta_ls = 7
-}else if(TYPE=="CST"){
-  theta_os = 1
-  theta_ls = 10*horizon
-}else{
-  theta_os = 1
-  theta_ls = 0.1
-}
+theta_os = 1
+theta_ls = 7
 
 gpirt_data_train = gpirt_data
 
