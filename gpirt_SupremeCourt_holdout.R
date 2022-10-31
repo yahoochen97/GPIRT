@@ -12,7 +12,7 @@ if (length(args)==0) {
   TRAIN_END_YEAR = 2015
   TEST_YEAR = 2020
   SEED = 1
-  TYPE = "Matern"
+  TYPE = "RBF"
 }
 
 if (length(args)==5){
