@@ -33,6 +33,7 @@ library(stats)
 
 # gpirt_path = "~/Documents/Github/OrdGPIRT"
 # setwd(gpirt_path)
+print("loading data...")
 source("supremecourt_data.R")
 
 theta_os = 1
@@ -42,6 +43,7 @@ gpirt_data_train = gpirt_data
 # set random seed
 set.seed(SEED)
 
+print("setting up training data...")
 # random drop one observation for every case from TRAIN_END_YEAR+1 to TEST_YEAR
 for(h in (TRAIN_END_YEAR-2000+1+1):(TEST_YEAR-2000+1)){
   year = unique(data$term)[h]
@@ -58,6 +60,7 @@ theta_prior_sds =  matrix(1.0, nrow = 2, ncol = nrow(gpirt_data_train))
 theta_prior_sds[2,] = 1/horizon
 beta_prior_sds[3,] = 0.5
 
+print("sampling gpirt...")
 samples_all <- gpirtMCMC(gpirt_data_train, SAMPLE_ITERS,BURNOUT_ITERS,
                          THIN, CHAIN, beta_prior_sds = beta_prior_sds, 
                          theta_prior_sds = theta_prior_sds,
@@ -88,6 +91,7 @@ for(it in 1:SAMPLE_ITERS){
   }
 }
 
+print("analyzing results...")
 # train/test statistics
 # train
 train_lls = c()

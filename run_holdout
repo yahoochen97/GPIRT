@@ -9,7 +9,7 @@ TSY=2000
 TEY=2015
 TY=2020
 MAXSEED=25
-declare -a TYPES=("SEIRT")
+declare -a TYPES=("GPIRT" "DOIRT" "SEIRT")
 
 if [[ $1 == "run" ]]
 then
