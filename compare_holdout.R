@@ -82,3 +82,23 @@ for(h in 1:horizon) {
 }
 
 write.csv(results, paste("./results/",DATANAME,"_holdout.csv", sep=""))
+
+results = data.frame(matrix(ncol = 5, nrow = 0))
+colnames(results) = c("type","measure","mean","sd","model")
+
+for(h in 1:horizon) {
+  h_ = h+1999-TRAIN_END_YEAR
+  for(k in 1:length(MODELS)){
+    if(h_>=0){
+      results[nrow(results)+1,] = c(h_, "acc",mean(ttest_acc[,h_+1,k]),
+                                   sd(ttest_acc[,h_+1,k]), MODELS[k])
+      results[nrow(results)+1,] = c(h_, "ll",mean(ttest_lls[,h_+1,k]),
+                                    sd(ttest_lls[,h_+1,k]), MODELS[k])
+      results[nrow(results)+1,] = c(h_, "sd",mean(ttest_sds[,h_+1,k]),
+                                    sd(ttest_sds[,h_+1,k]), MODELS[k])
+      }
+  }
+  
+}
+
+write.csv(results, paste("./results/",DATANAME,"_holdout_results.csv", sep=""))
