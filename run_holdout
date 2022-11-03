@@ -10,7 +10,7 @@ TEY=2015
 TY=2020
 MAXSEED=25
 NODE4="node04.engr.wustl.edu"
-declare -a TYPES=("GPIRT" "DOIRT" "SEIRT")
+declare -a TYPES=("SEIRT")
 
 if [[ $1 == "run" ]]
 then
