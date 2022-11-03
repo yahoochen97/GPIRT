@@ -2,10 +2,10 @@
 args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
-SAMPLE_ITERS = 1000
-BURNOUT_ITERS = 1000
+SAMPLE_ITERS = 3000
+BURNOUT_ITERS = 3000
 THIN = 4
-CHAIN = 3
+CHAIN = 1
 TYPE = "GP"
 
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
