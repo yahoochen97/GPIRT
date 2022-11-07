@@ -1,7 +1,7 @@
 addpath("../results");
 
 fig = figure(1);
-tiledlayout(3,2,'Padding', 'none', 'TileSpacing', 'compact');
+tiledlayout(2,2,'Padding', 'none', 'TileSpacing', 'compact');
 
 FONTSIZE = 16;
 
@@ -18,7 +18,7 @@ title("Monotonic IRF", 'FontSize', FONTSIZE);
 nexttile;
 x = linspace(-3,3,100);
 y0 = exp(-2*0*(x));
-y1 = exp(-2*1*(x));
+y1 = exp(-2*1*(x)+2);
 y2 = exp(-2*2*(x));
 y3 = exp(-2*3*(x));
 y = (y1+y2)./(y0+y1+y2+y3);
@@ -41,7 +41,7 @@ title("Saturate IRF", 'FontSize', FONTSIZE);
 
 nexttile;
 x = linspace(-3,3,100);
-y = 0.2 + 0.6./(1+exp(-3*(x)));
+y = 0.1 + 0.1./(1+exp(-3*(x)));
 plot(x,y);
 ylim([0,1]);
 set(gca,'TickLength',[0 0], 'ytick', 0:0.2:1);
@@ -50,28 +50,28 @@ ylabel("Pr(y = 1)", 'FontSize', FONTSIZE);
 title("Non-saturate IRF", 'FontSize', FONTSIZE);
 
 
-nexttile;
-x = linspace(-3,3,100);
-y = 1./(1+exp(-3*(x)));
-plot(x,y);
-ylim([0,1]);
-set(gca,'TickLength',[0 0], 'ytick', 0:0.2:1);
-xlabel("{\theta}", 'FontSize', FONTSIZE);
-ylabel("Pr(y = 1)", 'FontSize', FONTSIZE);
-title("Symmetric IRF", 'FontSize', FONTSIZE);
+% nexttile;
+% x = linspace(-3,3,100);
+% y = 1./(1+exp(-3*(x)));
+% plot(x,y);
+% ylim([0,1]);
+% set(gca,'TickLength',[0 0], 'ytick', 0:0.2:1);
+% xlabel("{\theta}", 'FontSize', FONTSIZE);
+% ylabel("Pr(y = 1)", 'FontSize', FONTSIZE);
+% title("Symmetric IRF", 'FontSize', FONTSIZE);
+% 
+% nexttile;
+% x = linspace(-3,3,100);
+% y = 0.8./(1+exp(-2*(x+1)));
+% plot(x,y);
+% ylim([0,1]);
+% set(gca,'TickLength',[0 0], 'ytick', 0:0.2:1);
+% xlabel("{\theta}", 'FontSize', FONTSIZE);
+% ylabel("Pr(y = 1)", 'FontSize', FONTSIZE);
+% title("Asymmetric IRF", 'FontSize', FONTSIZE);
 
-nexttile;
-x = linspace(-3,3,100);
-y = 0.8./(1+exp(-2*(x+1)));
-plot(x,y);
-ylim([0,1]);
-set(gca,'TickLength',[0 0], 'ytick', 0:0.2:1);
-xlabel("{\theta}", 'FontSize', FONTSIZE);
-ylabel("Pr(y = 1)", 'FontSize', FONTSIZE);
-title("Asymmetric IRF", 'FontSize', FONTSIZE);
-
-set(fig, 'PaperPosition', [0 0 12 8]); 
-set(fig, 'PaperSize', [12 8]); 
+set(fig, 'PaperPosition', [0 0 10 4]); 
+set(fig, 'PaperSize', [10 4]); 
 
 filename = "./figures/irf.pdf";
 print(fig, filename, '-dpdf','-r300', '-fillpage');

@@ -10,13 +10,14 @@ TEY=2015
 TY=2020
 MAXSEED=25
 NODE4="node04.engr.wustl.edu"
-declare -a TYPES=("SEIRT")
+declare -a TYPES=("SEIRT" "DOIRT")
 
 if [[ $1 == "run" ]]
 then
     for TYPE in ${TYPES[@]}; do
         for SEED in $(seq 1 1 $MAXSEED); do
-            bsub -G SEAS-Lab-Garnett -J "${TYPE}_${SEED}" -o "./log/${TYPE}_${SEED}.log" -R "hname!=${NODE4}" "./onerun_holdout $TSY $TEY $TY $SEED $TYPE"
+            # -G SEAS-Lab-Garnett
+            bsub -J "${TYPE}_${SEED}" -o "./log/${TYPE}_${SEED}.log" -R "hname!=${NODE4}" "./onerun_holdout $TSY $TEY $TY $SEED $TYPE"
         done
     done
 elif [[ $1 == "compare" ]]
