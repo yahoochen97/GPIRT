@@ -3,8 +3,8 @@ library(dplyr)
 library(ggplot2)
 library(stats)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT/VAA"
-setwd(gpirt_path)
+# gpirt_path = "~/Documents/Github/OrdGPIRT/VAA"
+# setwd(gpirt_path)
 SAMPLE_ITERS = 1000
 BURNOUT_ITERS = 2000
 THIN = 4
