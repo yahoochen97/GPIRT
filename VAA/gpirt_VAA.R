@@ -3,10 +3,10 @@ library(dplyr)
 library(ggplot2)
 library(stats)
 
-# gpirt_path = "~/Documents/Github/OrdGPIRT/VAA"
-# setwd(gpirt_path)
-SAMPLE_ITERS = 1000
-BURNOUT_ITERS = 2000
+gpirt_path = "~/Documents/Github/OrdGPIRT/VAA"
+setwd(gpirt_path)
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 THIN = 4
 CHAIN = 1
 TYPE = "GP"
@@ -119,6 +119,9 @@ if(TYPE=="GP"){
 
 beta_prior_means = matrix(0, nrow = 3, ncol = m)
 beta_prior_sds =  matrix(1.0, nrow = 3, ncol = m)
+beta_prior_sds[3,] = 0
+theta_prior_means = matrix(0, nrow = 2, ncol = n)
+theta_prior_sds =  matrix(0.0, nrow = 2, ncol = n)
 theta_init = matrix(0, nrow = n, ncol = horizon)
 theta_init[,1] = rnorm(n)
 for (h in 2:horizon) {
@@ -129,6 +132,8 @@ all_samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
                          THIN=THIN, CHAIN=CHAIN, vote_codes = NULL,
                          beta_prior_means = beta_prior_means,
                          beta_prior_sds = beta_prior_sds, 
+                         theta_prior_means = theta_prior_means,
+                         theta_prior_sds = theta_prior_sds,
                          theta_os = theta_os, theta_ls = theta_ls, 
                          theta_init = theta_init, KERNEL = "RBF",
                          thresholds=NULL, SEED=SEED, constant_IRF = 0)
