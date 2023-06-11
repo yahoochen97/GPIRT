@@ -1,10 +1,13 @@
+R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
+.libPaths(R_path)
+
 library(gpirt)
 library(dplyr)
 library(ggplot2)
 library(stats)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT/VAA"
-setwd(gpirt_path)
+# gpirt_path = "~/Documents/Github/OrdGPIRT/VAA"
+# setwd(gpirt_path)
 SAMPLE_ITERS = 500
 BURNOUT_ITERS = 500
 THIN = 4
