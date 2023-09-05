@@ -25,11 +25,11 @@ source("load_TAPS.R")
 na_mask = is.na(gpirt_data)
 gpirt_data[na_mask] = 0
 
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 SEED = 12345
 
-THIN = 1
+THIN = 4
 CHAIN = 1
 stan_data <- list(n=n,
                   m=m,
@@ -105,7 +105,7 @@ for (h in 1:horizon) {
 
 # get icc
 xs = seq(-5,5,0.01)
-source("../OrdGPIRT/getprob_gpirt.R")
+source("../getprob_gpirt.R")
 gpirt_iccs = array(array(0, length(xs)*m*horizon),
                    c(length(xs),m, horizon))
 
