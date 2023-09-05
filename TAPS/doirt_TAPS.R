@@ -25,12 +25,12 @@ source("load_TAPS.R")
 na_mask = is.na(gpirt_data)
 gpirt_data[na_mask] = 0
 
-SAMPLE_ITERS = 5
-BURNOUT_ITERS = 5
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 SEED = 12345
 
-THIN = 1
-CHAIN = 2
+THIN = 4
+CHAIN = 3
 stan_data <- list(n=n,
                   m=m,
                   horizon=horizon,
@@ -148,5 +148,7 @@ for (h in 1:horizon) {
     gpirt_iccs[,j,h] = tmp$icc
   }
 }
+
+print("doirt finished!")
 
 save.image(file='doirt_TAPS_2014.RData')
