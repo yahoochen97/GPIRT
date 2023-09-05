@@ -57,13 +57,11 @@ gpirt_data[na_mask] = NA
 
 fit_params <- as.data.frame(fit)
 
-SAMPLE_ITERS = SAMPLE_ITERS / THIN
+SAMPLE_ITERS = SAMPLE_ITERS / THIN * CHAIN
 
 samples = list()
 samples[["theta"]] = array(array(0, SAMPLE_ITERS*n*horizon), 
                            c(SAMPLE_ITERS,n, horizon))
-samples[["threshold"]] = array(array(0, SAMPLE_ITERS*(C+1)), 
-                               c(SAMPLE_ITERS,(C+1)))
 xs = seq(-5,5,0.01)
 idx = 1:length(xs)
 for (it in 1:SAMPLE_ITERS) {
@@ -77,6 +75,16 @@ for (it in 1:SAMPLE_ITERS) {
   for(i in 1:n){
     for(h in 1:horizon){
       samples[["theta"]][it,i,h] = fit_params[[paste("theta[",i,",",h,"]",sep="")]][it]
+    }
+  }
+  
+  samples[["threshold"]][[it]] =  array(array(0, m*(C+1)*horizon), 
+                                    c(m, C+1, horizon))
+  for(j in 1:m){
+    for(h in 1:horizon){
+      samples[["threshold"]][[it]][j,1,h] = -Inf
+      samples[["threshold"]][[it]][j,C+1,h] = Inf
+      samples[["threshold"]][[it]][j,2:C,h] = fit_params[[paste("alpha[",j,",",h,"]",sep="")]][it]
     }
   }
 }
