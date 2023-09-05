@@ -2,6 +2,7 @@
 
 # gpirt_path = "~/Documents/Github/OrdGPIRT"
 # setwd(gpirt_path)
+# setwd("../TAPS")
 print("Loading stan")
 
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
@@ -18,7 +19,6 @@ library(ggplot2)
 library(stats)
 library(ltm)
 
-setwd("../TAPS")
 source("load_TAPS.R")
 
 # code na as 0 for stan to ignore
