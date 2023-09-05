@@ -8,3 +8,5 @@ data/
 results
 figures
 .Rhistory
+./DCDS_talk
+*.RData
