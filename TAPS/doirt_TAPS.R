@@ -16,7 +16,6 @@ library(gpirt)
 library(dplyr)
 library(ggplot2)
 library(stats)
-library(haven)
 library(ltm)
 
 setwd("../TAPS")
