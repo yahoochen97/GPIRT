@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [[ $1 == "doirt" ]]
+then
+    # 
+    bsub -G SEAS-Lab-Garnett -J "TAPS_doirt" -o "doirt_TAPS.log" "Rscript --vanilla doirt_TAPS.R"    
+fi
