@@ -25,12 +25,12 @@ source("load_TAPS.R")
 na_mask = is.na(gpirt_data)
 gpirt_data[na_mask] = 0
 
-SAMPLE_ITERS = 1000
-BURNOUT_ITERS = 1000
+SAMPLE_ITERS = 5
+BURNOUT_ITERS = 5
 SEED = 12345
 
-THIN = 4
-CHAIN = 3
+THIN = 1
+CHAIN = 2
 stan_data <- list(n=n,
                   m=m,
                   horizon=horizon,
