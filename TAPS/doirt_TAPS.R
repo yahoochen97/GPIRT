@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
+# gpirt_path = "~/Documents/Github/OrdGPIRT"
+# setwd(gpirt_path)
 print("Loading stan")
 
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
