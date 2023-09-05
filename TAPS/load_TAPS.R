@@ -1,9 +1,9 @@
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
+# gpirt_path = "~/Documents/Github/OrdGPIRT"
+# setwd(gpirt_path)
 # library(Rcpp)
 # Rcpp::compileAttributes()
 # install.packages(gpirt_path, type="source", repos = NULL)# ,lib=R_path, INSTALL_opts = '--no-lock')
-setwd("./TAPS")
+# setwd("./TAPS")
 
 data = read.csv("TAPS-econ-data-long.csv")
 # <= 20
