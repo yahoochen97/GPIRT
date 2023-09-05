@@ -84,7 +84,9 @@ for (it in 1:SAMPLE_ITERS) {
     for(h in 1:horizon){
       samples[["threshold"]][[it]][j,1,h] = -Inf
       samples[["threshold"]][[it]][j,C+1,h] = Inf
-      samples[["threshold"]][[it]][j,2:C,h] = fit_params[[paste("alpha[",j,",",h,"]",sep="")]][it]
+      for(c in 1:(C-1)){
+        samples[["threshold"]][[it]][j,1+c,h] = fit_params[[paste("alpha[",j,",",h,",",c, "]",sep="")]][it]
+      }
     }
   }
 }
