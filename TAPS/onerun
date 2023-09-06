@@ -20,7 +20,7 @@ DR=$6
 
 if [ $TYPE = "GPIRT" ]
 then
-    Rscript --vanilla gpirt_TAcPS_holdout.R $TSY $TEY $TY $SEED $DR "Matern"
+    Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "Matern"
 elif [ $TYPE = "SEIRT" ]; then
     Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "RBF"
 else

@@ -3,8 +3,8 @@
 # gpirt_path = "~/Documents/Github/OrdGPIRT"
 # setwd(gpirt_path)
 # setwd("../TAPS")
-SAMPLE_ITERS = 10
-BURNOUT_ITERS = 10
+SAMPLE_ITERS = 1000
+BURNOUT_ITERS = 1000
 THIN = 4
 CHAIN = 1
 
@@ -20,10 +20,10 @@ options(show.error.locations = TRUE)
 
 if (length(args)==0) {
   TRAIN_START_YEAR = 1
-  TRAIN_END_YEAR = 31
+  TRAIN_END_YEAR = 42
   TEST_YEAR = 41
-  DROP_RATIO = 10
-  SEED = 1
+  DROP_RATIO = 0
+  SEED = 12345
 }
 
 if (length(args)==5){
@@ -81,9 +81,12 @@ fit <- stan(file = "../doirt-synthetic.stan",
             refresh=1
 )
 
-# save.image(file='doirt_TAPS_2014.RData')
+if(TRAIN_END_YEAR==42){
+  save.image(file='doirt_TAPS_2014.RData')
+}
 
-gpirt_data[na_mask] = NA
+
+# gpirt_data[na_mask] = NA
 
 fit_params <- as.data.frame(fit)
 
@@ -219,10 +222,15 @@ for (h in 1:horizon) {
 
 print("doirt finished!")
 
-save(gpirt_data_train, gpirt_data, pred_theta,pred_theta_sd,train_lls,
-     train_acc, train_response, train_prediction,test_lls,
-     test_acc, test_response, test_prediction,
-     file=paste("./results/doirt_TAPS_holdout_", "DR_", DROP_RATIO, "_SEED_", SEED, ".RData" , sep=""))
+if(TRAIN_END_YEAR==42){
+  save.image(file='doirt_TAPS_2014.RData')
+}else{
+  save(gpirt_data_train, gpirt_data, pred_theta,pred_theta_sd,train_lls,
+       train_acc, train_response, train_prediction,test_lls,
+       test_acc, test_response, test_prediction,
+       file=paste("./results/doirt_TAPS_holdout_", "DR_", DROP_RATIO, "_SEED_", SEED, ".RData" , sep=""))
+  
+}
 
 
 # save.image(file='doirt_TAPS_2014.RData')
