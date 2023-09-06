@@ -17,8 +17,8 @@ if (length(args)==0) {
   TRAIN_START_YEAR = 1
   TRAIN_END_YEAR = 31
   TEST_YEAR = 41
-  DROP_RATIO = 5
   SEED = 1
+  DROP_RATIO = 5
   TYPE = "Matern"
 }
 
@@ -48,7 +48,7 @@ set.seed(SEED)
 for(h in (TRAIN_END_YEAR+1):(TEST_YEAR)){
   for (j in 1:m){
     mask = !is.na(gpirt_data[,j,h])
-    drop_unit = sample(which(mask==1), DROP_RATIO/100*length(mask))
+    drop_unit = sample(which(mask==1), as.integer(DROP_RATIO/100*length(mask)))
     gpirt_data_train[drop_unit, j, h] = NA
   }
 }
