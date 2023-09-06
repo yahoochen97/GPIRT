@@ -1,8 +1,3 @@
-#!/usr/bin/env Rscript
-
-# gpirt_path = "~/Documents/Github/OrdGPIRT"
-# setwd(gpirt_path)
-# setwd("../TAPS")
 SAMPLE_ITERS = 10
 BURNOUT_ITERS = 10
 THIN = 4
@@ -24,14 +19,16 @@ if (length(args)==0) {
   TEST_YEAR = 41
   DROP_RATIO = 5
   SEED = 1
+  TYPE = "Matern"
 }
 
-if (length(args)==5){
+if (length(args)==6){
   TRAIN_START_YEAR = as.integer(args[1])
   TRAIN_END_YEAR = as.integer(args[2])
   TEST_YEAR = as.integer(args[3])
   SEED = as.integer(args[4])
   DROP_RATIO = as.integer(args[5])
+  TYPE = args[6]
 }
 
 library(gpirt)
@@ -59,67 +56,41 @@ for(h in (TRAIN_END_YEAR+1):(TEST_YEAR)){
 # code na as 0 for stan to ignore
 gpirt_data_train[is.na(gpirt_data_train)] = 0
 
-stan_data <- list(n=n,
-                  m=m,
-                  horizon=horizon,
-                  K=C,
-                  sigma=0.1,
-                  y=gpirt_data_train)
+theta_os = 1
+theta_ls = 12 # length scale is set to a year
 
-# train stan model
-fit <- stan(file = "../doirt-synthetic.stan",
-            data = stan_data, 
-            warmup = BURNOUT_ITERS, 
-            iter = BURNOUT_ITERS + SAMPLE_ITERS, 
-            chains = CHAIN, 
-            cores = 1, 
-            thin = THIN,
-            control=list(adapt_delta=.98, max_treedepth = 15),
-            seed = SEED,
-            refresh=1
-)
+SEED = 1
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
+THIN = 1
+CHAIN = 1
+beta_prior_sds =  matrix(3.0, nrow = 3, ncol = ncol(gpirt_data))
+theta_prior_sds =  matrix(1.0, nrow = 2, ncol = nrow(gpirt_data))
+theta_prior_sds[2,] = 0
+beta_prior_sds[1,] = 0.0
+beta_prior_sds[3,] = 0.0
+samples_all <- gpirtMCMC(gpirt_data_train, SAMPLE_ITERS,BURNOUT_ITERS,
+                         THIN, CHAIN, theta_init = theta_init,
+                         beta_prior_sds = beta_prior_sds,
+                         theta_prior_sds = theta_prior_sds,
+                         theta_os = theta_os, theta_ls = theta_ls,
+                         vote_codes = NULL, thresholds=NULL,
+                         SEED=SEED, constant_IRF = 1, KERNEL=TYPE)
 
-# save.image(file='doirt_TAPS_2014.RData')
+SAMPLE_ITERS = SAMPLE_ITERS/THIN
+samples = samples_all[[1]]
 
-gpirt_data[na_mask] = NA
-
-fit_params <- as.data.frame(fit)
-
-SAMPLE_ITERS = SAMPLE_ITERS / THIN * CHAIN
-
-samples = list()
-samples[["theta"]] = array(array(0, SAMPLE_ITERS*n*horizon), 
-                           c(SAMPLE_ITERS,n, horizon))
 xs = seq(-5,5,0.01)
-idx = 1:length(xs)
-for (it in 1:SAMPLE_ITERS) {
-  samples[["fstar"]][[it]] =  array(array(0, length(xs[idx])*m*horizon), 
-                                    c(length(xs[idx]),m, horizon))
-  for(j in 1:m){
-    for(h in 1:horizon){
-      samples[["fstar"]][[it]][,j,h] = xs[idx]*fit_params[[paste("beta[",j,",",h,"]",sep="")]][it]
-    }
-  }
-  for(i in 1:n){
-    for(h in 1:horizon){
-      samples[["theta"]][it,i,h] = fit_params[[paste("theta[",i,",",h,"]",sep="")]][it]
-    }
-  }
-  
-  samples[["threshold"]][[it]] =  array(array(0, m*(C+1)*horizon), 
-                                    c(m, C+1, horizon))
-  for(j in 1:m){
-    for(h in 1:horizon){
-      samples[["threshold"]][[it]][j,1,h] = -Inf
-      samples[["threshold"]][[it]][j,C+1,h] = Inf
-      for(c in 1:(C-1)){
-        samples[["threshold"]][[it]][j,1+c,h] = fit_params[[paste("alpha[",j,",",h,",",c, "]",sep="")]][it]
-      }
+
+for(it in 1:SAMPLE_ITERS){
+  for(h in 1:horizon){
+    for(j in 1:m){
+      samples$f[[it]][,j,h] = samples$f[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*samples$theta[it,,h]
+      samples$fstar[[it]][,j,h] = samples$fstar[[it]][,j,h] + samples$beta[[it]][1,j,h] + samples$beta[[it]][2,j,h]*xs
     }
   }
 }
 
-# summarize pred theta over iterations
 pred_theta = matrix(0, nrow=n, ncol=horizon)
 pred_theta_sd = matrix(0, nrow=n, ncol=horizon)
 for (h in 1:horizon) {
@@ -141,7 +112,6 @@ for (h in 1:horizon) {
   }
 }
 
-# get icc
 xs = seq(-5,5,0.01)
 source("../getprob_gpirt.R")
 gpirt_iccs = array(array(0, length(xs)*m*horizon),
@@ -215,12 +185,18 @@ for (h in 1:horizon) {
   }
 }
 
-print("doirt finished!")
+
+print("gpirt finished!")
+
+if(TYPE=="RBF"){
+  file_name = paste("./results/SEirt_TAPS_holdout_", "DR_", DROP_RATIO, "_SEED_", SEED, ".RData" , sep="")
+}
+
+if(TYPE=="Matern"){
+  file_name = paste("./results/gpirt_TAPS_holdout_SEED_", "DR_", DROP_RATIO, "_", SEED, ".RData" , sep="")
+}
 
 save(gpirt_data_train, gpirt_data, pred_theta,pred_theta_sd,train_lls,
      train_acc, train_response, train_prediction,test_lls,
      test_acc, test_response, test_prediction,
-     file=paste("./results/doirt_TAPS_holdout_", "DR_", DROP_RATIO, "_SEED_", SEED, ".RData" , sep=""))
-
-
-# save.image(file='doirt_TAPS_2014.RData')
+     file=file_name)

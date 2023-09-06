@@ -20,9 +20,9 @@ DR=$6
 
 if [ $TYPE = "GPIRT" ]
 then
-    Rscript --vanilla gpirt_SupremeCourt_holdout.R $TSY $TEY $TY $SEED $DR "Matern"
+    Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "Matern"
 elif [ $TYPE = "SEIRT" ]; then
-    Rscript --vanilla gpirt_SupremeCourt_holdout.R $TSY $TEY $TY $SEED $DR "RBF"
+    Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "RBF"
 else
     Rscript --vanilla doirt_TAPS.R $TSY $TEY $TY $SEED $DR
 fi

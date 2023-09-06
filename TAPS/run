@@ -7,7 +7,7 @@ TSY=1
 TEY=31
 TY=41
 MAXSEED=25
-declare -a TYPES=("DOIRT")
+declare -a TYPES=("DOIRT" "GPIRT" "SEIRT")
 declare -a DRS=(5 10 15 20 25)
 declare -a DRS=(10)
 MAXSEED=1
@@ -18,7 +18,7 @@ then
         for SEED in $(seq 1 1 $MAXSEED); do
             for DR in ${DRS[@]}; do
                 # -G SEAS-Lab-Garnett
-                bsub -G SEAS-Lab-Garnett -J "${TYPE}_${DR}_${SEED}" -o "./log/${TYPE}_${DR}_${SEED}.log" "./onerun_holdout $TSY $TEY $TY $SEED $TYPE $DR"
+                bsub -G SEAS-Lab-Garnett -J "${TYPE}_${DR}_${SEED}" -o "./log/${TYPE}_${DR}_${SEED}.log" "./onerun $TSY $TEY $TY $SEED $TYPE $DR"
             done
         done
     done   
