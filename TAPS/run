@@ -1,7 +1,25 @@
 #!/bin/bash
 
+mkdir -p results
+mkdir -p log
+
+TSY=1
+TEY=31
+TY=41
+MAXSEED=25
+declare -a TYPES=("DOIRT")
+declare -a DRS=(5 10 15 20 25)
+declare -a DRS=(10)
+MAXSEED=1
+
 if [[ $1 == "doirt" ]]
 then
-    # 
-    bsub -G SEAS-Lab-Garnett -J "TAPS_doirt" -o "doirt_TAPS.log" "Rscript --vanilla doirt_TAPS.R"    
+    for TYPE in ${TYPES[@]}; do
+        for SEED in $(seq 1 1 $MAXSEED); do
+            for DR in ${DRS[@]}; do
+                # -G SEAS-Lab-Garnett
+                bsub -G SEAS-Lab-Garnett -J "${TYPE}_${DR}_${SEED}" -o "./log/${TYPE}_${DR}_${SEED}.log" "./onerun_holdout $TSY $TEY $TY $SEED $TYPE $DR"
+            done
+        done
+    done   
 fi
