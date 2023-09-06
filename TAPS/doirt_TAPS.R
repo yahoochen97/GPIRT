@@ -48,15 +48,18 @@ gpirt_data_train = gpirt_data
 set.seed(SEED)
 
 # random drop one observation for every case from TRAIN_END_YEAR+1 to TEST_YEAR
-for(h in (TRAIN_END_YEAR+1):(TEST_YEAR)){
-  for (j in 1:m){
-    mask = !is.na(gpirt_data[,j,h])
-    if (sum(mask==1)>0){
-      drop_unit = sample(which(mask==1), as.integer(DROP_RATIO/100*length(mask)))
+if(TRAIN_END_YEAR<=41){
+  for(h in (TRAIN_END_YEAR+1):(TEST_YEAR)){
+    for (j in 1:m){
+      mask = !is.na(gpirt_data[,j,h])
+      if (sum(mask==1)>0){
+        drop_unit = sample(which(mask==1), as.integer(DROP_RATIO/100*length(mask)))
+      }
+      gpirt_data_train[drop_unit, j, h] = NA
     }
-    gpirt_data_train[drop_unit, j, h] = NA
   }
 }
+
 
 # code na as 0 for stan to ignore
 gpirt_data_train[is.na(gpirt_data_train)] = 0
