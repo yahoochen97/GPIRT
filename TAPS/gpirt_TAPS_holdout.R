@@ -61,11 +61,6 @@ gpirt_data_train[is.na(gpirt_data_train)] = 0
 theta_os = 1
 theta_ls = 12 # length scale is set to a year
 
-SEED = 1
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
-THIN = 1
-CHAIN = 1
 beta_prior_sds =  matrix(3.0, nrow = 3, ncol = ncol(gpirt_data))
 theta_prior_sds =  matrix(1.0, nrow = 2, ncol = nrow(gpirt_data))
 theta_prior_sds[2,] = 0

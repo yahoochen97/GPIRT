@@ -18,9 +18,9 @@ theta_os = 1
 theta_ls = 12 # length scale is set to a year
 
 SEED = 1
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
-THIN = 1
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
+THIN = 4
 CHAIN = 1
 beta_prior_sds =  matrix(3.0, nrow = 3, ncol = ncol(gpirt_data))
 theta_prior_sds =  matrix(1.0, nrow = 2, ncol = nrow(gpirt_data))
@@ -107,8 +107,6 @@ for (h in 1:horizon) {
   }
 }
 
-save.image(file='gpirt_TAPS_2014.RData')
-
 folder_path = "../figures/TAPS2014/"
 dir.create(file.path(folder_path), showWarnings = FALSE)
 
@@ -173,3 +171,60 @@ for(h in 1:horizon){
 
 write.csv(dynamic_score_data, file="../results/gpirt_TAPS2014_dynamic.csv")
 
+# train/test statistics
+# train
+train_lls = c()
+train_acc = c()
+train_response = c()
+train_prediction = c()
+
+for (h in 1:horizon) {
+  wave = unique(data$wave)[h]
+  for (j in 1:m) {
+    IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(xs))
+    mask = rep(0, SAMPLE_ITERS)
+    for(iter in 1:SAMPLE_ITERS){
+      IRFs[iter, ] = samples$fstar[[iter]][, j, h]
+      if (cor(samples$fstar[[1]][, j, h],samples$fstar[[iter]][, j, h])>0){
+        mask[iter] = 1
+      }
+    }
+    thresholds = matrix(0,nrow=SAMPLE_ITERS,ncol=C+1)
+    for(iter in 1:SAMPLE_ITERS){
+      thresholds[iter, ] = samples$threshold[[iter]][j,,h]
+    }
+    if(sum(mask)>=sum(!mask)){
+      probs = getprobs_gpirt(xs, t(IRFs[mask==1,]), thresholds[mask==1,])
+    }
+    else{
+      probs = getprobs_gpirt(xs, t(IRFs[mask==0,]), thresholds[mask==0,])
+    }
+    tmp = probs %>%
+      group_by(xs) %>%
+      summarize(icc=sum(order*p))
+    gpirt_iccs[,j,h] = tmp$icc
+    
+    # test/train statistic
+    for (i in 1:n) {
+      if(!is.na(gpirt_data[i,j,h])){
+        # train
+        pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
+        ll = log(probs$p[probs$xs==xs[pred_idx]])
+        y_pred = which.max(ll)
+        train_acc = c(train_acc, y_pred==(gpirt_data[i,j, h]))
+        train_lls = c(train_lls, ll[gpirt_data[i,j, h]])
+        train_response = c(train_response, gpirt_data[i,j, h])
+        train_prediction = c(train_prediction, y_pred)
+      }
+    }
+  }
+}
+
+results = data.frame(train_lls,
+                     train_acc,
+                     train_response,
+                     train_prediction)
+
+write.csv(results, "./gpirt_TAPS_2014_train.csv")
+
+save.image(file='gpirt_TAPS_2014.RData')

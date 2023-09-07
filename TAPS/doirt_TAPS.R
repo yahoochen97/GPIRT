@@ -3,8 +3,8 @@
 # gpirt_path = "~/Documents/Github/OrdGPIRT"
 # setwd(gpirt_path)
 # setwd("../TAPS")
-SAMPLE_ITERS = 1000
-BURNOUT_ITERS = 1000
+SAMPLE_ITERS = 10
+BURNOUT_ITERS = 10
 THIN = 4
 CHAIN = 1
 
@@ -223,6 +223,13 @@ for (h in 1:horizon) {
   }
 }
 
+results = data.frame(train_lls,
+                     train_acc,
+                     train_response,
+                     train_prediction)
+
+write.csv(results, "./doirt_TAPS_2014_train.csv")
+
 print("doirt finished!")
 
 if(TRAIN_END_YEAR==42){
@@ -232,7 +239,6 @@ if(TRAIN_END_YEAR==42){
        train_acc, train_response, train_prediction,test_lls,
        test_acc, test_response, test_prediction,
        file=paste("./results/doirt_TAPS_holdout_", "DR_", DROP_RATIO, "_SEED_", SEED, ".RData" , sep=""))
-  
 }
 
 
