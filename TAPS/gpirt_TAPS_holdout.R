@@ -1,5 +1,5 @@
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 10
+BURNOUT_ITERS = 10
 THIN = 4
 CHAIN = 1
 
@@ -20,6 +20,9 @@ if (length(args)==0) {
   SEED = 1
   DROP_RATIO = 5
   TYPE = "Matern"
+  
+  TRAIN_END_YEAR = 5
+  TEST_YEAR = 7
 }
 
 if (length(args)==6){
@@ -54,9 +57,6 @@ for(h in (TRAIN_END_YEAR+1):(TEST_YEAR)){
     gpirt_data_train[drop_unit, j, h] = NA
   }
 }
-
-# code na as 0 for stan to ignore
-gpirt_data_train[is.na(gpirt_data_train)] = 0
 
 theta_os = 1
 theta_ls = 12 # length scale is set to a year
