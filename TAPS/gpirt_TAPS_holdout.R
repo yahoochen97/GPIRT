@@ -18,7 +18,7 @@ if (length(args)==0) {
   TRAIN_END_YEAR = 31
   TEST_YEAR = 41
   SEED = 1
-  DROP_RATIO = 5
+  DROP_RATIO = 10
   TYPE = "Matern"
   
   TRAIN_END_YEAR = 5
