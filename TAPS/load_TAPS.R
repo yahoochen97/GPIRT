@@ -24,10 +24,10 @@ for(i in 1:n){
 }
 
 # 45 # 165
-data = data[data$WUSTLID %in% all_ids[freqs>=165],]
+# data = data[data$WUSTLID %in% all_ids[freqs>=165],]
 
 if(exists("TEST_YEAR")){
-  data = data[data$WUSTLID %in% all_ids[freqs>=168],]
+  # data = data[data$WUSTLID %in% all_ids[freqs>=168],]
   
   data = data[data$WUSTLID %in% all_ids[freqs==28],]
 }
