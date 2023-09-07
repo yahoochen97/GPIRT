@@ -9,8 +9,6 @@ data = read.csv("TAPS-econ-data-long.csv")
 # <= 20
 data = data[data$wave>=20,]
 
-data = data[data$wave>=60,]
-
 all_ids = unique(data$WUSTLID)
 n = length(all_ids)
 questions = c("ECON2A", "ECON2B", "ECON1A", "ECON1B", "ECON4A", "ECON4B")
@@ -24,12 +22,10 @@ for(i in 1:n){
 }
 
 # 45 # 165
-# data = data[data$WUSTLID %in% all_ids[freqs>=165],]
+data = data[data$WUSTLID %in% all_ids[freqs>=165],]
 
 if(exists("TEST_YEAR")){
-  # data = data[data$WUSTLID %in% all_ids[freqs>=168],]
-  
-  data = data[data$WUSTLID %in% all_ids[freqs==28],]
+  data = data[data$WUSTLID %in% all_ids[freqs>=168],]
 }
 
 all_ids = unique(data$WUSTLID)

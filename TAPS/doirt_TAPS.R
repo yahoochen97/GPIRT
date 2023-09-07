@@ -3,8 +3,8 @@
 # gpirt_path = "~/Documents/Github/OrdGPIRT"
 # setwd(gpirt_path)
 # setwd("../TAPS")
-SAMPLE_ITERS = 100
-BURNOUT_ITERS = 100
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 THIN = 4
 CHAIN = 1
 

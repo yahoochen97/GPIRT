@@ -1,5 +1,5 @@
-SAMPLE_ITERS = 10
-BURNOUT_ITERS = 10
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 THIN = 4
 CHAIN = 1
 
@@ -20,9 +20,6 @@ if (length(args)==0) {
   SEED = 1
   DROP_RATIO = 10
   TYPE = "Matern"
-  
-  TRAIN_END_YEAR = 5
-  TEST_YEAR = 7
 }
 
 if (length(args)==6){
