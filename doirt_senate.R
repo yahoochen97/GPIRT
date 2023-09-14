@@ -1,11 +1,10 @@
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
+library(rstan)
 rstan_options(auto_write = TRUE)
-
 args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
-library(rstan)
 library(gpirt)
 library(dplyr)
 library(ggplot2)
