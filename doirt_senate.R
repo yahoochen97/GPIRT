@@ -6,13 +6,13 @@ library(dplyr)
 library(ggplot2)
 library(stats)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
+# gpirt_path = "~/Documents/Github/OrdGPIRT"
+# setwd(gpirt_path)
 load(file="./data/senate_data_90.RData")
 gpirt_data = data
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 20
+BURNOUT_ITERS = 20
 TYPE = "GP"
 n = nrow(data)
 m = ncol(data)
