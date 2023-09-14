@@ -179,9 +179,6 @@ for(h in 1:length(congresses)){
     nominate_scores[j,2] = members[members$icpsr==icpsr, "nokken_poole_dim2"]
     idx = c(idx, which(icpsr==all_senator_ids))
   }
-  
-  # pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,2]))*pred_theta[idx,h]
-  # pred_theta[idx,h] = (pred_theta[idx,h] - mean(pred_theta[idx,h]))
   cor_theta_2 = c(cor_theta_2, cor(pred_theta[idx, h],nominate_scores[,2]))
   plot(pred_theta[idx,h], nominate_scores[,2])
   pred_theta_ll[idx,h] = log(dnorm(nominate_scores[,2],mean=pred_theta[idx,h],sd=pred_theta_sd[idx,h]))
@@ -365,11 +362,14 @@ for(h in 1:horizon){
       scale_color_manual(name='response',
                          labels=c('Nay', 'Yea'),
                          values=c('black', 'red'))+
-      scale_x_continuous(name=bquote(theta), breaks = seq(-2, 2, by = 1)) + 
+      scale_x_continuous(name="x",breaks = seq(-2, 2, by = 1)) + 
+      # name=bquote(theta),
       scale_y_continuous(name="P(yea)", breaks=seq(0, 1, by = 0.2)) +
       geom_line(data = gpirt_plot, aes(x=xs,y=icc)) +
       theme(panel.background = element_blank(),
             panel.border = element_rect(colour = "black", fill=NA, size=1),
+            axis.title.x=element_text(),
+            axis.title.y=element_text(),
             legend.position = "none")
     
     ggsave(filename = paste(folder_path, subfolder, "/", as.character(rid), ".png",sep = ""),width = 3, height = 2, dpi = 300)

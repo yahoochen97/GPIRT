@@ -624,28 +624,144 @@ y = y(idx);
 JUSTICES = JUSTICES(idx);
 
 n_justice = numel(unique(JUSTICES));
-colors = [[28, 111, 248]; [254, 247, 32]];
-colors = [linspace(28,254,n_justice)',...
-    linspace(111,247,n_justice)',...
-    linspace(248,32,n_justice)']/255;
+% darkblue 0, 0, 139 dodger blue 30, 144, 255
+% orange 255,140,0 darkred 	139, 0, 0
+colors = [linspace(0,30,6)',...
+    linspace(0,144,6)', ...
+    linspace(139,255,6)']/255;
 
-h = gscatter(y,x,JUSTICES);
+colors = [colors; [linspace(255,139,10)',...
+    linspace(140,0,10)', ...
+    linspace(0,0,10)']/255];
+
+h = gscatter(y,x,JUSTICES,'k','o',8);
 for i=1:n_justice
     h(i).Color=colors(i,:);
+    h(i).MarkerFaceColor=colors(i,:);
 end
-% xlim([-1.0,1.0]);
-% ylim([-3.0,3.0]);
-xlabel('Martin-Quinn score','FontSize', 16);
-ylabel('GD-GPIRT score','FontSize', 16);
+xlim([-4.1,4.2]);
+ylim([-2.1,1.8]);
+xlabel('Martin-Quinn','FontSize', 30);
+ylabel('GD-GPIRT','FontSize', 30);
 % xticks([-1.0:0.5:1.0]);
 % yticks([-3.0:0.5:3.0]);
 % title( int2str(session_id) + "th U.S. Congress", 'FontSize', 12);
-legend('Location','northwest','FontSize',12);
+legend('Location','northwest','FontSize',20);
 legend boxoff;
 
 set(fig, 'PaperPosition', [0 0 10 10]); 
 set(fig, 'PaperSize', [10 10]); 
 
-filename = "./results/gpirt_supreme_court.pdf";
+filename = "./results/gpirt_supreme_court_compare.pdf";
 print(fig, filename, '-dpdf','-r300', '-fillpage');
+close;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% compare martin quinn and gd-gpirt in magnitudes of estimates scores
+
+file_name = 'gpirt_Supreme_Court_dynamic.csv';
+opts = detectImportOptions(file_name);
+all_nominate = readtable(file_name);
+% all_nominate = sortrows(all_nominate, ["score"]);
+
+close all;
+years = sort(unique(all_nominate.year));
+JUSTICES = unique(all_nominate.name(strcmp(all_nominate.type,"GPIRT")));
+n_justice = numel(unique(JUSTICES));
+
+slopes_1 = zeros(n_justice,1);
+slopes_2 = zeros(n_justice,1);
+for i=1:n_justice
+    x = all_nominate.score(strcmp(all_nominate.name, JUSTICES(i)) & strcmp(all_nominate.type,"GPIRT"));
+    y = all_nominate.score(strcmp(all_nominate.name, JUSTICES(i)) & strcmp(all_nominate.type,"Martin-Quinn"));
+    slopes_1(i) = fitlm(1:numel(x),x).Coefficients{2,1};
+    slopes_2(i) = fitlm(1:numel(y),y).Coefficients{2,1};
+end
+
+[h,p] = ttest(abs(slopes_1),abs(slopes_2));
+
+diff_slopes = mean(abs(slopes_1))-mean(abs(slopes_2));
+
+diff_slopes_std = std(abs(slopes_1)-abs(slopes_2)) / sqrt(numel(slopes_1));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TAPS 2014 plot trajectories of 50 confidence and 50 unconfidence ppl
+% Add a vertical line for the 2016 election
+
+file_name = 'gpirt_TAPS2014_dynamic.csv';
+opts = detectImportOptions(file_name);
+all_nominate = readtable(file_name);
+waves = sort(unique(all_nominate.wave));
+
+sort_scores_tbl = sortrows(grpstats(all_nominate,...
+    "WUSTLID","mean","DataVars","score"),"mean_score");
+wustlids = sort_scores_tbl.WUSTLID;
+
+close all;
+fig = figure(1);
+
+% 50 least confident
+
+for i=1:50
+    tmp = all_nominate(all_nominate.WUSTLID==wustlids(i),:);
+%     scatter(waves, tmp.score,8,[205,183,181]/255, 'filled'); hold on;
+    plot(waves, tmp.score, 'color', [.5 .5 .5 .3], 'linewidth', 1); hold on;
+end
+tmp = all_nominate(any(all_nominate.WUSTLID==wustlids(1:50)',2),:);
+tmp = groupsummary(tmp, "wave", "mean", "score");
+plot(waves, tmp.mean_score, '-','color',[232, 27, 35, 204]/255, 'LineWidth',3); hold on;
+
+% 50 most confident
+for i=(numel(wustlids)-49):numel(wustlids)
+    tmp = all_nominate(all_nominate.WUSTLID==wustlids(i),:);
+%     scatter(waves, tmp.score, 8, [178,58,238]/255, 'filled'); hold on;
+    plot(waves, tmp.score, 'color', [.5 .5 .5 .3], 'linewidth', 1); hold on;
+end
+tmp = all_nominate(any(all_nominate.WUSTLID==wustlids((end-49):end)',2),:);
+tmp = groupsummary(tmp, "wave", "mean", "score");
+plot(waves, tmp.mean_score, '-','color',[178,58,238,204]/255, 'LineWidth',3); hold on;
+
+% wave=1 is Jan 2014, wave=35 Nov 2016 Election
+xline(35.5, '--', 'color',[0.5,0.5,0.5]);
+h = text([36], [min(all_nominate.score)], {'Presidential election'});
+set(h,'Rotation',90, 'Color', [0.5,0.5,0.5]);
+% wave=18 Jun 2015 Election
+xline(18.5, '--', 'color',[0.5,0.5,0.5]);
+h = text([19], [min(all_nominate.score)], {'Announcement of Trump''s candidacy'});
+set(h,'Rotation',90, 'Color', [0.5,0.5,0.5]);
+xlim([0.5,41]);
+XTICK = [1,7,13,19,25,31,37];
+XTICKLABELS = ["Jan 2014", "Jul 2014", "Jan 2015", "Jul 2015",...
+    "Jan 2016", "Jul 2016", "Jan 2017"];
+ylim([min(all_nominate.score)-0.1,max(all_nominate.score)+0.1])
+YTICK = [(min(all_nominate.score)+max(all_nominate.score))/2];
+YTICKLABELS = ["Economic Confidene"];
+
+set(gca, 'xtick', XTICK, ...
+         'xticklabels', XTICKLABELS,...
+         'XTickLabelRotation',0,...
+         'ytick', YTICK, ...
+         'yticklabels', YTICKLABELS,...
+         'YTickLabelRotation',90,...
+         'box', 'off', ...
+         'tickdir', 'out', ...
+    'FontSize',12);
+h=gca; h.XAxis.TickLength = [0 0]; h.YAxis.TickLength = [0 0]; 
+
+axp = get(gca,'Position');
+
+% determine startpoint and endpoint for the arrows 
+xs=axp(1);
+xe=axp(1)+axp(3)+0.01;
+ys=axp(2);
+ye=axp(2)+axp(4)+0.01;
+
+% make the arrows
+annotation('arrow', [xs xe],[ys ys]);
+annotation('arrow', [xs xs],[ys ye]);
+
+filename = "./figures/TAPS2014/gpirt_TAPS2014" + ".pdf";
+set(fig, 'PaperPosition', [-1 -0.05 10 4]); 
+set(fig, 'PaperSize', [8.2 3.8]);
+print(fig, filename, '-dpdf','-r300');
 close;

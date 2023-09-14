@@ -199,5 +199,5 @@ print(mean(array(rmse_icc, n*horizon)))
 
 save(gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_ll,pred_theta_sd,train_lls,
      train_acc, pred_lls, pred_acc,cor_icc, rmse_icc, theta_rhats,
-     file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
+     file=paste("./results/doirt_", HYP, ".RData" , sep=""))
 

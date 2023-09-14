@@ -18,9 +18,9 @@ theta_os = 1
 theta_ls = 12 # length scale is set to a year
 
 SEED = 1
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
-THIN = 4
+SAMPLE_ITERS = 100
+BURNOUT_ITERS = 100
+THIN = 1
 CHAIN = 1
 beta_prior_sds =  matrix(3.0, nrow = 3, ncol = ncol(gpirt_data))
 theta_prior_sds =  matrix(1.0, nrow = 2, ncol = nrow(gpirt_data))
@@ -39,6 +39,31 @@ SAMPLE_ITERS = SAMPLE_ITERS/THIN
 samples = samples_all[[1]]
 
 save.image(file='gpirt_TAPS_2014.RData')
+
+###################################
+# effective sample size diagonis
+library(coda)
+
+ESS_theta = matrix(0, nrow = n, ncol=h)
+for (h in 1:horizon) {
+  mask = rep(0, SAMPLE_ITERS)
+  for(iter in 1:SAMPLE_ITERS){
+    if(cor(samples$theta[1,,h],  samples$theta[iter,,h])>0){
+      mask[iter] = 1
+    }
+  }
+  for(i in 1:n){
+    if(sum(mask)>=sum(!mask)){
+      tmp = samples$theta[mask==1,i,h]
+    }
+    else{
+      tmp = samples$theta[mask==0,i,h]
+    }
+    ESS_theta[i,h] = coda::effectiveSize(samples$theta[,i,h])
+  }
+}
+
+#####################################
 
 xs = seq(-5,5,0.01)
 

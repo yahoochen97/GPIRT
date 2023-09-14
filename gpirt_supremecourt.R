@@ -102,6 +102,10 @@ for (h in 1:horizon) {
 folder_path = "./figures/SupremeCourt/"
 dir.create(file.path(folder_path), showWarnings = FALSE)
 
+# 2017 16
+HAJUST = c(0.1,1,-0.2,1,0,-0.1,0,0,0)
+VAJUST2 = c(0.5,2.2,1.0,2.2,0,-0.8,0,0,0)
+
 for(h in 1:horizon){
   year = unique(data$term)[h]
   caseIds = as.character(unique(data[data$term==year,"caseId"]))
@@ -115,19 +119,21 @@ for(h in 1:horizon){
     gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,h])
     colnames(gpirt_plot) = c("xs","icc")
     VAJUST = 2*(irf_plot$response[!is.na(irf_plot$response)]>=2)-1
+    # VAJUST = 2*(irf_plot$response[!is.na(irf_plot$response)]>=3)-1
     ANGLE = -VAJUST*45
+    # ANGLE[irf_plot$response[!is.na(irf_plot$response)]==2] = -135
     p = ggplot()+
       geom_point(data = na.omit(irf_plot), aes(x=x,y=response,color=factor(response)),
                  size=4, shape="|") +
       geom_text(data = na.omit(irf_plot), 
                 aes(x=x,y=response, label=all_justice_names),
-                vjust=1.5*VAJUST+0.5,hjust=0, angle=ANGLE) +
+                vjust=1.5*VAJUST+0.5,hjust=0, angle=ANGLE, size=6) +
       scale_color_manual(name='Level',
                          labels=c("Dissent", "Concurrence", "Plurality"),
                          values=c('black', 'blue', 'red'))+
       geom_line(data = gpirt_plot, aes(x=xs,y=icc), size=1)+
-      scale_x_continuous(name=bquote(theta), breaks = seq(-4, 4, by = 1)) +
-      scale_y_continuous(name = "Probability of Voting with Majority",
+      scale_x_continuous(name="x", breaks = seq(-4, 4, by = 1)) +
+      scale_y_continuous(name = "Prob of Voting with Majority",
                          breaks = NULL,
                          labels = NULL,
                          limits = c(1,3),
@@ -137,14 +143,18 @@ for(h in 1:horizon){
      theme(panel.background = element_blank(),
             panel.border = element_rect(colour = "black", fill=NA, size=2),
             legend.position = "none",
-            axis.text.y = element_text(size=12,colour = "black"),
-            axis.text.x = element_text(size=12,colour = "black"),
-            axis.title.x=element_text(size=20,face="bold",colour = "black"),
-            plot.title = element_text(hjust = 0.5)) +
+            axis.text.y = element_text(size=20,colour = "black"),
+            axis.text.x = element_text(size=20,colour = "black"),
+            # axis.title.x=element_text(size=20,face="bold",colour = "black"),
+            axis.title.x=element_text(size=20),
+            axis.title.y=element_text(size=20),
+            title = element_text(size=20,colour="black"),
+            plot.title = element_text(hjust = 0.5),
+           plot.margin=grid::unit(c(1,1,1,1), "mm")) +
       ggtitle(caseName)
     ggsave(filename = paste(folder_path, subfolder, "/",
                             as.character(j), ".png",sep = ""),
-           width = 8, height = 6, dpi = 300)
+           width = 8, height = 5, dpi = 300)
   }
 }
 
@@ -182,12 +192,83 @@ all_gpirt_scores$x = as.numeric(all_gpirt_scores$x)
 all_gpirt_scores$y = as.numeric(all_gpirt_scores$y)
 all_gpirt_scores$sd = as.numeric(all_gpirt_scores$sd)
 
-ggplot(all_gpirt_scores, 
-           aes(x=year,y=gpirt,group=factor(justice_id)))+
-  scale_y_continuous(name="GPIRT") + 
-  geom_line() +
-  geom_text(data=subset(all_gpirt_scores, x!=0),
-    aes(x,y,label=name), hjust=1, vjust=0, size=2)
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "WHRehnquist"] <- "Rehnquist"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "JPStevens"] <- "Stevens"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "SDOConnor"] <- "OConnor"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "AScalia"] <- "Scalia"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "AMKennedy"] <- "Kennedy"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "DHSouter"] <- "Souter"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "CThomas"] <- "Thomas"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "RBGinsburg"] <- "Ginsburg"
+
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "SGBreyer"] <- "Breyer"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "JGRoberts"] <- "Roberts"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "SAAlito"] <- "Alito"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "SSotomayor"] <- "Sotomayor"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "EKagan"] <- "Kagan"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "NMGorsuch"] <- "Gorsuch"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "BMKavanaugh"] <- "Kavanaugh"
+all_gpirt_scores["name"][all_gpirt_scores["name"] == "ACBarrett"] <- "Barrett"
+
+all_gpirt_scores$party = "black"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Alito"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Gorsuch"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Barrett"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Thomas"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Roberts"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Scalia"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Rehnquist"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Kavanaugh"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Kennedy"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "OConnor"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Souter"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Stevens"] = "red"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Sotomayor"] = "blue"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Ginsburg"] = "blue"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Breyer"] = "blue"
+all_gpirt_scores["party"][all_gpirt_scores["name"] == "Kagan"] = "blue"
+
+tmp = all_gpirt_scores %>% group_by(name) %>% 
+  mutate(meangpirt = mean(gpirt))  %>% 
+ arrange(desc(meangpirt))
+
+colfunc1 <- colorRampPalette(c("orange3","darkred"))
+colfunc2 <- colorRampPalette(c("darkblue","dodgerblue"))
+mypalette = c(colfunc2(6),colfunc1(10))
+
+# all_gpirt_scores[all_gpirt_scores$name!="Barrett",]
+tmp = tmp[tmp$name!="Barrett",]
+HJUST = c(-2,4.0,5,0.2,0.5,-0.8,1.5,
+          -3,-1.7,-2,6,2,-3,0,-1.5)
+VJUST = c(-0.5,1.5,-0.3,-0.2,-0.5,1.8,0,
+          3.0,1,-0.5,-1.3,1.5,0.5,1.3,0.7)
+p = ggplot(tmp, 
+           aes(x=year,y=gpirt,group=name,
+               color=factor(meangpirt)))+
+  scale_y_continuous(name="GD-GPIRT") + 
+  scale_x_discrete(breaks=c(2000,2005,2010,2015,2020),labels = c(2000,2005,2010,2015,2020)) + 
+  geom_line(size=0.8) +
+  geom_text(data=subset(tmp, x!=0),
+    aes(x,y,label=name,color=factor(meangpirt)),
+    hjust=HJUST, vjust=VJUST, size=6) +
+#   scale_color_manual(values = c("aquamarine", "bisque","blue","brown",
+#                                "chocolate", "darkgoldenrod", "darkolivegreen","deeppink",
+#                                 "firebrick", "gold","grey","khaki",
+#                                "orange","sienna","turquoise","yellow")) +
+  scale_color_manual(values=mypalette) +
+ # scale_linetype_manual(values = c("longdash","solid")) +
+  theme(panel.background = element_rect(colour = "white", fill = "white"),
+        panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                        colour = "gray"),
+        panel.grid.minor = element_blank(),
+        legend.position = "none",
+        axis.text.y = element_text(size=16),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size=20),
+        axis.text.x = element_text(size=16))
+
+ggsave(filename = paste(folder_path, "gpirt_supremecourt_2000", ".pdf",sep = ""),
+       width = 12, height = 4, dpi = 300)
 
 # for(i in 1:length(all_justice_ids)){
 #   id = all_justice_ids[i]

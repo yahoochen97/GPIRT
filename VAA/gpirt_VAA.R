@@ -5,9 +5,10 @@ library(gpirt)
 library(dplyr)
 library(ggplot2)
 library(stats)
+library(ltm)
 
-# gpirt_path = "~/Documents/Github/OrdGPIRT/VAA"
-# setwd(gpirt_path)
+gpirt_path = "~/Documents/Github/OrdGPIRT/VAA"
+setwd(gpirt_path)
 SAMPLE_ITERS = 500
 BURNOUT_ITERS = 500
 THIN = 4
@@ -22,16 +23,16 @@ item_texts = data$item_text
 item_types = data$item_types
 data = data$Finland_Dataset
 
+years = unique(data$year)
+horizon = length(years)
+
 # drop nominal and open-end questions
 drop_items = item_types %in% c("Categorical","Open-Ended" )
 item_types = item_types[!drop_items]
 item_texts = item_texts[!drop_items]
-
-years = unique(data$year)
-horizon = length(years)
+item_names = names(item_texts)
 
 # iterate items
-item_names = names(item_texts)
 MIN_ITEMS = 1000 # 1000 # filter items with too few responses
 num_response_items = rep(0, length(item_names))
 for(i in 1:length(item_names)){
@@ -54,7 +55,6 @@ for(i in 1:length(cids)){
   num_item_cids[i] = sum(!is.na(data[data$c_id==cids[i],item_names]))
 } 
 
-
 MIN_CIDS = 100 # 100 # filter respondents with too few responses
 n = sum(num_item_cids>=MIN_CIDS)
 cids = cids[num_item_cids>=MIN_CIDS]
@@ -70,27 +70,32 @@ for(j in 1:length(item_names)){
   unique_responses = unique(c(unique_responses, tmp))
 }
 
+type_to_C = list()
+type_to_C[["Likert"]] = 5
+type_to_C[["Semi-Likert"]] = 3
+type_to_C[["Binary"]] = 2
+
 # build response matrix
 responses = array(rep(NA,n*m*horizon),c(n,m,horizon))
 for(h in 1:horizon){
   mask = unlist(lapply(item_names, FUN=function(x) 
     substr(x,2,3)==substr(toString(years[h]),3,4)))
-  for(i in 1:n){
-    for(j in 1:num_item_years[h]){
+  for(j in 1:num_item_years[h]){
+    for(i in 1:n){
       tmp = data[data$c_id==cids[i] & data$year==years[h], item_names[mask][j]]
       if(nrow(tmp)==0){next}
       tmp = pull(tmp)[[1]]
       if(is.na(tmp)){next}
-      if (tmp=="Totally Agree" | tmp=="Strongly agree" | tmp == "Yes" | tmp=="Agree" | tmp=="Mentioned"){
+      if (tmp=="Totally Agree" | tmp=="Strongly agree" | tmp == "Yes" | tmp=="Mentioned"){
         responses[i,j,h] = 5
       }
-      if (tmp=="Totally Disagree" | tmp=="Strongly disagree" | tmp == "No" | tmp=="Disagree" | tmp=="Not mentioned"){
+      if (tmp=="Totally Disagree" | tmp=="Strongly Disagree"  | tmp=="Strongly disagree" | tmp == "No" | tmp=="Not mentioned"){
         responses[i,j,h] = 1
       }
-      if (tmp=="Agree to some extent" | tmp=="Somewhat Agree"){
+      if (tmp=="Agree to some extent" | tmp=="Somewhat Agree" | tmp=="Agree"){
         responses[i,j,h] = 4
       }
-      if (tmp=="Disagree to some extent" | tmp=="Somewhat Disagree"){
+      if (tmp=="Disagree to some extent" | tmp=="Somewhat Disagree" | tmp=="Disagree" ){
         responses[i,j,h] = 2
       }
       if (tmp=="I Can't Say" | tmp=="Can't say" | tmp=="Cannot say" | tmp=="Pass" | tmp=="Caused equally by the Finns and immigrants themselves"){
@@ -110,7 +115,7 @@ data = responses
 
 if(TYPE=="GP"){
   theta_os = 1
-  theta_ls = 2
+  theta_ls = 4
 }else if(TYPE=="CST"){
   theta_os = 0
   theta_ls = -1
@@ -119,17 +124,15 @@ if(TYPE=="GP"){
   theta_ls = 1
 }
 
-
+# set beta priors
 beta_prior_means = matrix(0, nrow = 3, ncol = m)
 beta_prior_sds =  matrix(1.0, nrow = 3, ncol = m)
-beta_prior_sds[3,] = 0
+beta_prior_sds[3,] = 0.01
 theta_prior_means = matrix(0, nrow = 2, ncol = n)
 theta_prior_sds =  matrix(0.0, nrow = 2, ncol = n)
-theta_init = matrix(0, nrow = n, ncol = horizon)
-theta_init[,1] = rnorm(n)
-for (h in 2:horizon) {
- theta_init[,h] = theta_init[,1]
-}
+
+# initialize with grm
+source("VAA_init.R")
 
 all_samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
                          THIN=THIN, CHAIN=CHAIN, vote_codes = NULL,
@@ -279,4 +282,17 @@ for (h in 1:horizon){
            width = 8, height = 6, dpi = 300)
   }
 }
+
+cid_theta_results = data.frame(matrix(ncol = 4, nrow = 0))
+colnames(cid_theta_results) = c("mean","std","year","cid")
+
+for (h in 1:horizon){
+  tmp = data.frame(pred_theta[,h],pred_theta_sd[,h])
+  colnames(tmp) = c("mean","std")
+  tmp$year = years[h]
+  tmp$cid = cids
+  cid_theta_results = rbind(cid_theta_results, tmp)
+}
+
+write.csv(cid_theta_results, "./results/VAA_theta.csv")
 

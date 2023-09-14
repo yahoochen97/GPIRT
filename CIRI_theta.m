@@ -1,4 +1,4 @@
-addpath("~/Documents/Washu/CSE515T/Code/Gaussian Process/gpml-matlab-v3.6-2015-07-07");
+waddpath("~/Documents/Washu/CSE515T/Code/Gaussian Process/gpml-matlab-v3.6-2015-07-07");
 startup;
 data = readmatrix("./data/CIRI_theta.csv");
 file_name = './results/gpirt_Supreme_Court_dynamic.csv';

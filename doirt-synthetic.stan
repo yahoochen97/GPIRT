@@ -1,11 +1,11 @@
 // input data
 data {
-  int<lower=0> n;
-  int<lower=0> m;
-  int<lower=0> horizon;
-  int<lower=2> K;
-  real sigma;
-  int<lower=0, upper=K> y[n, m, horizon];
+  int<lower=0> n; // num of respondents
+  int<lower=0> m; // num of questions
+  int<lower=0> horizon; // num of time periods
+  int<lower=2> K; // num of ordered categories
+  real sigma; // starting dispersion std
+  int<lower=0, upper=K> y[n, m, horizon]; // observations
 }
 
 // The parameters accepted by the model.

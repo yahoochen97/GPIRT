@@ -76,7 +76,6 @@ beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(data))
 beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(data))
 samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN, CHAIN, theta_init = theta_init,
-                     beta_proposal_sds = beta_proposal_sds,
                      beta_prior_sds = beta_prior_sds, theta_os = theta_os,
                      theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL,
                      SEED=SEED, constant_IRF = 0)
@@ -126,6 +125,19 @@ for(h in 1:horizon){
   }
 }
 
+###################################
+# effective sample size diagonis
+library(coda)
+
+ESS_theta = matrix(0, nrow = n, ncol=h)
+for (h in 1:horizon) {
+  for(i in 1:n){
+    ESS_theta[i,h] = coda::effectiveSize(samples$theta[,i,h])
+  }
+}
+
+#####################################
+
 xs = seq(-5,5,0.01)
 for(it in 1:SAMPLE_ITERS){
   for(h in 1:horizon){
@@ -135,6 +147,25 @@ for(it in 1:SAMPLE_ITERS){
     }
   }
 }
+
+###################################
+# effective sample size diagonis
+library(coda)
+
+ESS_f = array(rep(0,n*m*horizon), c(n,m,horizon))
+for(h in 1:horizon){
+  for(j in 1:m){
+    for(i in 1:n){
+      tmp = rep(0, SAMPLE_ITERS)
+      for(it in 1:SAMPLE_ITERS){
+        tmp[it]= samples$f[[it]][i,j,h] 
+      }
+      ESS_f[i,j,h] = coda::effectiveSize(tmp)
+    }
+  }
+}
+
+#####################################
 
 # # Mark Hatfield
 # pred_theta[169,6] = mean(samples$theta[-1,169,6])

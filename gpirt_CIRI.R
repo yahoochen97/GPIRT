@@ -361,7 +361,7 @@ for(h in 1:horizon){
     response = CIRI_data[,j,h]
     irf_plot = data.frame(x,response)
     xs = seq(-5,5,0.01)
-    idx = 221:751
+    idx = 200:800
     gpirt_plot = data.frame(xs[idx],gpirt_iccs[,j,1])
     colnames(gpirt_plot) = c("xs","icc")
     p = ggplot()+
@@ -371,13 +371,14 @@ for(h in 1:horizon){
                          labels=c("Low", 'Medium','High'),
                          values=c( 'red', "blue",'black'))+
       geom_line(data = gpirt_plot, aes(x=xs,y=icc), size=1)+
-      scale_x_continuous(name=bquote(theta), breaks = seq(-3, 3, by = 1)) + 
-      scale_y_discrete(name=NULL, limits=c("low","median","high")) +
+      scale_x_continuous(name="x", breaks = seq(-3, 3, by = 1)) + 
+      scale_y_discrete(name=NULL, limits=c("Low","Median","High")) +
       theme(panel.background = element_blank(),
             panel.border = element_rect(colour = "black", fill=NA, size=2),
             legend.position = "none",
-            axis.text.y = element_text(size=16),
-            axis.text.x = element_text(size=16))
+            axis.text.y = element_text(size=20),
+            axis.text.x = element_text(size=20),
+            axis.title.x = element_text(size=16))
     
     ggsave(filename = paste(folder_path, subfolder, "/", as.character(j), ".png",sep = ""),width = 4, height = 3, dpi = 300)
     
