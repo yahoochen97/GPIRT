@@ -1,5 +1,10 @@
 R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 .libPaths(R_path)
+rstan_options(auto_write = TRUE)
+
+args = commandArgs(trailingOnly=TRUE)
+options(show.error.locations = TRUE)
+
 library(rstan)
 library(gpirt)
 library(dplyr)
@@ -11,8 +16,8 @@ library(stats)
 load(file="./data/senate_data_90.RData")
 gpirt_data = data
 
-SAMPLE_ITERS = 20
-BURNOUT_ITERS = 20
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 TYPE = "GP"
 n = nrow(data)
 m = ncol(data)
@@ -64,12 +69,16 @@ SEED = 1
 THIN = 4
 CHAIN = 1
 
+# code na as 0 for stan to ignore
+gpirt_data_train = gpirt_data
+gpirt_data_train[is.na(gpirt_data_train)] = 0
+
 stan_data <- list(n=n,
                   m=m,
                   horizon=horizon,
                   K=C,
                   sigma=0.1,
-                  y=gpirt_data)
+                  y=gpirt_data_train)
 
 # train stan model
 fit <- stan(file = "doirt-synthetic.stan",
@@ -119,6 +128,8 @@ for (it in 1:SAMPLE_ITERS) {
     }
   }
 }
+
+save.image(file='./results/doirt_senate_90.RData')
 
 # summarize pred theta over iterations
 pred_theta = matrix(0, nrow=n, ncol=horizon)
