@@ -13,7 +13,7 @@ data/esm*
 data/GP_*
 data/NOMINATE*
 data/*.dta
-data/sythetic*
+data/synthetic*
 data/SCDB*
 results
 figures
@@ -24,3 +24,5 @@ data/senate_data_92.RData
 data/senate_data.RData
 DCDS_talk
 TAPS/*.RData
+VAA
+*.rds
