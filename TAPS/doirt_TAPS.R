@@ -66,6 +66,8 @@ if(TRAIN_END_YEAR<=41){
   }
 }
 
+print(sum(is.na(gpirt_data)))
+print(sum(is.na(gpirt_data_train)))
 
 # code na as 0 for stan to ignore
 gpirt_data_train[is.na(gpirt_data_train)] = 0
