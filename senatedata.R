@@ -37,8 +37,8 @@ for(h in 1:length(session_ids)){
   rollcalls = rollcalls[,c("congress", "rollnumber", "yea_count","nay_count","date" )]
   rollcalls = rollcalls[(rollcalls$yea_count!=0)&(rollcalls$nay_count!=0),]
   
-  # abortion_rollcalls = unique(abortion_data[abortion_data$congress==session_id, c("rollcall")])
-  # rollcalls = rollcalls[!(rollcalls$rollnumber %in% abortion_rollcalls),]
+  abortion_rollcalls = unique(abortion_data[abortion_data$congress==session_id, c("rollcall")])
+  rollcalls = rollcalls[!(rollcalls$rollnumber %in% abortion_rollcalls),]
   
   print(length(unique(rollcalls$rollnumber)))
   # rollcalls = rollcalls[1:num_bill_per_session, ]

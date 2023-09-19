@@ -20,10 +20,10 @@ options(show.error.locations = TRUE)
 
 if (length(args)==0) {
   TRAIN_START_YEAR = 1
-  TRAIN_END_YEAR = 42
+  TRAIN_END_YEAR = 31
   TEST_YEAR = 41
-  DROP_RATIO = 0
   SEED = 12345
+  DROP_RATIO = 0
 }
 
 if (length(args)==5){
@@ -33,6 +33,12 @@ if (length(args)==5){
   SEED = as.integer(args[4])
   DROP_RATIO = as.integer(args[5])
 }
+
+
+print(TRAIN_START_YEAR)
+print(TRAIN_END_YEAR)
+print(TEST_YEAR)
+print(DROP_RATIO)
 
 library(gpirt)
 library(dplyr)
@@ -223,12 +229,12 @@ for (h in 1:horizon) {
   }
 }
 
-results = data.frame(train_lls,
-                     train_acc,
-                     train_response,
-                     train_prediction)
-
-write.csv(results, "./doirt_TAPS_2014_train.csv")
+# results = data.frame(train_lls,
+#                      train_acc,
+#                      train_response,
+#                      train_prediction)
+# 
+# write.csv(results, "./doirt_TAPS_2014_train.csv")
 
 print("doirt finished!")
 

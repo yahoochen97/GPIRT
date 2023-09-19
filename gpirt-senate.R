@@ -442,3 +442,76 @@ for(h in 1:horizon){
 }
 
 save.image(file='./results/gpirt_senate_90.RData')
+
+# train/test statistics
+# train
+train_lls = c()
+train_acc = c()
+train_response = c()
+train_prediction = c()
+
+source("getprob_gpirt.R")
+for (h in 1:horizon){
+  session_id = session_ids[h]
+  
+  rollcalls = read.csv(paste("./data/S", session_id, "_rollcalls.csv", sep=""))
+  rollcalls = rollcalls[,c("congress", "rollnumber", "yea_count","nay_count","date" )]
+  rollcalls = rollcalls[(rollcalls$yea_count!=0)&(rollcalls$nay_count!=0),]
+  
+  rollcall_ids = unique(rollcalls$rollnumber)
+  for (j in 1:length(rollcall_ids)) {
+    print(j)
+    IRFs = matrix(0, nrow=SAMPLE_ITERS, ncol=length(xs))
+    mask = rep(0, SAMPLE_ITERS)
+    for(iter in 1:SAMPLE_ITERS){
+      IRFs[iter, ] = samples$fstar[[iter]][, j, h]
+      # if (cor(samples$fstar[[1]][, j, h],samples$fstar[[iter]][, j, h])>0){
+      #   mask[iter] = 1
+      # }
+    }
+    # if(sum(mask)>=sum(!mask)){
+    #   probs = getprobs_gpirt(xs, t(IRFs[mask==1,]), samples$threshold[mask==1,])
+    # }
+    # else{
+    #   probs = getprobs_gpirt(xs, t(IRFs[mask==0,]), samples$threshold[mask==0,])
+    # }
+    probs = getprobs_gpirt(xs, t(IRFs), samples$threshold)
+    # tmp = probs %>%
+    #  group_by(xs) %>%
+    #  summarize(icc=sum(order*p))
+    # gpirt_iccs[,j,h] = probs$p[probs$order==2]
+    
+    for (i in 1:n) {
+      if(!is.na(data[i,j,h])){
+        # train
+        pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
+        ll = log(probs$p[probs$xs==xs[pred_idx]])
+        y_pred = which.max(ll)
+        train_acc = c(train_acc, y_pred==(data[i,j, h]))
+        train_lls = c(train_lls, ll[data[i,j, h]])
+        train_response = c(train_response, data[i,j, h])
+        train_prediction = c(train_prediction, y_pred)
+      }
+    }
+  }
+}
+
+results = data.frame(train_acc,train_lls, 
+                     train_response, train_prediction)
+
+colnames(results) = c("train_acc", "train_lls", "train_response", "train_prediction")
+write.csv(results, "./results/gpirt_senate_fit.csv")
+
+results_doirt = read.csv("./results/doirt_senate_fit.csv")
+
+library(cvAUC)
+print(paste("gpirt avg acc: ", round(mean(train_acc),3),sep=""))
+print(paste("doirt avg acc: ", round(mean(results_doirt$train_acc),3),sep=""))
+print(paste("t test p value: ", t.test(train_acc,results_doirt$train_acc)[["p.value"]],sep=""))
+
+print(paste("gpirt avg ll: ", round(mean(train_lls),4),sep=""))
+print(paste("doirt avg ll: ", round(mean(results_doirt$train_lls),4),sep=""))
+print(paste("t test p value: ", t.test(train_lls,results_doirt$train_lls)[["p.value"]],sep=""))
+
+print(paste("gpirt auc: ", round(AUC(train_prediction, train_response),3),sep=""))
+print(paste("doirt auc: ", round(AUC(results_doirt$train_prediction, results_doirt$train_response),3),sep=""))

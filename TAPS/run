@@ -9,6 +9,7 @@ TY=41
 MAXSEED=25
 declare -a TYPES=("DOIRT" "GPIRT" "SEIRT")
 declare -a DRS=(5 10 15 20 25)
+declare -a TYPES=("DOIRT")
 
 if [[ $1 == "run" ]]
 then

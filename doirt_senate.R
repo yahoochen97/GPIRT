@@ -178,34 +178,6 @@ for(h in 1:horizon){
   }
 }
 
-###################################
-# effective sample size diagonis
-library(coda)
-
-ESS_theta = matrix(0, nrow = n, ncol=h)
-for (h in 1:horizon) {
-  for(i in 1:n){
-    ESS_theta[i,h] = coda::effectiveSize(samples$theta[,i,h])
-  }
-}
-
-
-###################################
-# effective sample size diagonis
-library(coda)
-
-ESS_f = array(rep(0,n*m*horizon), c(n,m,horizon))
-for(h in 1:horizon){
-  for(j in 1:m){
-    for(i in 1:n){
-      tmp = rep(0, SAMPLE_ITERS)
-      for(it in 1:SAMPLE_ITERS){
-        tmp[it]= samples$f[[it]][i,j,h] 
-      }
-      ESS_f[i,j,h] = coda::effectiveSize(tmp)
-    }
-  }
-}
 
 # train/test statistics
 # train
@@ -216,7 +188,7 @@ train_prediction = c()
 
 # gp IRFs
 xs = seq(-5,5,0.01)
-idx = 201:801
+idx = 1:1001
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon),
                    c(length(xs[idx]),m, horizon))
 
@@ -255,7 +227,7 @@ for (h in 1:horizon){
     gpirt_iccs[,j,h] = probs$p[probs$order==2]
     
     for (i in 1:n) {
-      if(!is.na(gpirt_data[i,j,h])){
+      if(gpirt_data_train[i,j,h]>0){
         # train
         pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
         ll = log(probs$p[probs$xs==xs[pred_idx]])
@@ -268,5 +240,12 @@ for (h in 1:horizon){
     }
   }
 }
+library(cvAUC)
+
+results = data.frame(train_acc,train_lls[!is.na(train_lls)], 
+                     train_response[!is.na(train_lls)], train_prediction)
+
+colnames(results) = c("train_acc", "train_lls", "train_response", "train_prediction")
+write.csv(results, "./results/doirt_senate_fit.csv")
 
 save.image(file='./results/doirt_senate_90.RData')
