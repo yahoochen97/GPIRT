@@ -32,14 +32,13 @@ pred_llss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 train_accss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 pred_accss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 
-cor_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
-rmse_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
-theta_rhats = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+cor_iccss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+rmse_iccss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+theta_rhatsss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
   for (SEED in 1:MAXSEED) {
     HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
     result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
-    print(HYP)
     cor_theta[SEED, i] = result[1,2]
     sd_theta[SEED, i] = result[2,2]
     ll_theta[SEED, i] = result[3,2]
@@ -47,10 +46,9 @@ for(i in 1:length(MODELS)){
     train_accss[SEED, i] = result[5,2]
     pred_llss[SEED, i] = result[6,2]
     pred_accss[SEED, i] = result[7,2]
-    print(result[8,2])
-    cor_icc[SEED, i] = result[8,2]
-    rmse_icc[SEED, i] = result[9,2]
-    theta_rhats[SEED, i] = result[10,2]
+    cor_iccss[SEED, i] = result[8,2]
+    rmse_iccss[SEED, i] = result[9,2]
+    theta_rhatsss[SEED, i] = result[10,2]
     load(paste("./results/gpirt_", HYP, ".RData" , sep=""))
     train_llss[SEED, i] = mean(train_lls)
     train_accss[SEED, i] = mean(train_acc)
@@ -64,37 +62,37 @@ TRAIN_LL_ERR =  apply(train_llss, 2, sd)/sqrt(MAXSEED)
 TRAIN_ACC_ERR =  apply(train_accss, 2, sd)/sqrt(MAXSEED)
 PRED_LL_ERR =  apply(pred_llss, 2, sd)/sqrt(MAXSEED)
 PRED_ACC_ERR = apply(pred_accss, 2, sd)/sqrt(MAXSEED)
-COR_ICC_ERR =  apply(cor_icc, 2, sd)/sqrt(MAXSEED)
-RMSE_ICC_ERR =  apply(rmse_icc, 2, sd)/sqrt(MAXSEED)
+COR_ICC_ERR =  apply(cor_iccss, 2, sd)/sqrt(MAXSEED)
+RMSE_ICC_ERR =  apply(rmse_iccss, 2, sd)/sqrt(MAXSEED)
 
 print(HYP)
 print("cor theta")
 print(colMeans(abs(cor_theta)))
 print(COR_THETA_ERR)
 print("mean theta rhat")
-print(colMeans(theta_rhats))
+print(colMeans(theta_rhatsss))
 print("ll theta")
 print(colMeans(ll_theta))
 print(apply(ll_theta, 2, sd)/sqrt(MAXSEED))
 print("cor icc")
-print(colMeans(abs(cor_icc)))
+print(colMeans(abs(cor_iccss)))
 print(COR_ICC_ERR)
 print("rmse icc")
-print(colMeans(rmse_icc))
+print(colMeans(rmse_iccss))
 print(RMSE_ICC_ERR)
 print("\n")
 
 print("train ll")
-print(colMeans((train_ll)))
+print(colMeans((train_llss)))
 print(TRAIN_LL_ERR)
 print("train acc")
-print(colMeans(abs(train_acc)))
+print(colMeans(abs(train_accss)))
 print(TRAIN_ACC_ERR)
 print("pred ll")
-print(colMeans((pred_ll)))
+print(colMeans((pred_llss)))
 print(PRED_LL_ERR)
 print("pred acc")
-print(colMeans(abs(pred_acc)))
+print(colMeans(abs(pred_accss)))
 print(PRED_ACC_ERR)
 print("\n")
 
