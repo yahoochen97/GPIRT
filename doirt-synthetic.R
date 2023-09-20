@@ -15,7 +15,7 @@ if (length(args)==0) {
   SEED = 1
   C = 2
   n = 100
-  m = 50
+  m = 10
   horizon = 10
   TYPE = "GP"
   CONSTANT_IRF = 0
@@ -43,6 +43,8 @@ HYP = paste("BRW_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT
 SAMPLE_ITERS = 500
 BURNOUT_ITERS = 500
 
+data_train[is.na(data_train)] = 0
+
 THIN = 4
 CHAIN = 1
 stan_data <- list(n=n,
@@ -50,7 +52,7 @@ stan_data <- list(n=n,
                   horizon=horizon,
                   K=C,
                   sigma=0.1,
-                  y=data)
+                  y=data_train)
 
 # train stan model
 fit <- stan(file = "doirt-synthetic.stan",
@@ -64,6 +66,8 @@ fit <- stan(file = "doirt-synthetic.stan",
             seed = SEED,
             refresh=1
 )
+
+data_train[data_train==0] = NA
 
 fit_params <- as.data.frame(fit)
 
@@ -124,10 +128,10 @@ ordinal_lls = function(f, thresholds){
   return(result)
 }
 
-pred_lls = c(0)
-pred_acc = c(0)
-train_lls = c(0)
-train_acc = c(0)
+pred_lls = c()
+pred_acc = c()
+train_lls = c()
+train_acc = c()
 
 # cor of icc
 idx = 301:701
@@ -170,6 +174,25 @@ for (h in 1:horizon) {
     gpirt_iccs[,j,h] = tmp$icc
     cor_icc[j,h] = cor(gpirt_iccs[,j,h], true_iccs[,j,h])
     rmse_icc[j,h] = sqrt(mean((gpirt_iccs[,j,h]-true_iccs[,j,h])^2))
+    
+    # test/train statistic
+    for (i in 1:n) {
+      if(!is.na(data_train[i,j,h])){
+        # train
+        pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
+        ll = log(probs$p[probs$xs==xs[pred_idx]])
+        y_pred = which.max(ll)
+        train_acc = c(train_acc, y_pred==data[i,j, h])
+        train_lls = c(train_lls, ll[data[i,j, h]])
+      }else{
+        # test
+        pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
+        ll = log(probs$p[probs$xs==xs[pred_idx]])
+        y_pred = which.max(ll)
+        pred_acc = c(pred_acc, y_pred==data[i,j,h])
+        pred_lls = c(pred_lls, ll[data[i,j, h]])
+      }
+    }
   }
 }
 
@@ -190,14 +213,15 @@ print(max(theta_rhats))
 print(mean(abs(cor_theta)))
 print(mean(pred_theta_sd))
 print(mean(pred_theta_ll))
-print(mean(train_lls[!is.infinite(train_lls)]))
-print(mean(train_acc[!is.infinite(train_lls)]))
-print(mean(pred_lls[!is.infinite(pred_lls)]))
-print(mean(pred_acc[!is.infinite(pred_lls)]))
+print(mean(train_lls[!is.infinite(train_lls) & !is.na(train_lls)]))
+print(mean(train_acc[!is.infinite(train_acc) & !is.na(train_acc)]))
+print(mean(pred_lls[!is.infinite(pred_lls) & !is.na(pred_lls)]))
+print(mean(pred_acc[!is.infinite(pred_acc) & !is.na(pred_acc)]))
 print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
 
 save(gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_ll,pred_theta_sd,train_lls,
      train_acc, pred_lls, pred_acc,cor_icc, rmse_icc, theta_rhats,
-     file=paste("./results/doirt_", HYP, ".RData" , sep=""))
+     file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
 
+quit()

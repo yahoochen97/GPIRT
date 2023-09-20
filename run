@@ -14,6 +14,7 @@ m=10
 declare -a TYPES=("GP" "CST" "RDM" "BRW")
 declare -a CONSTANT_IRFs=(0 1)
 declare -a TYPES=("GP")
+declare -a TYPES=("BRW")
 
 if [ $1 = "run" ]
 then
