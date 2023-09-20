@@ -26,10 +26,12 @@ MODELS = c("GP", "CST", "RDM", "BRW")
 cor_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 sd_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 ll_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+
 train_llss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 pred_llss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 train_accss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 pred_accss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+
 cor_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 rmse_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 theta_rhats = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
@@ -37,6 +39,7 @@ for(i in 1:length(MODELS)){
   for (SEED in 1:MAXSEED) {
     HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
     result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
+    print(HYP)
     cor_theta[SEED, i] = result[1,2]
     sd_theta[SEED, i] = result[2,2]
     ll_theta[SEED, i] = result[3,2]
