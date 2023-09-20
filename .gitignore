@@ -26,3 +26,4 @@ DCDS_talk
 TAPS/*.RData
 VAA
 *.rds
+*.m~
