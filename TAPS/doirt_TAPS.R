@@ -96,7 +96,7 @@ if(TRAIN_END_YEAR==42){
   save.image(file='doirt_TAPS_2014.RData')
 }
 
-
+gpirt_data_train[gpirt_data_train==0] = NA
 # gpirt_data[na_mask] = NA
 
 fit_params <- as.data.frame(fit)

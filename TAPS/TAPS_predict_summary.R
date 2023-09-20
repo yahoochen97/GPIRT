@@ -19,10 +19,10 @@ TRAIN_ACC = array(rep(0,MAXSEED*length(DRS)*length(MODELS)),
                   c(length(MODELS),length(DRS),MAXSEED)) 
 TRAIN_LL = array(rep(0,MAXSEED*length(DRS)*length(MODELS)), 
                   c(length(MODELS),length(DRS),MAXSEED)) 
-TEST_ACC = array(rep(0,MAXSEED*length(DRS)*length(MODELS)), 
-                  c(length(MODELS),length(DRS),MAXSEED)) 
-TEST_LL = array(rep(0,MAXSEED*length(DRS)*length(MODELS)), 
-                 c(length(MODELS),length(DRS),MAXSEED)) 
+TEST_ACC = array(rep(0,MAXSEED*length(DRS)*10*length(MODELS)), 
+                  c(length(MODELS),length(DRS),10,MAXSEED)) 
+TEST_LL = array(rep(0,MAXSEED*length(DRS)*10*length(MODELS)), 
+                 c(length(MODELS),length(DRS),10,MAXSEED)) 
 
 for(SEED in 1:MAXSEED){
   for(i in 1:length(DRS)){
@@ -38,8 +38,10 @@ for(SEED in 1:MAXSEED){
       
       TRAIN_ACC[k,i,SEED] = mean(train_acc)
       TRAIN_LL[k,i,SEED] = mean(train_lls)
-      TEST_ACC[k,i,SEED] = mean(test_acc)
-      TEST_LL[k,i,SEED] = mean(test_lls)
+      for(h in 1:10){
+        TEST_ACC[k,i,h,SEED] = mean(test_acc[[h]])
+        TEST_LL[k,i,h,SEED] = mean(test_lls[[h]])
+      }
     }
   }
 }
