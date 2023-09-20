@@ -26,10 +26,10 @@ MODELS = c("GP", "CST", "RDM", "BRW")
 cor_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 sd_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 ll_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
-train_ll = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
-pred_ll = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
-train_acc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
-pred_acc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+train_llss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+pred_llss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+train_accss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
+pred_accss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 cor_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 rmse_icc = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 theta_rhats = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
@@ -40,21 +40,26 @@ for(i in 1:length(MODELS)){
     cor_theta[SEED, i] = result[1,2]
     sd_theta[SEED, i] = result[2,2]
     ll_theta[SEED, i] = result[3,2]
-    train_ll[SEED, i] = result[4,2]
-    train_acc[SEED, i] = result[5,2]
-    pred_ll[SEED, i] = result[6,2]
-    pred_acc[SEED, i] = result[7,2]
+    train_llss[SEED, i] = result[4,2]
+    train_accss[SEED, i] = result[5,2]
+    pred_llss[SEED, i] = result[6,2]
+    pred_accss[SEED, i] = result[7,2]
     cor_icc[SEED, i] = result[8,2]
     rmse_icc[SEED, i] = result[9,2]
     theta_rhats[SEED, i] = result[10,2]
+    load(paste("./results/gpirt_", HYP, ".RData" , sep=""))
+    train_llss[SEED, i] = mean(train_lls)
+    train_accss[SEED, i] = mean(train_acc)
+    pred_llss[SEED, i] = mean(pred_lls)
+    pred_accss[SEED, i] = mean(pred_acc)
     }
 }
 
 COR_THETA_ERR = apply(abs(cor_theta), 2, sd)/sqrt(MAXSEED)
-TRAIN_LL_ERR =  apply(train_ll, 2, sd)/sqrt(MAXSEED)
-TRAIN_ACC_ERR =  apply(train_acc, 2, sd)/sqrt(MAXSEED)
-PRED_LL_ERR =  apply(pred_ll, 2, sd)/sqrt(MAXSEED)
-PRED_ACC_ERR = apply(pred_acc, 2, sd)/sqrt(MAXSEED)
+TRAIN_LL_ERR =  apply(train_llss, 2, sd)/sqrt(MAXSEED)
+TRAIN_ACC_ERR =  apply(train_accss, 2, sd)/sqrt(MAXSEED)
+PRED_LL_ERR =  apply(pred_llss, 2, sd)/sqrt(MAXSEED)
+PRED_ACC_ERR = apply(pred_accss, 2, sd)/sqrt(MAXSEED)
 COR_ICC_ERR =  apply(cor_icc, 2, sd)/sqrt(MAXSEED)
 RMSE_ICC_ERR =  apply(rmse_icc, 2, sd)/sqrt(MAXSEED)
 
