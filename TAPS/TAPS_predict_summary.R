@@ -46,15 +46,15 @@ for(SEED in 1:MAXSEED){
         TEST_LL[k,i,h,SEED] = mean(test_lls[[h]])
       }
       
-      RESULTS[nrow(RESULTS)+1,] = list(max(train_acc),"train_acc",MODEL,DR,0,SEED)
-      RESULTS[nrow(RESULTS)+1,] = list(max(train_lls),"train_lls",MODEL,DR,0,SEED)
+      RESULTS[nrow(RESULTS)+1,] = list(mean(train_acc),"train_acc",MODEL,DR,0,SEED)
+      RESULTS[nrow(RESULTS)+1,] = list(mean(train_lls),"train_lls",MODEL,DR,0,SEED)
       for(h in 1:10){
-        RESULTS[nrow(RESULTS)+1,] = list(max(test_acc[[h]]),"test_acc",MODEL,DR,h,SEED)
-        RESULTS[nrow(RESULTS)+1,] = list(max(test_lls[[h]]),"test_lls",MODEL,DR,h,SEED)
+        RESULTS[nrow(RESULTS)+1,] = list(mean(test_acc[[h]]),"test_acc",MODEL,DR,h,SEED)
+        RESULTS[nrow(RESULTS)+1,] = list(mean(test_lls[[h]]),"test_lls",MODEL,DR,h,SEED)
       }
       
       for(h in 1:10){
-        RESULTS[nrow(RESULTS)+1,] = list(min(pred_theta_sd[TRAIN_START_YEAR+h]),"test_sds",MODEL,DR,h,SEED)
+        RESULTS[nrow(RESULTS)+1,] = list(mean(pred_theta_sd[TRAIN_START_YEAR+h]),"test_sds",MODEL,DR,h,SEED)
       }
     }
   }

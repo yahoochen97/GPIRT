@@ -2,7 +2,7 @@ addpath("./results");
 file_name = 'TAPS_holdout_summary.csv';
 opts = detectImportOptions(file_name);
 results = readtable(file_name);
-METRICS = ["test_acc","test_lls","test_sds"];
+METRICS = ["test_acc","test_lls"];
 MODELS = unique(results.model);
 DRS = unique(results.dropratio);
 HORIZON = max(results.horizon);
@@ -10,11 +10,10 @@ HORIZON = max(results.horizon);
 % results = results(results.dropratio==10,:);
 
 fig = figure(1);
-tiledlayout(2,numel(METRICS),'Padding', 'none', 'TileSpacing', 'compact');   
+tiledlayout(1,numel(METRICS),'Padding', 'none', 'TileSpacing', 'compact');   
 for k=1:numel(METRICS)
-    
+    nexttile;
     for i=1:numel(MODELS)
-        nexttile;
         y = zeros(numel(DRS),HORIZON);
         yerr = zeros(numel(DRS),HORIZON);
         tmp = results(strcmp(results.metric,METRICS(k)) & strcmp(results.model,MODELS(i)),:);
@@ -25,8 +24,7 @@ for k=1:numel(METRICS)
             end
         end
 %         errorbar(1:HORIZON,y,yerr); hold on;
-        heatmap(y);
-      
+        errorbar([1,5,10], y(4,[1,5,10]),yerr(4,[1,5,10])); hold on;
     end
     
 %     xlabel('Congress session','FontSize', 18);
@@ -34,7 +32,7 @@ for k=1:numel(METRICS)
 %     ylabel(YLABELS(k), 'FontSize', 18);
 %     ylim([-1.0*(3-k),1.0*(3-k)]);
     
-%     legend({"DO-IRT","GD-GPIRT"}, 'Location','southeast','FontSize',14, 'NumColumns',1);
+    legend({"DO-IRT","GD-GPIRT"}, 'Location','southeast','FontSize',14, 'NumColumns',1);
 %     legend boxoff;
 end
     
