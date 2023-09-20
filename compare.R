@@ -47,6 +47,7 @@ for(i in 1:length(MODELS)){
     train_accss[SEED, i] = result[5,2]
     pred_llss[SEED, i] = result[6,2]
     pred_accss[SEED, i] = result[7,2]
+    print(result[8,2])
     cor_icc[SEED, i] = result[8,2]
     rmse_icc[SEED, i] = result[9,2]
     theta_rhats[SEED, i] = result[10,2]
