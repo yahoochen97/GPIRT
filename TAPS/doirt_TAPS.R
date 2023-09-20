@@ -236,7 +236,7 @@ for (h in 1:horizon) {
 #                      train_response,
 #                      train_prediction)
 # 
-# write.csv(results, "./doirt_TAPS_2014_train.csv")
+# write.csv(results, "./results/doirt_TAPS_2014_train.csv")
 
 print("doirt finished!")
 

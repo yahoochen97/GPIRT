@@ -22,7 +22,10 @@ TRAIN_LL = array(rep(0,MAXSEED*length(DRS)*length(MODELS)),
 TEST_ACC = array(rep(0,MAXSEED*length(DRS)*10*length(MODELS)), 
                   c(length(MODELS),length(DRS),10,MAXSEED)) 
 TEST_LL = array(rep(0,MAXSEED*length(DRS)*10*length(MODELS)), 
-                 c(length(MODELS),length(DRS),10,MAXSEED)) 
+                 c(length(MODELS),length(DRS),10,MAXSEED))
+
+RESULTS = data.frame(matrix(ncol = 6, nrow = 0),stringsAsFactors=FALSE)
+colnames(RESULTS) = c("v","metric","model","dropratio","horizon","seed")
 
 for(SEED in 1:MAXSEED){
   for(i in 1:length(DRS)){
@@ -42,6 +45,19 @@ for(SEED in 1:MAXSEED){
         TEST_ACC[k,i,h,SEED] = mean(test_acc[[h]])
         TEST_LL[k,i,h,SEED] = mean(test_lls[[h]])
       }
+      
+      RESULTS[nrow(RESULTS)+1,] = list(max(train_acc),"train_acc",MODEL,DR,0,SEED)
+      RESULTS[nrow(RESULTS)+1,] = list(max(train_lls),"train_lls",MODEL,DR,0,SEED)
+      for(h in 1:10){
+        RESULTS[nrow(RESULTS)+1,] = list(max(test_acc[[h]]),"test_acc",MODEL,DR,h,SEED)
+        RESULTS[nrow(RESULTS)+1,] = list(max(test_lls[[h]]),"test_lls",MODEL,DR,h,SEED)
+      }
+      
+      for(h in 1:10){
+        RESULTS[nrow(RESULTS)+1,] = list(min(pred_theta_sd[TRAIN_START_YEAR+h]),"test_sds",MODEL,DR,h,SEED)
+      }
     }
   }
 }
+
+write.csv(RESULTS, "./results/TAPS_holdout_summary.csv")
