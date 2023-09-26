@@ -49,11 +49,11 @@ for(i in 1:length(MODELS)){
     cor_iccss[SEED, i] = result[8,2]
     rmse_iccss[SEED, i] = result[9,2]
     theta_rhatsss[SEED, i] = result[10,2]
-    load(paste("./results/gpirt_", HYP, ".RData" , sep=""))
-    train_llss[SEED, i] = mean(train_lls[!is.na(train_lls)])
-    train_accss[SEED, i] = mean(train_acc[!is.na(train_acc)])
-    pred_llss[SEED, i] = mean(pred_lls[!is.na(pred_lls)])
-    pred_accss[SEED, i] = mean(pred_acc[!is.na(pred_acc)])
+    # load(paste("./results/gpirt_", HYP, ".RData" , sep=""))
+    # train_llss[SEED, i] = mean(train_lls[!is.na(train_lls)])
+    # train_accss[SEED, i] = mean(train_acc[!is.na(train_acc)])
+    # pred_llss[SEED, i] = mean(pred_lls[!is.na(pred_lls)])
+    # pred_accss[SEED, i] = mean(pred_acc[!is.na(pred_acc)])
     }
 }
 

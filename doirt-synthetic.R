@@ -76,10 +76,10 @@ SAMPLE_ITERS = SAMPLE_ITERS / THIN
 samples = list()
 samples[["theta"]] = array(array(0, SAMPLE_ITERS*n*horizon), 
                            c(SAMPLE_ITERS,n, horizon))
-samples[["threshold"]] = array(array(0, SAMPLE_ITERS*(C+1)), 
-                               c(SAMPLE_ITERS,(C+1)))
+# samples[["threshold"]] = array(array(0, SAMPLE_ITERS*(C+1)), 
+#                                c(SAMPLE_ITERS,(C+1)))
 xs = seq(-5,5,0.01)
-idx = 301:701
+idx = 1:1001
 for (it in 1:SAMPLE_ITERS) {
   samples[["fstar"]][[it]] =  array(array(0, length(xs[idx])*m*horizon), 
                                     c(length(xs[idx]),m, horizon))
@@ -91,6 +91,18 @@ for (it in 1:SAMPLE_ITERS) {
   for(i in 1:n){
     for(h in 1:horizon){
       samples[["theta"]][it,i,h] = fit_params[[paste("theta[",i,",",h,"]",sep="")]][it]
+    }
+  }
+  
+  samples[["threshold"]][[it]] =  array(array(0, m*(C+1)*horizon), 
+                                        c(m, C+1, horizon))
+  for(j in 1:m){
+    for(h in 1:horizon){
+      samples[["threshold"]][[it]][j,1,h] = -Inf
+      samples[["threshold"]][[it]][j,C+1,h] = Inf
+      for(c in 1:(C-1)){
+        samples[["threshold"]][[it]][j,1+c,h] = fit_params[[paste("alpha[",j,",",h,",",c, "]",sep="")]][it]
+      }
     }
   }
 }
@@ -133,21 +145,6 @@ pred_acc = c()
 train_lls = c()
 train_acc = c()
 
-ordinal_lls = function(f, thresholds){
-  result = c()
-  for (c in 1:(length(thresholds)-1)) {
-    z1 = thresholds[c] - f;
-    z2 = thresholds[c+1] - f;
-    result = c(result,log(pnorm(z2)-pnorm(z1)));
-  }
-  return(result)
-}
-
-sample_IRFs = vector(mode = "list", length = SAMPLE_ITERS)
-for (iter in 1:SAMPLE_ITERS){
-  sample_IRFs[[iter]] = samples$fstar[[iter]]
-}
-
 for (i in 1:n) {
   for (j in 1:m) {
     for(h in 1:horizon){
@@ -156,8 +153,8 @@ for (i in 1:n) {
         y_pred = rep(0, SAMPLE_ITERS)
         pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
         for (iter in 1:SAMPLE_ITERS) {
-          f_pred = sample_IRFs[[iter]][pred_idx, j, h]
-          ll = ordinal_lls(f_pred, samples$threshold[iter,])
+          f_pred = samples$fstar[[iter]][pred_idx, j, h]
+          ll = ordinal_lls(f_pred, samples$threshold[[iter]][j,,h])
           lls[iter,] = ll
           y_pred[iter] =  which.max(ll)
         }
@@ -176,7 +173,7 @@ for (i in 1:n) {
 }
 
 # cor of icc
-idx = 301:701
+idx = 1:1001
 # gpirt_iccs = colMeans(IRFs, dim=1)
 gpirt_iccs = array(array(0, length(xs[idx])*m*horizon), 
                    c(length(xs[idx]),m, horizon))
