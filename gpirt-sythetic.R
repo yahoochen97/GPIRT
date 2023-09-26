@@ -55,8 +55,8 @@ print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 5#00
-BURNOUT_ITERS = 5#00
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 if(TYPE=="GP"){
     theta_os = 1
     theta_ls = as.integer(horizon/2)
@@ -70,8 +70,8 @@ if(TYPE=="GP"){
     theta_ls = 0.1
 }
 
-THIN = 1#4
-CHAIN = 1#3
+THIN = 4
+CHAIN = 3
 beta_prior_means = matrix(0, nrow = 3, ncol = ncol(data_train))
 beta_prior_sds =  matrix(1.0, nrow = 3, ncol = ncol(data_train))
 theta_init = matrix(0, nrow = n, ncol = horizon)

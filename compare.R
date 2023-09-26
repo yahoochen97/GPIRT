@@ -57,6 +57,9 @@ for(i in 1:length(MODELS)){
     }
 }
 
+train_llss[is.infinite(train_llss)] = mean(train_llss[!is.infinite(train_llss)])
+pred_llss[is.infinite(pred_llss)] = mean(pred_llss[!is.infinite(pred_llss)])
+
 COR_THETA_ERR = apply(abs(cor_theta), 2, sd)/sqrt(MAXSEED)
 TRAIN_LL_ERR =  apply(train_llss, 2, sd)/sqrt(MAXSEED)
 TRAIN_ACC_ERR =  apply(train_accss, 2, sd)/sqrt(MAXSEED)
