@@ -133,6 +133,48 @@ pred_acc = c()
 train_lls = c()
 train_acc = c()
 
+ordinal_lls = function(f, thresholds){
+  result = c()
+  for (c in 1:(length(thresholds)-1)) {
+    z1 = thresholds[c] - f;
+    z2 = thresholds[c+1] - f;
+    result = c(result,log(pnorm(z2)-pnorm(z1)));
+  }
+  return(result)
+}
+
+sample_IRFs = vector(mode = "list", length = SAMPLE_ITERS)
+for (iter in 1:SAMPLE_ITERS){
+  sample_IRFs[[iter]] = samples$fstar[[iter]]
+}
+
+for (i in 1:n) {
+  for (j in 1:m) {
+    for(h in 1:horizon){
+      if(!is.na(data[[i,j,h]])){
+        lls = matrix(0,nrow=SAMPLE_ITERS, ncol = C)
+        y_pred = rep(0, SAMPLE_ITERS)
+        pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
+        for (iter in 1:SAMPLE_ITERS) {
+          f_pred = sample_IRFs[[iter]][pred_idx, j, h]
+          ll = ordinal_lls(f_pred, samples$threshold[iter,])
+          lls[iter,] = ll
+          y_pred[iter] =  which.max(ll)
+        }
+        ll = log(exp(lls))
+        y_pred = round(mean(y_pred))
+        if(train_idx[i,j, h]==0){
+          pred_acc = c(pred_acc, y_pred==(data[[i,j, h]]))
+          pred_lls = c(pred_lls, ll[data[[i,j, h]]])
+        }else{
+          train_acc = c(train_acc, y_pred==(data[[i,j, h]]))
+          train_lls = c(train_lls, ll[data[[i,j, h]]])
+        }
+      }
+    }
+  }
+}
+
 # cor of icc
 idx = 301:701
 # gpirt_iccs = colMeans(IRFs, dim=1)
@@ -176,23 +218,23 @@ for (h in 1:horizon) {
     rmse_icc[j,h] = sqrt(mean((gpirt_iccs[,j,h]-true_iccs[,j,h])^2))
     
     # test/train statistic
-    for (i in 1:n) {
-      if(!is.na(data_train[i,j,h])){
-        # train
-        pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
-        ll = log(probs$p[probs$xs==xs[pred_idx]])
-        y_pred = which.max(ll)
-        train_acc = c(train_acc, y_pred==data[i,j, h])
-        train_lls = c(train_lls, ll[data[i,j, h]])
-      }else{
-        # test
-        pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
-        ll = log(probs$p[probs$xs==xs[pred_idx]])
-        y_pred = which.max(ll)
-        pred_acc = c(pred_acc, y_pred==data[i,j,h])
-        pred_lls = c(pred_lls, ll[data[i,j, h]])
-      }
-    }
+    # for (i in 1:n) {
+    #   if(!is.na(data_train[i,j,h])){
+    #     # train
+    #     pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
+    #     ll = log(probs$p[probs$xs==xs[pred_idx]])
+    #     y_pred = which.max(ll)
+    #     train_acc = c(train_acc, y_pred==data[i,j, h])
+    #     train_lls = c(train_lls, ll[data[i,j, h]])
+    #   }else{
+    #     # test
+    #     pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
+    #     ll = log(probs$p[probs$xs==xs[pred_idx]])
+    #     y_pred = which.max(ll)
+    #     pred_acc = c(pred_acc, y_pred==data[i,j,h])
+    #     pred_lls = c(pred_lls, ll[data[i,j, h]])
+    #   }
+    # }
   }
 }
 

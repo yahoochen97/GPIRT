@@ -13,7 +13,9 @@ fig = figure(1);
 tiledlayout(1,numel(METRICS),'Padding', 'none', 'TileSpacing', 'compact');   
 for k=1:numel(METRICS)
     nexttile;
+    disp(METRICS(k))
     for i=1:numel(MODELS)
+        disp(MODELS(i));
         y = zeros(numel(DRS),HORIZON);
         yerr = zeros(numel(DRS),HORIZON);
         tmp = results(strcmp(results.metric,METRICS(k)) & strcmp(results.model,MODELS(i)),:);
@@ -25,6 +27,8 @@ for k=1:numel(METRICS)
         end
 %         errorbar(1:HORIZON,y,yerr); hold on;
         errorbar([1,5,10], y(4,[1,5,10]),yerr(4,[1,5,10])); hold on;
+        disp(y(4,[1,5,10]));
+        disp(yerr(4,[1,5,10])/5);
     end
     
 %     xlabel('Congress session','FontSize', 18);
