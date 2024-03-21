@@ -23,6 +23,10 @@ then
     Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "Matern"
 elif [ $TYPE = "SEIRT" ]; then
     Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "RBF"
+elif [ $TYPE = "NIRT" ]; then
+    Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "NIRF"
+elif [ $TYPE = "LIRT" ]; then
+    Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "LIRF"
 else
     Rscript --vanilla doirt_TAPS.R $TSY $TEY $TY $SEED $DR
 fi

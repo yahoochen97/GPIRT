@@ -58,6 +58,20 @@ for(h in (TRAIN_END_YEAR+1):(TEST_YEAR)){
 theta_os = 1
 theta_ls = 12 # length scale is set to a year
 
+if(TYPE=="LIRT"){
+  TYPE1 = TYPE
+  TYPE = "RBF"
+  theta_os = 1
+  theta_ls = 10*horizon
+}
+
+if(TYPE=="NIRT"){
+  TYPE1 = TYPE
+  TYPE = "RBF"
+  theta_os = 1
+  theta_ls = 0.1
+}
+
 beta_prior_sds =  matrix(3.0, nrow = 3, ncol = ncol(gpirt_data))
 theta_prior_sds =  matrix(1.0, nrow = 2, ncol = nrow(gpirt_data))
 theta_prior_sds[2,] = 0
@@ -70,6 +84,8 @@ samples_all <- gpirtMCMC(gpirt_data_train, SAMPLE_ITERS,BURNOUT_ITERS,
                          theta_os = theta_os, theta_ls = theta_ls,
                          vote_codes = NULL, thresholds=NULL,
                          SEED=SEED, constant_IRF = 1, KERNEL=TYPE)
+
+TYPE = TYPE1
 
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
 samples = samples_all[[1]]
@@ -184,6 +200,14 @@ print("gpirt finished!")
 
 if(TYPE=="RBF"){
   file_name = paste("./results/SEirt_TAPS_holdout_", "DR_", DROP_RATIO, "_SEED_", SEED, ".RData" , sep="")
+}
+
+if(TYPE=="NIRT"){
+  file_name = paste("./results/Nirt_TAPS_holdout_", "DR_", DROP_RATIO, "_SEED_", SEED, ".RData" , sep="")
+}
+
+if(TYPE=="LIRT"){
+  file_name = paste("./results/Lirt_TAPS_holdout_", "DR_", DROP_RATIO, "_SEED_", SEED, ".RData" , sep="")
 }
 
 if(TYPE=="Matern"){

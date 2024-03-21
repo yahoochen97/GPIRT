@@ -11,6 +11,9 @@ declare -a TYPES=("DOIRT" "GPIRT" "SEIRT")
 declare -a DRS=(5 10 15 20 25)
 declare -a TYPES=("DOIRT")
 
+declare -a TYPES=("NIRT" "LIRT")
+declare -a DRS=(20)
+
 if [[ $1 == "run" ]]
 then
     for TYPE in ${TYPES[@]}; do

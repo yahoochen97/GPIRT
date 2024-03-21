@@ -27,3 +27,4 @@ TAPS/*.RData
 VAA
 *.rds
 *.m~
+code/*
