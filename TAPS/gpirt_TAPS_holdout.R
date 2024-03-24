@@ -1,4 +1,4 @@
-setwd("~/Documents/Github/OrdGPIRT/TAPS")
+# setwd("~/Documents/Github/OrdGPIRT/TAPS")
 
 SAMPLE_ITERS = 500
 BURNOUT_ITERS = 500
