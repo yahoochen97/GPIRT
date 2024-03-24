@@ -14,7 +14,7 @@ if (length(args)==0) {
   n = 100
   m = 10
   horizon = 10
-  TYPE = "GP"
+  TYPE = "2PL"
   CONSTANT_IRF = 0
 }
 if (length(args)==7){
@@ -48,30 +48,44 @@ if(C>2){
 }
 
 if(TYPE=="2PL"){
+  theta = matrix(0, nrow = n, ncol = horizon)
+  if(horizon>1){
+    for (i in 1:n) {
+      K = SEKernel(1:horizon, sigma=as.integer(1+horizon/2))
+      K = K + diag(1e-6, horizon, horizon)
+      theta[i,] <- t(chol(K))%*%rnorm(horizon)  # Respondent ability parameters
+      theta[i,] = theta[i,] # + (2*rbinom(1,1,0.5) -1)
+    }
+  }else{
+    theta[,1] = rnorm(n)
+  }
+  
   gen_responses <- function(theta, alpha, beta, thresholds) {
     # ordinal regression
     C <- length(thresholds) - 1
-    n <- length(theta)
-    m <- length(alpha)
-    responses <- matrix(0, n, m)
-    for ( j in 1:m ) {
-      for ( i in 1:n ) {
-        f = alpha[j] + beta[j] * theta[i]
-        ps = rep(0, C)
-        for (c in 1:C) {
-          z1 = thresholds[c] - f
-          z2 = thresholds[c+1] -f
-          ps[c] = pnorm(z2) - pnorm(z1)
+    n <- nrow(theta)
+    m <- nrow(alpha)
+    horizon <- ncol(theta)
+    responses <- array(rep(0, n*m*horizon), c(n, m, horizon))
+    for (h in 1:horizon){
+      for ( j in 1:m ) {
+        for ( i in 1:n ) {
+          f = alpha[j,h] + beta[j,h] * theta[i,h]
+          ps = rep(0, C)
+          for (c in 1:C) {
+            z1 = thresholds[c] - f
+            z2 = thresholds[c+1] -f
+            ps[c] = pnorm(z2) - pnorm(z1)
+          }
+          responses[i,j, h] <- sample(1:C, 1, prob = ps)
         }
-        responses[i, j] <- sample(1:C, 1, prob = ps)
       }
     }
     return(responses)
   }
   
-  theta <- runif(n, -3, 3) # Respondent ability parameters
-  alpha <- runif(m, -2, 2) # Item difficulty parameters
-  beta  <- runif(m, -2, 2) # Item discrimination parameters
+  alpha <- matrix(runif(m*horizon, -2, 2), nrow=m) # Item difficulty parameters
+  beta  <- matrix(runif(m*horizon, -2, 2), nrow=m) # Item discrimination parameters
   data <- gen_responses(theta, alpha, beta, thresholds)
 }
 
