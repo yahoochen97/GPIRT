@@ -24,9 +24,9 @@ then
 elif [ $TYPE = "SEIRT" ]; then
     Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "RBF"
 elif [ $TYPE = "NIRT" ]; then
-    Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "NIRF"
+    Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "NIRT"
 elif [ $TYPE = "LIRT" ]; then
-    Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "LIRF"
+    Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "LIRT"
 else
     Rscript --vanilla doirt_TAPS.R $TSY $TEY $TY $SEED $DR
 fi

@@ -20,6 +20,7 @@ if (length(args)==0) {
   SEED = 1
   DROP_RATIO = 10
   TYPE = "Matern"
+  TYPE = "NIRT"
 }
 
 if (length(args)==6){
