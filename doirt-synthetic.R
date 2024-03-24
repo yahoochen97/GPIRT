@@ -19,9 +19,10 @@ if (length(args)==0) {
   horizon = 10
   TYPE = "GP"
   CONSTANT_IRF = 0
+  DATA_TYPE = "GP"
 }
 
-if (length(args)==7){
+if (length(args)==8){
   SEED = as.integer(args[1])
   C = as.integer(args[2])
   n = as.integer(args[3])
@@ -29,16 +30,17 @@ if (length(args)==7){
   horizon = as.integer(args[5])
   TYPE = args[6]
   CONSTANT_IRF = as.integer(args[7])
+  DATA_TYPE = args[8]
 }
 
 library(dplyr)
 library(stats)
 
 source("getprob_gpirt.R")
-HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
+HYP = paste(DATA_TYPE,"_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
-HYP = paste("BRW_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
+HYP = paste(DATA_TYPE, "_BRW_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
 SAMPLE_ITERS = 500
 BURNOUT_ITERS = 500
@@ -167,6 +169,15 @@ for (i in 1:n) {
           train_acc = c(train_acc, y_pred==(data[[i,j, h]]))
           train_lls = c(train_lls, ll[data[[i,j, h]]])
         }
+        # else{
+        #   if(train_idx[i,j, h]==0){
+        #     pred_acc = c(pred_acc, abs(y_pred-(data[[i,j, h]]))<=1)
+        #     pred_lls = c(pred_lls, max(ll[c(data[[i,j, h]], y_pred)]))
+        #   }else{
+        #     train_acc = c(train_acc, abs(y_pred-(data[[i,j, h]]))<=1)
+        #     train_lls = c(train_lls, max(ll[c(data[[i,j, h]], y_pred)]))
+        #   } 
+        # }
       }
     }
   }
@@ -240,15 +251,8 @@ for (i in 1:horizon) {
   cor_theta = c(cor_theta, cor(theta[,i], pred_theta[,i]))
 }
 
-plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,2))
-mask = is.na(data_train[,1,1])
-points(pred_theta[!mask,1], data_train[!mask,1,1])
-
 theta_rhats = c(1,1,1)
 
-print("Average Rhat:")
-print(mean(theta_rhats))
-print(max(theta_rhats))
 print(mean(abs(cor_theta)))
 print(mean(pred_theta_sd))
 print(mean(pred_theta_ll))
@@ -260,7 +264,7 @@ print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
 
 save(gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_ll,pred_theta_sd,train_lls,
-     train_acc, pred_lls, pred_acc,cor_icc, rmse_icc, theta_rhats,
+     train_acc, pred_lls, pred_acc,cor_icc, rmse_icc, # theta_rhats,
      file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
 
 quit()

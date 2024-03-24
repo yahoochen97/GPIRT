@@ -54,12 +54,14 @@ then
     SEED=1
     declare -a TYPES=("GP" "CST" "RDM" "BRW")
     declare -a CONSTANT_IRFs=(0 1)
-    declare -a TYPES=("2PL" "Wiener")
+    declare -a DATA_TYPES=("2PL" "Wiener")
     
-    for TYPE in ${TYPES[@]}; do
-        for C in ${Cs[@]}; do
-            for CONSTANT_IRF in ${CONSTANT_IRFs[@]}; do
-                bsub -G SEAS-Lab-Garnett -J "${TYPE}_C${C}_CSTIRF${CONSTANT_IRF}_${SEED}" -o "./log/${TYPE}_C${C}_CSTIRF${CONSTANT_IRF}_${SEED}.log" "Rscript --vanilla generate_data.R $SEED $C $n $m $horizon $TYPE ${CONSTANT_IRF}" # "Rscript --vanilla gpirt-sythetic.R $SEED $C $n $m $horizon $TYPE ${CONSTANT_IRF}"
+    for DATA_TYPE in ${DATA_TYPES[@]}; do
+        for TYPE in ${TYPES[@]}; do
+            for C in ${Cs[@]}; do
+                for CONSTANT_IRF in ${CONSTANT_IRFs[@]}; do
+                    bsub -G SEAS-Lab-Garnett -J "${DATA_TYPE}_${TYPE}_C${C}_CSTIRF${CONSTANT_IRF}_${SEED}" -o "./log/$DATA_TYPE_${TYPE}_C${C}_CSTIRF${CONSTANT_IRF}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} $DATA_TYPE"
+                done
             done
         done
     done

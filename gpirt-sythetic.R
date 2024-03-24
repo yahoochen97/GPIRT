@@ -6,13 +6,12 @@ options(show.error.locations = TRUE)
 # setwd(gpirt_path)
 # TYPE = "RDM"
 
-gpirt_path = "~/Documents/Github/gpirt"
-setwd(gpirt_path)
-library(Rcpp)
-Rcpp::compileAttributes()
-install.packages(gpirt_path, type="source", repos = NULL)# ,lib=R_path, INSTALL_opts = '--no-lock')
-setwd("../OrdGPIRT")
-
+# gpirt_path = "~/Documents/Github/gpirt"
+# setwd(gpirt_path)
+# library(Rcpp)
+# Rcpp::compileAttributes()
+# install.packages(gpirt_path, type="source", repos = NULL)# ,lib=R_path, INSTALL_opts = '--no-lock')
+# setwd("../OrdGPIRT")
 
 if (length(args)==0) {
   SEED = 1
@@ -22,9 +21,10 @@ if (length(args)==0) {
   horizon = 10
   TYPE = "GP"
   CONSTANT_IRF = 0
+  DATA_TYPE = "GP"
 }
 
-if (length(args)==7){
+if (length(args)==8){
     SEED = as.integer(args[1])
     C = as.integer(args[2])
     n = as.integer(args[3])
@@ -32,6 +32,7 @@ if (length(args)==7){
     horizon = as.integer(args[5])
     TYPE = args[6]
     CONSTANT_IRF = as.integer(args[7])
+    DATA_TYPE = args[8]
 }
 
 # install gpirt package
@@ -50,10 +51,10 @@ library(dplyr)
 library(stats)
 
 source("getprob_gpirt.R")
-HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
+HYP = paste(DATA_TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
-HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
+HYP = paste(DATA_TYPE, "_", TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
 SAMPLE_ITERS = 500
 BURNOUT_ITERS = 500
@@ -71,7 +72,7 @@ if(TYPE=="GP"){
 }
 
 THIN = 4
-CHAIN = 3
+CHAIN = 1 # 3
 beta_prior_means = matrix(0, nrow = 3, ncol = ncol(data_train))
 beta_prior_sds =  matrix(1.0, nrow = 3, ncol = ncol(data_train))
 theta_init = matrix(0, nrow = n, ncol = horizon)
@@ -91,18 +92,18 @@ all_samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
 
 
 SAMPLE_ITERS = SAMPLE_ITERS/THIN
-library(rstan)
-sims <- matrix(rnorm((SAMPLE_ITERS)*CHAIN), nrow = SAMPLE_ITERS, ncol = CHAIN)
-theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
-for(i in 1:n){
-    for(h in 1:horizon){
-        for(c in 1:CHAIN){
-            pred_theta = colMeans(all_samples[[c]]$theta)
-            sims[,c] = sign(cor(theta[,h],pred_theta[,h]))*all_samples[[c]]$theta[,i,h]
-        }
-        theta_rhats[i, h] = Rhat(sims)
-    }
-}
+# library(rstan)
+# sims <- matrix(rnorm((SAMPLE_ITERS)*CHAIN), nrow = SAMPLE_ITERS, ncol = CHAIN)
+# theta_rhats = matrix(rnorm(n*horizon), nrow = n, ncol = horizon)
+# for(i in 1:n){
+#     for(h in 1:horizon){
+#         for(c in 1:CHAIN){
+#             pred_theta = colMeans(all_samples[[c]]$theta)
+#             sims[,c] = sign(cor(theta[,h],pred_theta[,h]))*all_samples[[c]]$theta[,i,h]
+#         }
+#         theta_rhats[i, h] = Rhat(sims)
+#     }
+# }
 
 samples = all_samples[[1]]
 
@@ -247,19 +248,19 @@ for (i in 1:horizon) {
     cor_theta = c(cor_theta, cor(theta[,i], pred_theta[,i]))
 }
 
-plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,2))
-mask = is.na(data_train[,1,1])
-points(pred_theta[!mask,1], data_train[!mask,1,1])
+# plot(xs[idx],gpirt_iccs[,1,1], ylim=c(1,2))
+# mask = is.na(data_train[,1,1])
+# points(pred_theta[!mask,1], data_train[!mask,1,1])
 
-tmp=rep(0,SAMPLE_ITERS)
-for(it in 1:SAMPLE_ITERS){
-  tmp[it] = samples$beta[[it]][2,1,1]
-}
-plot(1:SAMPLE_ITERS,tmp)
+# tmp=rep(0,SAMPLE_ITERS)
+# for(it in 1:SAMPLE_ITERS){
+#   tmp[it] = samples$beta[[it]][2,1,1]
+# }
+# plot(1:SAMPLE_ITERS,tmp)
 
-print("Average Rhat:")
-print(mean(theta_rhats))
-print(max(theta_rhats))
+# print("Average Rhat:")
+# print(mean(theta_rhats))
+# print(max(theta_rhats))
 print(mean(abs(cor_theta)))
 print(mean(pred_theta_sd))
 print(mean(pred_theta_ll))
@@ -271,5 +272,5 @@ print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
 
 save(gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_ll,pred_theta_sd,train_lls,
-      train_acc, pred_lls, pred_acc,cor_icc, rmse_icc, theta_rhats,
+      train_acc, pred_lls, pred_acc,cor_icc, rmse_icc, # theta_rhats,
       file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
