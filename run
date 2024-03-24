@@ -48,7 +48,7 @@ then
             done
         done
     done
-elif [$1 = "rebuttal" ]
+elif [ $1 = "rebuttal" ]
 then 
     n=100
     SEED=1
