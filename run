@@ -60,7 +60,7 @@ then
         for TYPE in ${TYPES[@]}; do
             for C in ${Cs[@]}; do
                 for CONSTANT_IRF in ${CONSTANT_IRFs[@]}; do
-                    bsub -G SEAS-Lab-Garnett -J "${DATA_TYPE}_${TYPE}_C${C}_CSTIRF${CONSTANT_IRF}_${SEED}" -o "./log/${DATA_TYPE}_${TYPE}_C${C}_CSTIRF${CONSTANT_IRF}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} $DATA_TYPE"
+                    bsub -G SEAS-Lab-Garnett -J "${DATA_TYPE}_${TYPE}_C${C}_CSTIRF${CONSTANT_IRF}_${SEED}" -o "./log/${DATA_TYPE}_${TYPE}_C${C}_CSTIRF${CONSTANT_IRF}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}"
                 done
             done
         done
