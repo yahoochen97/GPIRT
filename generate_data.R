@@ -11,7 +11,7 @@ options(show.error.locations = TRUE)
 if (length(args)==0) {
   SEED = 1
   C = 2
-  n = 10
+  n = 100
   m = 10
   horizon = 10
   TYPE = "GP"
@@ -74,36 +74,39 @@ if(TYPE=="2PL"){
   beta  <- runif(m, -2, 2) # Item discrimination parameters
   data <- gen_responses(theta, alpha, beta, thresholds)
 }
-if(TYPE=="GP"){
-  library(MASS)
-  gen_responses <- function(theta, anchor_xs, anchor_ys, thresholds) {
-    # ordinal regression
-    C <- length(thresholds) - 1
-    n <- nrow(theta)
-    horizon <- ncol(theta)
-    m <- nrow(anchor_xs)
-    NUM_ANCHOR = ncol(anchor_xs)
-    responses <- array(rep(0, n*m*horizon), c(n, m, horizon))
-    for (h in 1:horizon) {
-      for ( j in 1:m ) {
-        K = SEKernel(anchor_xs[j,,h], sigma=SIGMA)
-        K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
-        inv_K = ginv(K)
-        for ( i in 1:n ) {
-          K1 = dnorm(theta[i,h]-anchor_xs[j,,h], sd=SIGMA)/dnorm(0, sd=SIGMA)
-          f = K1 %*% inv_K %*% (anchor_ys[j,,h])
-          ps = rep(0, C)
-          for (c in 1:C) {
-            z1 = thresholds[c] - f
-            z2 = thresholds[c+1] -f
-            ps[c] = pnorm(z2) - pnorm(z1)
-          }
-          responses[i,j,h] <- sample(1:C, 1, prob = ps)
+
+gen_responses <- function(theta, anchor_xs, anchor_ys, thresholds) {
+  # ordinal regression
+  C <- length(thresholds) - 1
+  n <- nrow(theta)
+  horizon <- ncol(theta)
+  m <- nrow(anchor_xs)
+  NUM_ANCHOR = ncol(anchor_xs)
+  responses <- array(rep(0, n*m*horizon), c(n, m, horizon))
+  for (h in 1:horizon) {
+    for ( j in 1:m ) {
+      K = SEKernel(anchor_xs[j,,h], sigma=SIGMA)
+      K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
+      inv_K = ginv(K)
+      for ( i in 1:n ) {
+        K1 = dnorm(theta[i,h]-anchor_xs[j,,h], sd=SIGMA)/dnorm(0, sd=SIGMA)
+        f = K1 %*% inv_K %*% (anchor_ys[j,,h])
+        ps = rep(0, C)
+        for (c in 1:C) {
+          z1 = thresholds[c] - f
+          z2 = thresholds[c+1] -f
+          ps[c] = pnorm(z2) - pnorm(z1)
         }
+        responses[i,j,h] <- sample(1:C, 1, prob = ps)
       }
     }
-    return(responses)
   }
+  return(responses)
+}
+
+if(TYPE=="GP"){
+  library(MASS)
+  
   theta = matrix(0, nrow = n, ncol = horizon)
   if(horizon>1){
     for (i in 1:n) {
@@ -114,6 +117,50 @@ if(TYPE=="GP"){
     }
   }else{
     theta[,1] = rnorm(n)
+  }
+  
+  xs = seq(-5,5,0.01)
+  NUM_ANCHOR = 50
+  anchor_xs <- array(rep(0,m*NUM_ANCHOR,horizon), c(m, NUM_ANCHOR, horizon))
+  anchor_ys <- array(rep(0,m*NUM_ANCHOR,horizon), c(m, NUM_ANCHOR, horizon))
+  
+  for (h in 1:horizon){
+    idx = (as.integer(min(theta)*100+500)):(as.integer(max(theta)*100+500))
+    idx = 301:701
+    for (j in 1:m) {
+      anchor_xs[j,,h] = seq(-2,2, length.out = NUM_ANCHOR) # anchor points
+      K = SEKernel(anchor_xs[j,,h], sigma=SIGMA)
+      K = K + diag(1e-6, NUM_ANCHOR,NUM_ANCHOR)
+      anchor_ys[j,,h]  <- t(chol(K))%*%rnorm(NUM_ANCHOR) 
+      if(CONSTANT_IRF==0){
+        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=0,sd=1)
+      }else{
+        slope = (2*rbinom(1,1,0.5) -1)*rnorm(1, mean=0,sd=1)
+      }
+      anchor_ys[j,,h] = anchor_ys[j,,h] + slope*(anchor_xs[j,,h])
+    }
+  }
+  if(CONSTANT_IRF==1){
+    for (h in 1:horizon){
+      for (j in 1:m){
+        anchor_ys[j,,h] =  anchor_ys[j,,1]
+      }
+    }
+  }
+  data <- gen_responses(theta, anchor_xs, anchor_ys, thresholds)
+}
+
+if(TYPE=="Wiener"){
+  library(MASS)
+  
+  theta = matrix(0, nrow = n, ncol = horizon)
+  theta[,1] = rnorm(n)
+  if(horizon>1){
+    for (i in 1:n) {
+      for (h in 2:horizon){
+        theta[i,h] = theta[i,h-1] + rnorm(1, mean=0, sd=0.1)
+      }
+    }
   }
   
   xs = seq(-5,5,0.01)
@@ -170,6 +217,11 @@ if(TYPE=="2PL"){
        file=paste("./data/", HYP, ".RData" , sep=""))
 }
 if(TYPE=="GP"){
+  save(data,data_train, train_idx,thresholds,theta,NUM_ANCHOR, anchor_xs,anchor_ys,SIGMA,
+       file=paste("./data/", HYP, ".RData" , sep=""))
+}
+
+if(TYPE=="Wiener"){
   save(data,data_train, train_idx,thresholds,theta,NUM_ANCHOR, anchor_xs,anchor_ys,SIGMA,
        file=paste("./data/", HYP, ".RData" , sep=""))
 }
