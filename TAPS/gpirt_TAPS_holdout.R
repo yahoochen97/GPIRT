@@ -1,3 +1,5 @@
+setwd("~/Documents/Github/OrdGPIRT/TAPS")
+
 SAMPLE_ITERS = 500
 BURNOUT_ITERS = 500
 THIN = 4
@@ -20,7 +22,7 @@ if (length(args)==0) {
   SEED = 1
   DROP_RATIO = 10
   TYPE = "Matern"
-  TYPE = "NIRT"
+  TYPE = "LIRT"
 }
 
 if (length(args)==6){
