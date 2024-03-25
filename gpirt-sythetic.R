@@ -21,7 +21,7 @@ if (length(args)==0) {
   horizon = 10
   TYPE = "GP"
   CONSTANT_IRF = 0
-  DATA_TYPE = "GP"
+  DATA_TYPE = "Wiener"
 }
 
 if (length(args)==8){

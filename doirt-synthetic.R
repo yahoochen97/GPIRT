@@ -17,9 +17,9 @@ if (length(args)==0) {
   n = 100
   m = 10
   horizon = 10
-  TYPE = "GP"
+  TYPE = "BRW"
   CONSTANT_IRF = 0
-  DATA_TYPE = "GP"
+  DATA_TYPE = "2PL"
 }
 
 if (length(args)==8){
@@ -42,8 +42,8 @@ print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(DATA_TYPE, "_BRW_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 500
-BURNOUT_ITERS = 500
+SAMPLE_ITERS = 5#00
+BURNOUT_ITERS = 5#00
 
 data_train[is.na(data_train)] = 0
 
