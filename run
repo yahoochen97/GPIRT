@@ -54,7 +54,9 @@ then
     SEED=1
     declare -a TYPES=("GP" "CST" "RDM" "BRW")
     declare -a CONSTANT_IRFs=(0 1)
-    declare -a DATA_TYPES=("2PL")
+    declare -a DATA_TYPES=("2PL" "Wiener")
+    declare -a TYPES=("BRW")
+    declare -a CONSTANT_IRFs=(0)
     
     for DATA_TYPE in ${DATA_TYPES[@]}; do
         for TYPE in ${TYPES[@]}; do

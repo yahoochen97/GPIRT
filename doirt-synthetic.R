@@ -13,7 +13,7 @@ options(show.error.locations = TRUE)
 
 if (length(args)==0) {
   SEED = 1
-  C = 2
+  C = 5
   n = 100
   m = 10
   horizon = 10
@@ -42,8 +42,8 @@ print(HYP)
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(DATA_TYPE, "_BRW_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
-SAMPLE_ITERS = 5#00
-BURNOUT_ITERS = 5#00
+SAMPLE_ITERS = 500
+BURNOUT_ITERS = 500
 
 data_train[is.na(data_train)] = 0
 
@@ -266,5 +266,3 @@ print(mean(array(rmse_icc, n*horizon)))
 save(gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_ll,pred_theta_sd,train_lls,
      train_acc, pred_lls, pred_acc,cor_icc, rmse_icc, # theta_rhats,
      file=paste("./results/gpirt_", HYP, ".RData" , sep=""))
-
-quit()
