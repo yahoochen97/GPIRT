@@ -15,6 +15,10 @@ MAXSEED = 25
 DRS=c(5, 10, 15, 20, 25)
 MODELS = c("DOIRT", "GPIRT")
 
+MAXSEED = 16
+DRS=c(20)
+MODELS = c("NIRT", "LIRT")
+
 TRAIN_ACC = array(rep(0,MAXSEED*length(DRS)*length(MODELS)), 
                   c(length(MODELS),length(DRS),MAXSEED)) 
 TRAIN_LL = array(rep(0,MAXSEED*length(DRS)*length(MODELS)), 
@@ -60,4 +64,5 @@ for(SEED in 1:MAXSEED){
   }
 }
 
-write.csv(RESULTS, "./results/TAPS_holdout_summary.csv")
+# write.csv(RESULTS, "./results/TAPS_holdout_summary.csv")
+write.csv(RESULTS, "./results/TAPS_holdout_summary_rebuttal.csv")
