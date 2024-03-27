@@ -15,7 +15,6 @@ MAXSEED = 25
 DRS=c(5, 10, 15, 20, 25)
 MODELS = c("DOIRT", "GPIRT")
 
-MAXSEED = 16
 DRS=c(20)
 MODELS = c("NIRT", "LIRT")
 
@@ -41,6 +40,8 @@ for(SEED in 1:MAXSEED){
       }else{
         file_name = paste("./results/gpirt_TAPS_holdout_SEED_DR_", DR, "_", SEED, ".RData", sep="")
       }
+
+      if (file.exists(file_name)){
       load(file_name)
       
       TRAIN_ACC[k,i,SEED] = mean(train_acc)
@@ -59,6 +60,7 @@ for(SEED in 1:MAXSEED){
       
       for(h in 1:10){
         RESULTS[nrow(RESULTS)+1,] = list(mean(pred_theta_sd[TRAIN_START_YEAR+h]),"test_sds",MODEL,DR,h,SEED)
+      }
       }
     }
   }

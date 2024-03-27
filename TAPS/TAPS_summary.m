@@ -1,5 +1,6 @@
 addpath("./results");
 file_name = 'TAPS_holdout_summary.csv';
+file_name = 'TAPS_holdout_summary_rebuttal.csv';
 opts = detectImportOptions(file_name);
 results = readtable(file_name);
 METRICS = ["test_acc","test_lls"];
@@ -26,9 +27,12 @@ for k=1:numel(METRICS)
             end
         end
 %         errorbar(1:HORIZON,y,yerr); hold on;
-        errorbar([1,5,10], y(4,[1,5,10]),yerr(4,[1,5,10])); hold on;
-        disp(y(4,[1,5,10]));
-        disp(yerr(4,[1,5,10])/5);
+%         errorbar([1,5,10], y(4,[1,5,10]),yerr(4,[1,5,10])); hold on;
+%         disp(y(4,[1,5,10]));
+%         disp(yerr(4,[1,5,10])/5);
+        errorbar([1,5,10], y(1,[1,5,10]),yerr(1,[1,5,10])); hold on;
+        disp(y(1,[1,5,10]));
+        disp(yerr(1,[1,5,10])/5);
     end
     
 %     xlabel('Congress session','FontSize', 18);
