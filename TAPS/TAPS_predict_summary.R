@@ -40,9 +40,9 @@ for(SEED in 1:MAXSEED){
       }else if(MODEL=="GPIRT"){
         file_name = paste("./results/gpirt_TAPS_holdout_SEED_DR_", DR, "_", SEED, ".RData", sep="")
       }else if(MODEL=="NIRT"){
-        file_name = paste("./results/Nirt_TAPS_holdout_SEED_DR_", DR, "_", SEED, ".RData", sep="")
+        file_name = paste("./results/Nirt_TAPS_holdout_DR_", DR, "_SEED_", SEED, ".RData", sep="")
       }else if(MODEL=="LIRT"){
-        file_name = paste("./results/Lirt_TAPS_holdout_SEED_DR_", DR, "_", SEED, ".RData", sep="")
+        file_name = paste("./results/Lirt_TAPS_holdout_DR_", DR, "_SEED_", SEED, ".RData", sep="")
       }
 
       if (file.exists(file_name)){

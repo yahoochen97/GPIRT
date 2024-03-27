@@ -31,7 +31,6 @@ for k=1:numel(METRICS)
 %         errorbar([1,5,10], y(4,[1,5,10]),yerr(4,[1,5,10])); hold on;
 %         disp(y(4,[1,5,10]));
 %         disp(yerr(4,[1,5,10])/5);
-        errorbar([1,5,10], y(1,[1,5,10]),yerr(1,[1,5,10])); hold on;
         disp(y(1,[1,5,10]));
         disp(yerr(1,[1,5,10])/5);
     end
@@ -41,7 +40,7 @@ for k=1:numel(METRICS)
 %     ylabel(YLABELS(k), 'FontSize', 18);
 %     ylim([-1.0*(3-k),1.0*(3-k)]);
     
-    legend({"DO-IRT","GD-GPIRT"}, 'Location','southeast','FontSize',14, 'NumColumns',1);
+%     legend({"DO-IRT","GD-GPIRT"}, 'Location','southeast','FontSize',14, 'NumColumns',1);
 %     legend boxoff;
 end
     
