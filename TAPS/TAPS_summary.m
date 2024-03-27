@@ -22,8 +22,9 @@ for k=1:numel(METRICS)
         tmp = results(strcmp(results.metric,METRICS(k)) & strcmp(results.model,MODELS(i)),:);
         for j=1:numel(DRS)
             for h=1:HORIZON
-                y(j,h) = mean(tmp.v(tmp.horizon==h & tmp.dropratio==DRS(j),:)); 
-                yerr(j,h) = std(tmp.v(tmp.horizon==h & tmp.dropratio==DRS(j),:));
+                tmp1 = tmp.v(tmp.horizon==h & tmp.dropratio==DRS(j),:);
+                y(j,h) = mean(tmp1(tmp1~=0)); 
+                yerr(j,h) = std(tmp1(tmp1~=0));
             end
         end
 %         errorbar(1:HORIZON,y,yerr); hold on;
