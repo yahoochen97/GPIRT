@@ -28,7 +28,7 @@ then
 elif [ $TYPE = "DSEM" ]
 then
     Rscript --vanilla utils/simulation_DSEM.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
-elif [[ $TYPE == *"_"* ]]
+elif [[ $TYPE =~ "_" ]]
 then
     Rscript --vanilla utils/simulation_MIRT.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
 else
