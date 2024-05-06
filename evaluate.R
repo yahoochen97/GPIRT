@@ -3,14 +3,15 @@ options(show.error.locations = TRUE)
 
 if (length(args)==0) {
   SEED = 1
-  C = 2
-  n = 50
+  C = 5
+  n = 100
   m = 10
-  horizon = 20
-  TYPE = "GP"
-  CONSTANT_IRF = 1
+  horizon = 10
+  TYPE = "DSEM"
+  CONSTANT_IRF = 0
+  DATA_TYPE = "GP"
 }
-if (length(args)==7){
+if (length(args)==8){
   SEED = as.integer(args[1])
   C = as.integer(args[2])
   n = as.integer(args[3])
@@ -18,27 +19,15 @@ if (length(args)==7){
   horizon = as.integer(args[5])
   TYPE = args[6]
   CONSTANT_IRF = as.integer(args[7])
+  DATA_TYPE = args[8]
 }
 
 source("getprob_gpirt.R")
-HYP = paste("GP_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
+HYP = paste(DATA_TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
-MODELS = c("gpirt","grm", "bgrm")
 MODELS = c("gpirt")
-
-# icc -1 to 1
-# idx = 101:301
-# cor_icc = matrix(0, nrow=m, ncol=horizon)
-# rmse_icc = matrix(0, nrow=m, ncol=horizon)
-# 
-# for (h in 1:horizon) {
-#   for (j in 1:m) {
-#     cor_icc[j,h] = cor(gpirt_iccs[idx,j,h], true_iccs[idx,j,h])
-#     rmse_icc[j,h] = sqrt(mean((gpirt_iccs[idx,j,h]-true_iccs[idx,j,h])^2))
-#   }
-# }
 
 results = matrix(0, nrow = 10, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
@@ -47,6 +36,7 @@ for(i in 1:length(MODELS)){
   for (h in 1:horizon) {
     cor_theta = c(cor_theta, cor(theta[,h], pred_theta[,h]))
   }
+  theta_rhats = c(1)
   results[1,i] = mean(abs(cor_theta), na.rm = TRUE)
   results[2,i] = mean(pred_theta_sd[!is.infinite(pred_theta_sd)], na.rm = TRUE)
   results[3,i] = mean(pred_theta_ll[!is.infinite(pred_theta_ll)], na.rm = TRUE)
