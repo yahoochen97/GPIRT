@@ -46,7 +46,7 @@ for(i in 1:length(MODELS)){
         HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
         result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
       }, error = function(cond){
-        HYP = paste(MODELS[1], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
+        HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', 1, sep="")
         result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
       }
     )
