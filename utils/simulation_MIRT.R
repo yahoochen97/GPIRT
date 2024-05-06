@@ -7,7 +7,7 @@ TYPEs = c("graded_uni", "gpcm_uni", "sequential_uni" ,"ggum_uni")
 
 if (length(args)==0) {
   SEED = 1
-  C = 5
+  C = 2
   n = 100
   m = 10
   horizon = 10
@@ -145,12 +145,16 @@ for(i in 1:n){
       tmp = get_latent_f(coefs[j],pred_theta[i,h],coefs[j,2:C])
       
       if( MODEL_NAME=="graded"){
-        tmp = exp(tmp)/sum(exp(tmp))
-        ps = c(1-tmp[1])
-        for(c in 1:(C-2)){
-          ps = c(ps, tmp[c]-tmp[c+1])
+        if(C==2){
+          ps = c(1-pnorm(tmp), pnorm(tmp))
+        } else {
+          tmp = exp(tmp)/sum(exp(tmp))
+          ps = c(1-tmp[1])
+          for(c in 1:(C-2)){
+            ps = c(ps, tmp[c]-tmp[c+1])
+          }
+          ps = as.vector(c(ps, tmp[C-1]))
         }
-        ps = as.vector(c(ps, tmp[C-1]))
       } else if (MODEL_NAME=="gpcm"){
         tmp = c(0, tmp)
         ps = as.vector(exp(tmp)/sum(exp(tmp)))
