@@ -25,6 +25,7 @@ if (length(args)==8){
 MODELS = c("gpirt","grm", "bgrm")
 MODELS = c("GP", "CST", "RDM", "BRW")
 MODELS = c("ggum", "graded", "gpcm", "sequential")
+MODELS = c("DSEM")
 
 cor_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 sd_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
