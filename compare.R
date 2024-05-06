@@ -41,8 +41,15 @@ rmse_iccss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 theta_rhatsss = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
   for (SEED in 1:MAXSEED) {
-    HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
-    result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
+    tryCatch(
+      {
+        HYP = paste(MODELS[i], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
+        result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
+      }, error = function(cond){
+        HYP = paste(MODELS[1], "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
+        result = read.csv(file=paste("./results/", HYP, ".csv" , sep=""))
+      }
+    )
     cor_theta[SEED, i] = result[1,2]
     sd_theta[SEED, i] = result[2,2]
     ll_theta[SEED, i] = result[3,2]
