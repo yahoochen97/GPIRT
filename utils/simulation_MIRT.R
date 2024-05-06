@@ -11,7 +11,7 @@ if (length(args)==0) {
   n = 100
   m = 10
   horizon = 10
-  TYPE = "ggum_uni"
+  TYPE = "graded_uni"
   CONSTANT_IRF = 0
   DATA_TYPE = "GP"
 }
@@ -142,7 +142,7 @@ dim(train_data) = c(n, horizon, m)
 for(i in 1:n){
   for(j in 1:m){
     for(h in 1:horizon){
-      tmp = get_latent_f(coefs[j],pred_theta[i,h]-coefs[j,2],coefs[j,3:(C+1)])
+      tmp = get_latent_f(coefs[j],pred_theta[i,h],coefs[j,2:C])
       
       if( MODEL_NAME=="graded"){
         tmp = exp(tmp)/sum(exp(tmp))
