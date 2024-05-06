@@ -1,8 +1,8 @@
 args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
+# gpirt_path = "~/Documents/Github/OrdGPIRT"
+# setwd(gpirt_path)
 TYPEs = c("graded_uni", "gpcm_uni", "sequential_uni" ,"ggum_uni")
 
 if (length(args)==0) {
