@@ -14,7 +14,7 @@ m=10
 DATA_TYPE="GP"
 declare -a TYPES=("GP" "CST" "RDM" "BRW")
 declare -a CONSTANT_IRFs=(0)
-declare -a TYPES=("DSEM" "graded_uni" "gpcm_uni" "sequential_uni" "ggum_uni")
+declare -a TYPES=("DSEM")
 
 if [ $1 = "run" ]
 then
