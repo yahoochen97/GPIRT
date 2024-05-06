@@ -2,8 +2,8 @@
 args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
-# gpirt_path = "~/Documents/Github/OrdGPIRT"
-# setwd(gpirt_path)
+gpirt_path = "~/Documents/Github/OrdGPIRT"
+setwd(gpirt_path)
 # TYPE = "RDM"
 
 # gpirt_path = "~/Documents/Github/gpirt"
@@ -15,13 +15,13 @@ options(show.error.locations = TRUE)
 
 if (length(args)==0) {
   SEED = 1
-  C = 2
+  C = 5
   n = 100
   m = 10
   horizon = 10
   TYPE = "GP"
   CONSTANT_IRF = 0
-  DATA_TYPE = "Wiener"
+  DATA_TYPE = "2PL"
 }
 
 if (length(args)==8){
@@ -82,6 +82,8 @@ for (h in 2:horizon) {
   theta_init[,h] = theta_init[,1]
 }
 
+theta_init = theta + matrix(0.05*rnorm(n*horizon), nrow=n)
+
 all_samples <- gpirtMCMC(data, SAMPLE_ITERS,BURNOUT_ITERS,
                      THIN=THIN, CHAIN=CHAIN, vote_codes = NULL,
                      beta_prior_means = beta_prior_means,
@@ -128,6 +130,10 @@ for(i in 1:n){
       pred_theta[i,h] = mean(tmp)
       pred_theta_sd[i,h] = sd(tmp)
     }
+}
+
+for (h in 1:horizon){
+  pred_theta[, h] = pred_theta[, h] - mean(pred_theta[, h])
 }
 
 pred_theta_ll = matrix(0, nrow=nrow(data), ncol=dim(data)[3])
@@ -183,7 +189,7 @@ for (i in 1:n) {
                 pred_idx = 1+as.integer((pred_theta[i,h]+5)*100)
                 for (iter in 1:SAMPLE_ITERS) {
                     f_pred = sample_IRFs[[iter]][pred_idx, j, h]
-                    ll = ordinal_lls(f_pred, samples$threshold[iter,])
+                    ll = ordinal_lls(f_pred,samples$threshold[[iter]][j,,h])
                     lls[iter,] = ll
                     y_pred[iter] =  which.max(ll)
                 }
@@ -232,8 +238,12 @@ for (h in 1:horizon) {
         for(iter in 1:SAMPLE_ITERS){
             IRFs[iter, ] = sample_IRFs[[iter]][idx, j, h]
         }
+        thresholds_prob = matrix(0,nrow=SAMPLE_ITERS,ncol=C+1)
+        for(iter in 1:SAMPLE_ITERS){
+          thresholds_prob[iter, ] = samples$threshold[[iter]][j,,h]
+        }
         probs = getprobs_gpirt(xs[idx], t(IRFs), 
-                samples$threshold[1:SAMPLE_ITERS,])
+                               thresholds_prob)
         tmp = probs %>% 
             group_by(xs) %>%
             summarize(icc=sum(order*p))
@@ -263,7 +273,7 @@ for (i in 1:horizon) {
 # print(max(theta_rhats))
 print(mean(abs(cor_theta)))
 print(mean(pred_theta_sd))
-print(mean(pred_theta_ll))
+print(mean(pred_theta_ll[!is.infinite(pred_theta_ll)]))
 print(mean(train_lls[!is.infinite(train_lls)]))
 print(mean(train_acc[!is.infinite(train_lls)]))
 print(mean(pred_lls[!is.infinite(pred_lls)]))

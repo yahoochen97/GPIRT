@@ -11,10 +11,11 @@ declare -a ns=(100)
 # declare -a ms=(10)
 horizon=10
 m=10
+declare -a DATA_TYPES=("GP")
 declare -a TYPES=("GP" "CST" "RDM" "BRW")
-declare -a CONSTANT_IRFs=(0 1)
+declare -a CONSTANT_IRFs=(0)
 declare -a TYPES=("GP")
-declare -a TYPES=("BRW")
+declare -a TYPES=("DSEM" "graded_uni" "gpcm_uni" "sequential_uni" "ggum_uni")
 
 if [ $1 = "run" ]
 then

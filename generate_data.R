@@ -10,11 +10,11 @@ options(show.error.locations = TRUE)
 
 if (length(args)==0) {
   SEED = 1
-  C = 2
+  C = 5
   n = 100
   m = 10
   horizon = 10
-  TYPE = "2PL"
+  TYPE = "GP"
   CONSTANT_IRF = 0
 }
 if (length(args)==7){
