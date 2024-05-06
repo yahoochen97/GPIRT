@@ -2,22 +2,24 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  MAXSEED = 25
-  C = 2
+  SEED = 1
+  C = 5
   n = 100
   m = 10
   horizon = 10
-  TYPE = "GP"
+  TYPE = "DSEM"
   CONSTANT_IRF = 0
+  DATA_TYPE = "GP"
 }
-if (length(args)==7){
-  MAXSEED = as.integer(args[1])
+if (length(args)==8){
+  SEED = as.integer(args[1])
   C = as.integer(args[2])
   n = as.integer(args[3])
   m = as.integer(args[4])
   horizon = as.integer(args[5])
   TYPE = args[6]
   CONSTANT_IRF = as.integer(args[7])
+  DATA_TYPE = args[8]
 }
 
 MODELS = c("gpirt","grm", "bgrm")

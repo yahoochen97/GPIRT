@@ -22,19 +22,19 @@ DATA_TYPE=$8
 
 # Rscript --vanilla generate_data.R $SEED $C $n $m $horizon 'GP' ${CONSTANT_IRF}
 # Rscript --vanilla 2PL.R $SEED $C $n $m $horizon 'GP'
-# if [ $TYPE = "BRW" ]
-# then
-#     Rscript --vanilla doirt-synthetic.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
-# elif [ $TYPE = "DSEM" ]
-# then
-#     Rscript --vanilla utils/simulation_DSEM.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
-# elif [[ $TYPE =~ "_" ]]
-# then
-#     Rscript --vanilla utils/simulation_MIRT.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
-# else
-#     Rscript --vanilla gpirt-sythetic.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
-# fi
+if [ $TYPE = "BRW" ]
+then
+    Rscript --vanilla doirt-synthetic.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
+elif [ $TYPE = "DSEM" ]
+then
+    Rscript --vanilla utils/simulation_DSEM.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
+elif [[ $TYPE =~ "_" ]]
+then
+    Rscript --vanilla utils/simulation_MIRT.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
+else
+    Rscript --vanilla gpirt-sythetic.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
+fi
 # Rscript --vanilla bgrm_logit.R $SEED $C $n $m 'GP'
-Rscript --vanilla evaluate.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
+# Rscript --vanilla evaluate.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
 
 # conda deactivate
