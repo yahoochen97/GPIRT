@@ -36,6 +36,7 @@ then
     done
 elif [ $1 = "compare" ]
 then
+    declare -a TYPES=("DSEM" "graded" "gpcm" "sequential" "ggum")
     for C in ${Cs[@]}; do
         for n in ${ns[@]}; do
             for CONSTANT_IRF in ${CONSTANT_IRFs[@]}; do
@@ -49,7 +50,7 @@ then
                         Rscript --vanilla evaluate.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
                     done
                 done
-                Rscript --vanilla compare.R $MAXSEED $C $n $m $horizon 'GP' ${CONSTANT_IRF}
+                Rscript --vanilla compare.R $MAXSEED $C $n $m $horizon 'GP' ${CONSTANT_IRF} ${DATA_TYPE}
             done
         done
     done
