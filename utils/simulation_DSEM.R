@@ -43,7 +43,7 @@ C = length(unique(array(DSEM_data, c(n*horizon*m))))
 dim(DSEM_data) = c(n*horizon,m)
 dim(train_data) = c(n*horizon,m)
 
-model_data = as.data.frame(train_data)
+model_data = as.data.frame(DSEM_data)
 colnames(model_data) = unlist(lapply(1:m,function(i) paste("y",as.character(i), sep="")))
 
 myModel <- ' 
