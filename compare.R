@@ -2,7 +2,7 @@ args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
 if (length(args)==0) {
-  SEED = 1
+  MAXSEED = 1
   C = 5
   n = 100
   m = 10
@@ -12,7 +12,7 @@ if (length(args)==0) {
   DATA_TYPE = "GP"
 }
 if (length(args)==8){
-  SEED = as.integer(args[1])
+  MAXSEED = as.integer(args[1])
   C = as.integer(args[2])
   n = as.integer(args[3])
   m = as.integer(args[4])
