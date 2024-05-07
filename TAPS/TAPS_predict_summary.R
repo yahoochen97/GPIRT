@@ -65,9 +65,9 @@ for(SEED in 1:MAXSEED){
         RESULTS[nrow(RESULTS)+1,] = list(mean(test_lls[[h]]),"test_lls",MODEL,DR,h,SEED)
       }
       
-      for(h in 1:10){
-        RESULTS[nrow(RESULTS)+1,] = list(mean(pred_theta_sd[TRAIN_START_YEAR+h]),"test_sds",MODEL,DR,h,SEED)
-      }
+      # for(h in 1:10){
+      #   RESULTS[nrow(RESULTS)+1,] = list(mean(pred_theta_sd[TRAIN_START_YEAR+h]),"test_sds",MODEL,DR,h,SEED)
+      # }
       }
     }
   }
