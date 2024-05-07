@@ -23,9 +23,9 @@ then
 elif [ $TYPE = "SEIRT" ]; then
     Rscript --vanilla gpirt_SupremeCourt_holdout.R $TSY $TEY $TY $SEED "RBF"
 elif [ $TYPE = "DSEM" ]; then
-    Rscript --vanilla DSEM_SupremeCourt_holdout.R $TSY $TEY $TY $SEED $TYPE
+    Rscript --vanilla ./utils/DSEM_SupremeCourt_holdout.R $TSY $TEY $TY $SEED $TYPE
 elif [[ $TYPE =~ "_" ]]; then
-    Rscript --vanilla MIRT_SupremeCourt_holdout.R $TSY $TEY $TY $SEED $TYPE
+    Rscript --vanilla ./utils/MIRT_SupremeCourt_holdout.R $TSY $TEY $TY $SEED $TYPE
 else
     Rscript --vanilla doirt_SupremeCourt_holdout.R $TSY $TEY $TY $SEED
 fi

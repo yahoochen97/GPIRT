@@ -24,7 +24,7 @@ R_path="~/R/x86_64-redhat-linux-gnu-library/4.0"
 library(dplyr)
 library(ggplot2)
 library(stats)
-library("lavaan")
+library(lavaan)
 
 # gpirt_path = "~/Documents/Github/OrdGPIRT"
 # setwd(gpirt_path)
