@@ -11,6 +11,7 @@ TY=2020
 MAXSEED=25
 NODE4="node04.engr.wustl.edu"
 declare -a TYPES=("SEIRT" "DOIRT")
+declare -a TYPES=("DSEM" "graded_uni" "gpcm_uni" "sequential_uni" "ggum_uni")
 
 if [[ $1 == "run" ]]
 then
