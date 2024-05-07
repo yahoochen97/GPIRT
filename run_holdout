@@ -25,3 +25,5 @@ elif [[ $1 == "compare" ]]
 then
     Rscript --vanilla compare_holdout.R $TSY $TEY $TY $MAXSEED 'SupremeCourt'
 fi
+
+# scp chenyehu@ssh8.engr.wustl.edu:OrdGPIRT/results/SupremeCourt_holdout.csv ./utils

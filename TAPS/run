@@ -12,6 +12,7 @@ declare -a DRS=(5 10 15 20 25)
 declare -a TYPES=("DOIRT")
 
 declare -a TYPES=("NIRT")
+declare -a TYPES=("DSEM" "graded_uni" "gpcm_uni" "sequential_uni" "ggum_uni")
 declare -a DRS=(20)
 
 if [[ $1 == "run" ]]
