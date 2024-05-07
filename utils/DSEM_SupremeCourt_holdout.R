@@ -135,7 +135,7 @@ if(TYPE=="DSEM"){
   file_name = paste("./results/DSEM_SupremeCourt_holdout_SEED_", SEED, ".RData" , sep="")
 }
 
-save(gpirt_data_train, gpirt_data, pred_theta,pred_theta_sd,train_lls,
+save(gpirt_data_train, gpirt_data, pred_theta,train_lls,
      train_acc, train_response, train_prediction,test_lls,
      test_acc, test_response, test_prediction,
      file=file_name)
