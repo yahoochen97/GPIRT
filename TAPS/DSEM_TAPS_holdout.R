@@ -127,7 +127,8 @@ train_prediction = round(train_prediction, digits = 0)
 
 train_acc = train_prediction==train_response
 
-file_name = paste("./results/DSEM_TAPS_holdout_SEED_", "DR_", DROP_RATIO, "_", SEED, ".RData" , sep="")
+file_name = paste("./results/DSEM_TAPS_holdout_", "DR_", DROP_RATIO, "_SEED_", SEED, ".RData" , sep="")
+
 
 save(gpirt_data_train, gpirt_data, pred_theta,train_lls,
      train_acc, train_response, train_prediction,test_lls,

@@ -212,7 +212,7 @@ for(h in (TRAIN_END_YEAR+1):horizon) {
 
 train_acc = train_prediction==train_response
 
-file_name = paste("./results/", MODEL_NAME, "_TAPS_holdout_SEED_", "DR_", DROP_RATIO, "_", SEED, ".RData" , sep="")
+file_name = paste("./results/", MODEL_NAME, "_TAPS_holdout_", "DR_", DROP_RATIO, "_SEED_", SEED, ".RData" , sep="")
 
 save(gpirt_data_train, gpirt_data, pred_theta,train_lls,
      train_acc, train_response, train_prediction,test_lls,
