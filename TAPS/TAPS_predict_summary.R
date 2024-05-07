@@ -17,6 +17,7 @@ MODELS = c("DOIRT", "GPIRT")
 
 DRS=c(20)
 MODELS = c("NIRT", "LIRT")
+MODELS = c("ggum", "graded", "gpcm", "DSEM", "sequential")
 
 TRAIN_ACC = array(rep(0,MAXSEED*length(DRS)*length(MODELS)), 
                   c(length(MODELS),length(DRS),MAXSEED)) 
@@ -43,6 +44,8 @@ for(SEED in 1:MAXSEED){
         file_name = paste("./results/Nirt_TAPS_holdout_DR_", DR, "_SEED_", SEED, ".RData", sep="")
       }else if(MODEL=="LIRT"){
         file_name = paste("./results/Lirt_TAPS_holdout_DR_", DR, "_SEED_", SEED, ".RData", sep="")
+      } else {
+        file_name = paste("./results/", MODEL,"_TAPS_holdout_DR_", DR, "_SEED_", SEED, ".RData", sep="")
       }
 
       if (file.exists(file_name)){
