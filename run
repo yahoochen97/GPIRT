@@ -45,7 +45,8 @@ then
                 #         Rscript --vanilla evaluate.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
                 #     done
                 # done
-                Rscript --vanilla compare.R $MAXSEED $C $n $m $horizon 'GP' ${CONSTANT_IRF} ${DATA_TYPE}
+                # Rscript --vanilla compare.R $MAXSEED $C $n $m $horizon 'GP' ${CONSTANT_IRF} ${DATA_TYPE}
+                Rscript --vanilla compare.R $MAXSEED $C $n $m $horizon 'GPDM' ${CONSTANT_IRF} ${DATA_TYPE}
             done
         done
     done
