@@ -13,8 +13,8 @@ horizon=10
 m=10
 DATA_TYPE="GP"
 declare -a TYPES=("GP" "CST" "RDM" "BRW")
-declare -a CONSTANT_IRFs=(0)
-declare -a TYPES=("DSEM")
+declare -a CONSTANT_IRFs=(1)
+declare -a TYPES=("GP")
 
 if [ $1 = "run" ]
 then
@@ -23,11 +23,6 @@ then
             for C in ${Cs[@]}; do
                 for n in ${ns[@]}; do
                     for CONSTANT_IRF in ${CONSTANT_IRFs[@]}; do
-                        # if [ $m -eq 10 ]; then
-                        #     CONSTANT_IRF=1
-                        # else
-                        #     CONSTANT_IRF=0
-                        # fi
                         bsub -G SEAS-Lab-Garnett -J "${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}" -o "./log/${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}"
                     done
                 done

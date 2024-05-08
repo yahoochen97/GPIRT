@@ -12,10 +12,11 @@ HORIZON = max(results.horizon);
 
 fig = figure(1);
 tiledlayout(1,numel(METRICS),'Padding', 'none', 'TileSpacing', 'compact');   
-for k=1:numel(METRICS)
-    nexttile;
-    disp(METRICS(k))
-    for i=1:numel(MODELS)
+
+for i=1:numel(MODELS)
+    for k=1:numel(METRICS)
+%     nexttile;
+    disp(METRICS(k));
         disp(MODELS(i));
         y = zeros(numel(DRS),HORIZON);
         yerr = zeros(numel(DRS),HORIZON);

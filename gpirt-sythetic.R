@@ -20,8 +20,8 @@ if (length(args)==0) {
   m = 10
   horizon = 10
   TYPE = "GP"
-  CONSTANT_IRF = 0
-  DATA_TYPE = "2PL"
+  CONSTANT_IRF = 1
+  DATA_TYPE = "GP"
 }
 
 if (length(args)==8){
@@ -53,8 +53,9 @@ library(stats)
 source("getprob_gpirt.R")
 HYP = paste(DATA_TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 print(HYP)
+HYP = paste(DATA_TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_0_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
-HYP = paste(DATA_TYPE, "_", TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
+
 
 SAMPLE_ITERS = 500
 BURNOUT_ITERS = 500
@@ -280,6 +281,15 @@ print(mean(pred_lls[!is.infinite(pred_lls)]))
 print(mean(pred_acc[!is.infinite(pred_lls)]))
 print(mean(array(abs(cor_icc), n*horizon)))
 print(mean(array(rmse_icc, n*horizon)))
+
+if(CONSTANT_IRF==1){
+  if(TYPE=="GP"){
+    TYPE="GPDM"
+    CONSTANT_IRF=0
+  }
+}
+HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
+
 
 save(gpirt_iccs, true_iccs, theta, pred_theta,pred_theta_ll,pred_theta_sd,train_lls,
       train_acc, pred_lls, pred_acc,cor_icc, rmse_icc, # theta_rhats,
