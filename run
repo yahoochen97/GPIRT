@@ -31,7 +31,7 @@ then
     done
 elif [ $1 = "compare" ]
 then
-    declare -a TYPES=("GPDM")
+    declare -a TYPES=("GP")
     for C in ${Cs[@]}; do
         for n in ${ns[@]}; do
             for CONSTANT_IRF in ${CONSTANT_IRFs[@]}; do
