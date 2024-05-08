@@ -27,6 +27,10 @@ MODELS = c("GP", "CST", "RDM", "BRW")
 MODELS = c("ggum", "graded", "gpcm", "sequential")
 MODELS = c("GPDM")
 
+if(TYPE=="GPDM"){
+  CONSTANT_IRF = 0
+}
+
 cor_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 sd_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
 ll_theta = matrix(0, nrow = MAXSEED, ncol = length(MODELS))
