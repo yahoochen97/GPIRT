@@ -31,7 +31,7 @@ MODELS = c("gpirt")
 
 results = matrix(0, nrow = 10, ncol = length(MODELS))
 for(i in 1:length(MODELS)){
-  load(file=paste("./results/gpirt_", MODELS[i], "_", HYP, ".RData" , sep=""))
+  load(file=paste("./results/", MODELS[i], "_", HYP, ".RData" , sep=""))
   cor_theta = c()
   for (h in 1:horizon) {
     cor_theta = c(cor_theta, cor(theta[,h], pred_theta[,h]))
