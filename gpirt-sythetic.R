@@ -2,8 +2,8 @@
 args = commandArgs(trailingOnly=TRUE)
 options(show.error.locations = TRUE)
 
-gpirt_path = "~/Documents/Github/OrdGPIRT"
-setwd(gpirt_path)
+# gpirt_path = "~/Documents/Github/OrdGPIRT"
+# setwd(gpirt_path)
 # TYPE = "RDM"
 
 # gpirt_path = "~/Documents/Github/gpirt"
