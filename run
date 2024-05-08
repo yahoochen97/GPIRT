@@ -23,7 +23,7 @@ then
             for C in ${Cs[@]}; do
                 for n in ${ns[@]}; do
                     for CONSTANT_IRF in ${CONSTANT_IRFs[@]}; do
-                        bsub -G SEAS-Lab-Garnett -J "${TYPE}_${SEED}" -o "./log/${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}"
+                        bsub -G SEAS-Lab-0Garnett -J "${TYPE}_${SEED}" -o "./log/${TYPE}_C${C}n${n}m${m}h${horizon}_${SEED}.log" "./onerun $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}"
                     done
                 done
             done
@@ -31,7 +31,7 @@ then
     done
 elif [ $1 = "compare" ]
 then
-    declare -a TYPES=("DSEM" "graded" "gpcm" "sequential" "ggum")
+    declare -a TYPES=("GPDM")
     for C in ${Cs[@]}; do
         for n in ${ns[@]}; do
             for CONSTANT_IRF in ${CONSTANT_IRFs[@]}; do
@@ -40,11 +40,11 @@ then
                 # else
                 #     CONSTANT_IRF=0
                 # fi
-                # for SEED in $(seq 1 1 $MAXSEED); do
-                #     for TYPE in ${TYPES[@]}; do
-                #         Rscript --vanilla evaluate.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
-                #     done
-                # done
+                for SEED in $(seq 1 1 $MAXSEED); do
+                    for TYPE in ${TYPES[@]}; do
+                        Rscript --vanilla evaluate.R $SEED $C $n $m $horizon ${TYPE} ${CONSTANT_IRF} ${DATA_TYPE}
+                    done
+                done
                 Rscript --vanilla compare.R $MAXSEED $C $n $m $horizon 'GP' ${CONSTANT_IRF} ${DATA_TYPE}
             done
         done
