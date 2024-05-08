@@ -27,6 +27,8 @@ elif [ $TYPE = "NIRT" ]; then
     Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "NIRT"
 elif [ $TYPE = "LIRT" ]; then
     Rscript --vanilla gpirt_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "LIRT"
+elif [ $TYPE = "GPDM" ]; then
+    Rscript --vanilla GPDM_TAPS_holdout.R $TSY $TEY $TY $SEED $DR "GPDM"
 elif [ $TYPE = "DSEM" ]; then
     Rscript --vanilla DSEM_TAPS_holdout.R $TSY $TEY $TY $SEED $DR $TYPE
 elif [[ $TYPE =~ "_" ]]; then

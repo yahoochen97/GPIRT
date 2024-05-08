@@ -98,11 +98,13 @@ BURNOUT_ITERS = 100
 SEED = 1
 THIN = 1
 CHAIN = 1
-beta_prior_sds =  matrix(1.0, nrow = 2, ncol = ncol(rollcall_data))
-beta_proposal_sds =  matrix(0.1, nrow = 2, ncol = ncol(rollcall_data))
+# beta_prior_sds =  matrix(1.0, nrow = 3, ncol = ncol(rollcall_data))
+# beta_proposal_sds =  matrix(0.1, nrow = 3, ncol = ncol(rollcall_data))
+beta_prior_means = matrix(0, nrow = 3, ncol = m)
+beta_prior_sds =  matrix(1.0, nrow = 3, ncol = m)
 samples <- gpirtMCMC(rollcall_data, SAMPLE_ITERS,BURNOUT_ITERS,
-                     THIN, CHAIN, beta_prior_sds = beta_prior_sds,theta_init = theta_init,
-                     beta_proposal_sds = beta_proposal_sds, theta_os = theta_os,
+                     THIN, CHAIN, beta_prior_means = beta_prior_means,theta_init = theta_init,
+                     beta_prior_sds = beta_prior_sds, theta_os = theta_os,
                      theta_ls = theta_ls, vote_codes = NULL, thresholds=NULL,
                      SEED=SEED, constant_IRF = 0)
 
@@ -123,15 +125,6 @@ for(h in 1:horizon){
   for (j in 1:length(senator_ids)) {
     i = idx[j]
     tmp = samples$theta[-1,i,h]
-    # if(sd(tmp)<1){
-    #   # drop wrong sign
-    #   # drop_wrong_sign = (sign(cor(nominate_scores[,1],colMeans(samples$theta)[idx,h]))*tmp*nominate_scores[j,1]<0)
-    #   # tmp = tmp[drop_wrong_sign==0]
-    #   if(is.na(mean(tmp))){
-    #     tmp = samples$theta[-1,i,h]
-    #   }
-    # }
-    
     pred_theta[i,h] = mean(tmp)
     pred_theta_sd[i,h] = sd(tmp)
   }
@@ -155,8 +148,6 @@ for(h in 1:length(congresses)){
     idx = c(idx, which(icpsr==all_senator_ids))
   }
   
-  # pred_theta[idx,h] = sign(cor(pred_theta[idx, h],nominate_scores[,1]))*pred_theta[idx,h]
-  # pred_theta[idx,h] = (pred_theta[idx,h] - mean(pred_theta[idx,h]))
   cor_theta_1 = c(cor_theta_1, cor(pred_theta[idx, h],nominate_scores[,1]))
   plot(pred_theta[idx,h], nominate_scores[,1])
   pred_theta_ll[idx,h] = log(dnorm(nominate_scores[,1],mean=pred_theta[idx,h],sd=pred_theta_sd[idx,h]))
