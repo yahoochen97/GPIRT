@@ -25,6 +25,11 @@ if (length(args)==8){
 source("getprob_gpirt.R")
 HYP = paste(DATA_TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 load(file=paste("./data/", HYP, ".RData" , sep=""))
+
+if(TYPE=="GPDM"){
+  CONSTANT_IRF = 0
+}
+
 HYP = paste(TYPE, "_C_", C, '_n_', n, '_m_', m, '_h_', horizon,'_CSTIRF_', CONSTANT_IRF , '_SEED_', SEED, sep="")
 
 MODELS = c("gpirt")
