@@ -396,7 +396,11 @@ for(h in 1:horizon) {
       # tmp = sign(cor(samples$fstar[[iter]][, j, h],samples$fstar[[1]][, j, h]))
       IRFs[iter, ] = samples$fstar[[iter]][, j, h]# *tmp
     }
-    probs = getprobs_gpirt(xs, t(IRFs), samples$threshold)
+    thresholds = matrix(0,nrow=SAMPLE_ITERS,ncol=C+1)
+    for(iter in 1:SAMPLE_ITERS){
+      thresholds[iter, ] = samples$threshold[[iter]][j,,h]
+    }
+    probs = getprobs_gpirt(xs, t(IRFs), thresholds)
     for (i in 1:n) {
       if(!is.na(rollcall_data[[i,j,h]])  & !is.na(nominate_theta[i,h]) ){
         # GP-IRT

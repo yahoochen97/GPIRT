@@ -249,7 +249,9 @@ results = data.frame(train_lls,
                      train_acc,
                      train_response,
                      train_prediction)
+library(pROC)
 
+print(auc(train_response, train_prediction))
 write.csv(results, "./results/gpirt_TAPS_2014_train.csv")
 
 save.image(file='gpirt_TAPS_2014.RData')

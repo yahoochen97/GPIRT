@@ -18,6 +18,7 @@ MODELS = c("DOIRT", "GPIRT")
 DRS=c(20)
 MODELS = c("NIRT", "LIRT")
 MODELS = c("ggum", "graded", "gpcm", "DSEM", "sequential")
+MODELS = c("GPDM")
 
 TRAIN_ACC = array(rep(0,MAXSEED*length(DRS)*length(MODELS)), 
                   c(length(MODELS),length(DRS),MAXSEED)) 

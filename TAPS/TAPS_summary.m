@@ -1,6 +1,6 @@
 addpath("./results");
 file_name = 'TAPS_holdout_summary.csv';
-file_name = 'TAPS_holdout_summary_rebuttal.csv';
+% file_name = 'TAPS_holdout_summary_rebuttal.csv';
 opts = detectImportOptions(file_name);
 results = readtable(file_name);
 METRICS = ["test_acc","test_lls"];
@@ -51,3 +51,28 @@ end
 % filename = "./results/abortion_dynamic.pdf";
 % print(fig, filename, '-dpdf','-r300','-fillpage');
 % close;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+METRICS = ["train_acc","train_lls"];
+MODELS = unique(results.model);
+DRS = unique(results.dropratio);
+HORIZON = max(results.horizon);
+
+for i=1:numel(MODELS)
+    for k=1:numel(METRICS)
+        disp(METRICS(k));
+        disp(MODELS(i));
+        y = zeros(numel(DRS),HORIZON);
+        yerr = zeros(numel(DRS),HORIZON);
+        tmp = results(strcmp(results.metric,METRICS(k)) & strcmp(results.model,MODELS(i)),:);
+        for j=1:numel(DRS)
+            h = 0;
+            tmp1 = tmp.v(tmp.horizon==h & tmp.dropratio==DRS(j),:);
+        end
+        disp( mean(tmp1(tmp1~=0)));
+%         disp( std(tmp1(tmp1~=0)/5));
+    end
+    
+end
