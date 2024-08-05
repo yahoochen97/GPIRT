@@ -12,7 +12,7 @@ results = np.zeros((len(MODEL), MAX_SEED))
 
 for SEED in range(1, MAX_SEED + 1):
     for i in range(len(MODEL)):
-        loading_file = RESULT_PATH + "{}_20_{}.log".format(MODEL[i],SEED)
+        loading_file = RESULT_PATH + "{}20_{}.log".format(MODEL[i],SEED)
 
         with open(loading_file) as f:
             data = f.readlines()
